@@ -1,0 +1,33 @@
+﻿<Window x:Class="PixelArtTool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PixelArtTool"
+        mc:Ignorable="d"
+        Title="PixelArtTool" Height="412.222" Width="739.444" Background="#FF252526">
+	<Grid>
+		<ToolBarTray Background="White" Height="36" VerticalAlignment="Top">
+			<ToolBar Band="1" BandIndex="1">
+				<RadioButton GroupName="Toolbar" Style="{StaticResource {x:Type ToggleButton}}">
+					<Image Source="/Resources/drawmode.png" />
+				</RadioButton>
+				<RadioButton GroupName="Toolbar" Style="{StaticResource {x:Type ToggleButton}}">
+					<Image Source="/Resources/drawmode.png" />
+				</RadioButton>
+				<RadioButton GroupName="Toolbar" Style="{StaticResource {x:Type ToggleButton}}">
+					<Image Source="/Resources/drawmode.png" />
+				</RadioButton>
+			</ToolBar>
+
+			<ToolBar Band="1" BandIndex="1">
+				<RadioButton GroupName="Toolbar2" Style="{StaticResource {x:Type ToggleButton}}">
+					<Image Source="/Resources/drawmode.png" />
+				</RadioButton>
+				<RadioButton GroupName="Toolbar2" Style="{StaticResource {x:Type ToggleButton}}">
+					<Image Source="/Resources/drawmode.png" />
+				</RadioButton>
+			</ToolBar>
+		</ToolBarTray>
+	</Grid>
+</Window>
