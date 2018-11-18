@@ -25,11 +25,13 @@ namespace PixelArtTool
         static WriteableBitmap writeableBitmap;
         static Window w;
         static Image i;
-        static int width = 0;
-        static int height = 0;
+        static int resolutionX = 16;
+        static int resolutionY = 16;
 
         static int prevX;
         static int prevY;
+
+        static int scale = 1;
 
         public MainWindow()
         {
@@ -44,21 +46,15 @@ namespace PixelArtTool
             RenderOptions.SetEdgeMode(i, EdgeMode.Aliased);
 
             w = (MainWindow)Application.Current.MainWindow;
-            //w.Content = i;
-            //w.Show();
 
             var dpiX = 96;
             var dpiY = 96;
-            width = (int)i.Width;
-            height = (int)i.Height;
 
-            writeableBitmap = new WriteableBitmap(width, height, dpiX, dpiY, PixelFormats.Bgr32, null);
+            scale = (int)i.Width / resolutionX;
+
+            writeableBitmap = new WriteableBitmap(resolutionX, resolutionY, dpiX, dpiY, PixelFormats.Bgr32, null);
 
             i.Source = writeableBitmap;
-
-            i.Stretch = Stretch.None;
-            i.HorizontalAlignment = HorizontalAlignment.Left;
-            i.VerticalAlignment = VerticalAlignment.Top;
 
             i.MouseMove += new MouseEventHandler(i_MouseMove);
             i.MouseLeftButtonDown += new MouseButtonEventHandler(i_MouseLeftButtonDown);
@@ -71,11 +67,11 @@ namespace PixelArtTool
         // unsafe code to write a pixel into the back buffer.
         static void DrawPixel(MouseEventArgs e)
         {
-            int x = (int)e.GetPosition(i).X;
-            int y = (int)e.GetPosition(i).Y;
+            int x = (int)(e.GetPosition(i).X / scale);
+            int y = (int)(e.GetPosition(i).Y / scale);
 
-            if (x < 0 || x > width - 1) return;
-            if (y < 0 || y > height - 1) return;
+            if (x < 0 || x > resolutionX - 1) return;
+            if (y < 0 || y > resolutionY - 1) return;
 
             try
             {
@@ -93,8 +89,8 @@ namespace PixelArtTool
 
                     // Compute the pixel's color.
                     int color_data = 255 << 16; // R
-                    color_data |= 128 << 8;   // G
-                    color_data |= 255 << 0;   // B
+                    color_data |= 0 << 8;   // G
+                    color_data |= 0 << 0;   // B
 
                     // Assign the color data to the pixel.
                     *((int*)pBackBuffer) = color_data;
@@ -151,6 +147,7 @@ namespace PixelArtTool
 
         static void w_MouseWheel(object sender, MouseWheelEventArgs e)
         {
+            /*
             System.Windows.Media.Matrix m = i.RenderTransform.Value;
 
             if (e.Delta > 0)
@@ -171,6 +168,7 @@ namespace PixelArtTool
             }
 
             i.RenderTransform = new MatrixTransform(m);
+            */
         }
 
     }

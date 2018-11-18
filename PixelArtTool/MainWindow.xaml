@@ -29,6 +29,6 @@
 				</RadioButton>
 			</ToolBar>
 		</ToolBarTray>
-		<Image x:Name="canvas" HorizontalAlignment="Left" Height="314" Margin="0,41,0,0" VerticalAlignment="Top" Width="320" Stretch="None"/>
+		<Image x:Name="canvas" HorizontalAlignment="Left" Height="256" Margin="10,50,0,0" VerticalAlignment="Top" Width="256" Stretch="Fill"/>
 	</Grid>
 </Window>
