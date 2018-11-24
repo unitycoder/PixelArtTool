@@ -120,5 +120,8 @@
   <ItemGroup>
     <Resource Include="Resources\drawmode.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Palettes\aap-64-1x.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
