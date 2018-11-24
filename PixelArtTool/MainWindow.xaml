@@ -30,5 +30,10 @@
 			</ToolBar>
 		</ToolBarTray>
 		<Image x:Name="canvas" HorizontalAlignment="Left" Height="256" Margin="10,50,0,0" VerticalAlignment="Top" Width="256" Stretch="Fill"/>
+		<StatusBar Height="30" Margin="0,281,0,0" VerticalAlignment="Bottom">
+			<StatusBarItem Height="30" VerticalAlignment="Center">
+				<Label x:Name="lblMousePos" Content="Label"/>
+			</StatusBarItem>
+		</StatusBar>
 	</Grid>
 </Window>

@@ -22,16 +22,16 @@ namespace PixelArtTool
     /// </summary>
     public partial class MainWindow : Window
     {
-        static WriteableBitmap writeableBitmap;
-        static Window w;
-        static Image i;
-        static int resolutionX = 16;
-        static int resolutionY = 16;
+        WriteableBitmap writeableBitmap;
+        Window w;
+        Image i;
+        int resolutionX = 16;
+        int resolutionY = 16;
 
-        static int prevX;
-        static int prevY;
+        int prevX;
+        int prevY;
 
-        static int scale = 1;
+        int scale = 1;
 
         public MainWindow()
         {
@@ -65,7 +65,7 @@ namespace PixelArtTool
         // https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.writeablebitmap?redirectedfrom=MSDN&view=netframework-4.7.2
         // The DrawPixel method updates the WriteableBitmap by using
         // unsafe code to write a pixel into the back buffer.
-        static void DrawPixel(MouseEventArgs e)
+        void DrawPixel(MouseEventArgs e)
         {
             int x = (int)(e.GetPosition(i).X / scale);
             int y = (int)(e.GetPosition(i).Y / scale);
@@ -110,30 +110,30 @@ namespace PixelArtTool
 
         }
 
-        static void ErasePixel(MouseEventArgs e)
+        void ErasePixel(MouseEventArgs e)
         {
             byte[] ColorData = { 0, 0, 0, 0 }; // B G R
 
-            Int32Rect rect = new Int32Rect(
-                    (int)(e.GetPosition(i).X),
-                    (int)(e.GetPosition(i).Y),
-                    1,
-                    1);
+            int x = (int)(e.GetPosition(i).X / scale);
+            int y = (int)(e.GetPosition(i).Y / scale);
+            if (x < 0 || x > resolutionX - 1) return;
+            if (y < 0 || y > resolutionY - 1) return;
 
+            Int32Rect rect = new Int32Rect(x,y, 1, 1);
             writeableBitmap.WritePixels(rect, ColorData, 4, 0);
         }
 
-        static void i_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        void i_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             ErasePixel(e);
         }
 
-        static void i_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        void i_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             DrawPixel(e);
         }
 
-        static void i_MouseMove(object sender, MouseEventArgs e)
+        void i_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
@@ -143,9 +143,13 @@ namespace PixelArtTool
             {
                 ErasePixel(e);
             }
+            // update mousepos
+            int x = (int)(e.GetPosition(i).X / scale);
+            int y = (int)(e.GetPosition(i).Y / scale);
+            lblMousePos.Content = x + "," + y;
         }
 
-        static void w_MouseWheel(object sender, MouseWheelEventArgs e)
+        void w_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             /*
             System.Windows.Media.Matrix m = i.RenderTransform.Value;
