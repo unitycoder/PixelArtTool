@@ -23,16 +23,23 @@ namespace PixelArtTool
     /// </summary>
     public partial class MainWindow : Window
     {
-        WriteableBitmap writeableBitmap;
+        WriteableBitmap canvasBitmap;
+        WriteableBitmap paletteBitmap;
         Window w;
-        Image i;
-        int resolutionX = 16;
-        int resolutionY = 16;
+        Image drawingImage;
+        Image paletteImage;
+        int canvasResolutionX = 16;
+        int canvasResolutionY = 16;
+
+        int paletteResolutionX = 4;
+        int paletteResolutionY = 16;
 
         int prevX;
         int prevY;
 
-        int scale = 1;
+        int canvasScaleX = 1;
+        int paletteScaleX = 1;
+        int paletteScaleY = 1;
 
         public MainWindow()
         {
@@ -42,26 +49,41 @@ namespace PixelArtTool
 
         void Start()
         {
-            i = canvas;
-            RenderOptions.SetBitmapScalingMode(i, BitmapScalingMode.NearestNeighbor);
-            RenderOptions.SetEdgeMode(i, EdgeMode.Aliased);
-
+            // build drawing area
+            drawingImage = imgCanvas;
+            RenderOptions.SetBitmapScalingMode(drawingImage, BitmapScalingMode.NearestNeighbor);
+            RenderOptions.SetEdgeMode(drawingImage, EdgeMode.Aliased);
             w = (MainWindow)Application.Current.MainWindow;
-
             var dpiX = 96;
             var dpiY = 96;
+            canvasScaleX = (int)drawingImage.Width / canvasResolutionX;
+            canvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgr32, null);
+            drawingImage.Source = canvasBitmap;
 
-            scale = (int)i.Width / resolutionX;
+            // drawing events
+            drawingImage.MouseMove += new MouseEventHandler(DrawingMouseMove);
+            drawingImage.MouseLeftButtonDown += new MouseButtonEventHandler(DrawingLeftButtonDown);
+            drawingImage.MouseRightButtonDown += new MouseButtonEventHandler(DrawingRightButtonDown);
+            w.MouseWheel += new MouseWheelEventHandler(drawingMouseWheel);
 
-            writeableBitmap = new WriteableBitmap(resolutionX, resolutionY, dpiX, dpiY, PixelFormats.Bgr32, null);
+            // build palette
+            paletteImage = imgPalette;
+            RenderOptions.SetBitmapScalingMode(paletteImage, BitmapScalingMode.NearestNeighbor);
+            RenderOptions.SetEdgeMode(paletteImage, EdgeMode.Aliased);
+            w = (MainWindow)Application.Current.MainWindow;
+            dpiX = 96;
+            dpiY = 96;
+            paletteScaleX = (int)paletteImage.Width / paletteResolutionX;
+            paletteScaleY = (int)paletteImage.Height / paletteResolutionY;
+            paletteBitmap = new WriteableBitmap(paletteResolutionX, paletteResolutionY, dpiX, dpiY, PixelFormats.Bgr32, null);
+            paletteImage.Source = paletteBitmap;
 
-            i.Source = writeableBitmap;
+            // palette events
+            paletteImage.MouseLeftButtonDown += new MouseButtonEventHandler(PaletteLeftButtonDown);
+            //paletteImage.MouseRightButtonDown += new MouseButtonEventHandler(PaletteRightButtonDown);
 
-            i.MouseMove += new MouseEventHandler(i_MouseMove);
-            i.MouseLeftButtonDown += new MouseButtonEventHandler(i_MouseLeftButtonDown);
-            i.MouseRightButtonDown += new MouseButtonEventHandler(i_MouseRightButtonDown);
-            w.MouseWheel += new MouseWheelEventHandler(w_MouseWheel);
 
+            // init
             LoadPalette();
         }
 
@@ -81,16 +103,61 @@ namespace PixelArtTool
             palette = new PixelColor[width * height];
 
             int index = 0;
-            for (int y = 0; y < height; y++)
+            int x = 0;
+            int y = 0;
+            for (y = 0; y < height; y++)
             {
-                for (int x = 0; x < width; x++)
+                for (x = 0; x < width; x++)
                 {
+                    Console.WriteLine(x+","+y);
                     var c = pixels[x, y];
                     //                    Console.WriteLine(c.Red + "," + c.Green + "," + c.Blue);
                     palette[index++] = c;
                 }
             }
 
+            // put pixels on palette canvas
+
+            x = y = 0;
+            for (int i = 0, len = palette.Length; i < len; i++)
+            {
+                SetPixel(paletteBitmap, x, y, (int)palette[i].ColorBGRA);
+                x = i % paletteResolutionX;
+                y = (i % len) / paletteResolutionX;
+            }
+
+
+        }
+
+
+        void SetPixel(WriteableBitmap bitmap, int x, int y, int color)
+        {
+            try
+            {
+                // Reserve the back buffer for updates.
+                bitmap.Lock();
+
+                unsafe
+                {
+                    // Get a pointer to the back buffer.
+                    int pBackBuffer = (int)bitmap.BackBuffer;
+
+                    // Find the address of the pixel to draw.
+                    pBackBuffer += y * bitmap.BackBufferStride;
+                    pBackBuffer += x * 4;
+
+                    // Assign the color data to the pixel.
+                    *((int*)pBackBuffer) = color;
+                }
+
+                // Specify the area of the bitmap that changed.
+                bitmap.AddDirtyRect(new Int32Rect(x, y, 1, 1));
+            }
+            finally
+            {
+                // Release the back buffer and make it available for display.
+                bitmap.Unlock();
+            }
         }
 
         // https://stackoverflow.com/a/1740553/5452781
@@ -139,43 +206,15 @@ namespace PixelArtTool
         // unsafe code to write a pixel into the back buffer.
         void DrawPixel(MouseEventArgs e)
         {
-            int x = (int)(e.GetPosition(i).X / scale);
-            int y = (int)(e.GetPosition(i).Y / scale);
+           
+            int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
+            int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
+            if (x < 0 || x > canvasResolutionX - 1) return;
+            if (y < 0 || y > canvasResolutionY - 1) return;
 
-            if (x < 0 || x > resolutionX - 1) return;
-            if (y < 0 || y > resolutionY - 1) return;
+            //currentColorIndex = ++currentColorIndex % palette.Length;
 
-            try
-            {
-                // Reserve the back buffer for updates.
-                writeableBitmap.Lock();
-
-                unsafe
-                {
-                    // Get a pointer to the back buffer.
-                    int pBackBuffer = (int)writeableBitmap.BackBuffer;
-
-                    // Find the address of the pixel to draw.
-                    pBackBuffer += y * writeableBitmap.BackBufferStride;
-                    pBackBuffer += x * 4;
-
-                    // test
-                    currentColorIndex = ++currentColorIndex % palette.Length;
-
-                    int color_data = (int)palette[currentColorIndex].ColorBGRA;
-
-                    // Assign the color data to the pixel.
-                    *((int*)pBackBuffer) = color_data;
-                }
-
-                // Specify the area of the bitmap that changed.
-                writeableBitmap.AddDirtyRect(new Int32Rect(x, y, 1, 1));
-            }
-            finally
-            {
-                // Release the back buffer and make it available for display.
-                writeableBitmap.Unlock();
-            }
+            SetPixel(canvasBitmap, x, y, (int)palette[currentColorIndex].ColorBGRA);
 
             prevX = x;
             prevY = y;
@@ -186,26 +225,54 @@ namespace PixelArtTool
         {
             byte[] ColorData = { 0, 0, 0, 0 }; // B G R
 
-            int x = (int)(e.GetPosition(i).X / scale);
-            int y = (int)(e.GetPosition(i).Y / scale);
-            if (x < 0 || x > resolutionX - 1) return;
-            if (y < 0 || y > resolutionY - 1) return;
+            int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
+            int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
+            if (x < 0 || x > canvasResolutionX - 1) return;
+            if (y < 0 || y > canvasResolutionY - 1) return;
 
             Int32Rect rect = new Int32Rect(x, y, 1, 1);
-            writeableBitmap.WritePixels(rect, ColorData, 4, 0);
+            canvasBitmap.WritePixels(rect, ColorData, 4, 0);
         }
 
-        void i_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        void PickPalette(MouseEventArgs e)
+        {
+            byte[] ColorData = { 0, 0, 0, 0 }; // B G R
+
+
+            int x = (int)(e.GetPosition(paletteImage).X / paletteScaleX);
+            int y = (int)(e.GetPosition(paletteImage).Y / paletteScaleY);
+            if (x < 0 || x > paletteResolutionX - 1) return;
+            if (y < 0 || y > paletteResolutionY - 1) return;
+
+            currentColorIndex = y * paletteResolutionX + x;
+
+            Console.WriteLine(x+","+y+" = "+ currentColorIndex);
+
+//            if (x < 0 || x > resolutionX - 1) return;
+//            if (y < 0 || y > resolutionY - 1) return;
+
+//            Int32Rect rect = new Int32Rect(x, y, 1, 1);
+//            canvasBitmap.WritePixels(rect, ColorData, 4, 0);
+        }
+
+
+        void PaletteLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            PickPalette(e);
+        }
+
+
+        void DrawingRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             ErasePixel(e);
         }
 
-        void i_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        void DrawingLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             DrawPixel(e);
         }
 
-        void i_MouseMove(object sender, MouseEventArgs e)
+        void DrawingMouseMove(object sender, MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
@@ -216,12 +283,12 @@ namespace PixelArtTool
                 ErasePixel(e);
             }
             // update mousepos
-            int x = (int)(e.GetPosition(i).X / scale);
-            int y = (int)(e.GetPosition(i).Y / scale);
+            int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
+            int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
             lblMousePos.Content = x + "," + y;
         }
 
-        void w_MouseWheel(object sender, MouseWheelEventArgs e)
+        void drawingMouseWheel(object sender, MouseWheelEventArgs e)
         {
             /*
             System.Windows.Media.Matrix m = i.RenderTransform.Value;
