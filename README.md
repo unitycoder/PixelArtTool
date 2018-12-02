@@ -11,6 +11,11 @@ https://www.assetstore.unity3d.com/en/#!/content/28312?staystaystay
 - Load palette image from resources (for example https://lospec.com/palette-list 1px png files)
 - Show mouse pixel coordinates in statusbar
 - Erase with right mouse button
+- Show palette colors in separate bitmap
+- Pick colors from palette
+- Show currently selected color in rectangle
+- Show pixel color under mouse
 
 # Screenshot
-![image](https://user-images.githubusercontent.com/5438317/49102141-aef7a100-f280-11e8-9902-d17c18e73112.png)
+![image](https://user-images.githubusercontent.com/5438317/49344155-55c2af80-f67c-11e8-8bb7-29ab2f635542.png)
+
