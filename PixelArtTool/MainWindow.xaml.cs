@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace PixelArtTool
 {
@@ -61,7 +62,7 @@ namespace PixelArtTool
             drawingImage.Source = canvasBitmap;
 
             // drawing events
-            drawingImage.MouseMove += new MouseEventHandler(DrawingMouseMove);
+            drawingImage.MouseMove += new MouseEventHandler(DrawingAreaMouseMoved);
             drawingImage.MouseLeftButtonDown += new MouseButtonEventHandler(DrawingLeftButtonDown);
             drawingImage.MouseRightButtonDown += new MouseButtonEventHandler(DrawingRightButtonDown);
             w.MouseWheel += new MouseWheelEventHandler(drawingMouseWheel);
@@ -109,7 +110,7 @@ namespace PixelArtTool
             {
                 for (x = 0; x < width; x++)
                 {
-                    Console.WriteLine(x+","+y);
+                    //Console.WriteLine(x + "," + y);
                     var c = pixels[x, y];
                     //                    Console.WriteLine(c.Red + "," + c.Green + "," + c.Blue);
                     palette[index++] = c;
@@ -206,7 +207,7 @@ namespace PixelArtTool
         // unsafe code to write a pixel into the back buffer.
         void DrawPixel(MouseEventArgs e)
         {
-           
+
             int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
             int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
             if (x < 0 || x > canvasResolutionX - 1) return;
@@ -236,29 +237,43 @@ namespace PixelArtTool
 
         void PickPalette(MouseEventArgs e)
         {
-            byte[] ColorData = { 0, 0, 0, 0 }; // B G R
-
-
+            byte[] ColorData = { 0, 0, 0, 0 }; // B G R !
             int x = (int)(e.GetPosition(paletteImage).X / paletteScaleX);
             int y = (int)(e.GetPosition(paletteImage).Y / paletteScaleY);
             if (x < 0 || x > paletteResolutionX - 1) return;
             if (y < 0 || y > paletteResolutionY - 1) return;
-
-            currentColorIndex = y * paletteResolutionX + x;
-
-            Console.WriteLine(x+","+y+" = "+ currentColorIndex);
-
-//            if (x < 0 || x > resolutionX - 1) return;
-//            if (y < 0 || y > resolutionY - 1) return;
-
-//            Int32Rect rect = new Int32Rect(x, y, 1, 1);
-//            canvasBitmap.WritePixels(rect, ColorData, 4, 0);
+            currentColorIndex = y * paletteResolutionX + x + 1; // +1 for fix index magic number..
         }
 
+
+        // return canvas pixel color from x,y
+        unsafe PixelColor GetPixelColor(int x, int y)
+        {
+            var pix = new PixelColor();
+            byte[] ColorData = { 0, 0, 0, 0 }; // B G R !
+            IntPtr pBackBuffer = canvasBitmap.BackBuffer;
+            byte* pBuff = (byte*)pBackBuffer.ToPointer();
+            var b = pBuff[4 * x + (y * canvasBitmap.BackBufferStride)];
+            var g = pBuff[4 * x + (y * canvasBitmap.BackBufferStride) + 1];
+            var r = pBuff[4 * x + (y * canvasBitmap.BackBufferStride) + 2];
+            var a = pBuff[4 * x + (y * canvasBitmap.BackBufferStride) + 3];
+            pix.Red = r;
+            pix.Green = g;
+            pix.Blue = b;
+            pix.Alpha = a;
+            return pix;
+        }
 
         void PaletteLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             PickPalette(e);
+            UpdateCurrentColor();
+        }
+
+        void UpdateCurrentColor()
+        {
+            var col = Color.FromArgb(palette[currentColorIndex].Alpha, palette[currentColorIndex].Red, palette[currentColorIndex].Green, palette[currentColorIndex].Blue);
+            rectCurrentColor.Fill = new SolidColorBrush(col);
         }
 
 
@@ -272,7 +287,7 @@ namespace PixelArtTool
             DrawPixel(e);
         }
 
-        void DrawingMouseMove(object sender, MouseEventArgs e)
+        void DrawingAreaMouseMoved(object sender, MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
@@ -282,10 +297,25 @@ namespace PixelArtTool
             {
                 ErasePixel(e);
             }
-            // update mousepos
+
+            // update mousepos info
             int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
             int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
+
+            ShowMousePos(x, y);
+            ShowMousePixelColor(x, y);
+        }
+
+        void ShowMousePos(int x, int y)
+        {
             lblMousePos.Content = x + "," + y;
+        }
+
+        void ShowMousePixelColor(int x, int y)
+        {
+            var col = GetPixelColor(x, y);
+            //lblPixelColor.Content = palette[currentColorIndex].Red + "," + palette[currentColorIndex].Green + "," + palette[currentColorIndex].Blue + "," + palette[currentColorIndex].Alpha;
+            lblPixelColor.Content = col.Red + "," + col.Green + "," + col.Blue + "," + col.Alpha;
         }
 
         void drawingMouseWheel(object sender, MouseWheelEventArgs e)
