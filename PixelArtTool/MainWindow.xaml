@@ -8,27 +8,31 @@
         Title="PixelArtTool" Height="412.222" Width="739.444" Background="#FF252526">
 	<Grid>
 		<ToolBarTray Background="White" Height="36" VerticalAlignment="Top">
-			<ToolBar Band="1" BandIndex="1">
+			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
+				<Button x:Name="btnNew" ToolTip="New (clears image)" Click="OnClearButton">
+					<Image Source="/Resources/Buttons/emptybutton.png" />
+				</Button>
+			</ToolBar>
+			
+			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
 				<RadioButton GroupName="Toolbar" Style="{StaticResource {x:Type ToggleButton}}">
-					<Image Source="/Resources/drawmode.png" />
+					<Image Source="/Resources/Buttons/drawmode.png" />
 				</RadioButton>
 				<RadioButton GroupName="Toolbar" Style="{StaticResource {x:Type ToggleButton}}">
-					<Image Source="/Resources/drawmode.png" />
-				</RadioButton>
-				<RadioButton GroupName="Toolbar" Style="{StaticResource {x:Type ToggleButton}}">
-					<Image Source="/Resources/drawmode.png" />
+					<Image Source="/Resources/Buttons/drawmode.png" />
 				</RadioButton>
 			</ToolBar>
 
-			<ToolBar Band="1" BandIndex="1">
+			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
 				<RadioButton GroupName="Toolbar2" Style="{StaticResource {x:Type ToggleButton}}">
-					<Image Source="/Resources/drawmode.png" />
+					<Image Source="/Resources/Buttons/emptybutton.png" />
 				</RadioButton>
 				<RadioButton GroupName="Toolbar2" Style="{StaticResource {x:Type ToggleButton}}">
-					<Image Source="/Resources/drawmode.png" />
+					<Image Source="/Resources/Buttons/emptybutton.png" />
 				</RadioButton>
 			</ToolBar>
 		</ToolBarTray>
+		
 		<StatusBar Height="30" Margin="0,281,0,0" VerticalAlignment="Bottom">
 			<StatusBarItem Height="30" VerticalAlignment="Center">
 				<Label x:Name="lblMousePos" Content="Label"/>

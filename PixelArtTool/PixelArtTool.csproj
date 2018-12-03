@@ -118,10 +118,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\drawmode.png" />
+    <Resource Include="Resources\Buttons\drawmode.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Palettes\aap-64-1x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Buttons\emptybutton.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -42,6 +42,10 @@ namespace PixelArtTool
         int paletteScaleX = 1;
         int paletteScaleY = 1;
 
+        int dpiX = 96;
+        int dpiY = 96;
+
+
         public MainWindow()
         {
             InitializeComponent();
@@ -55,8 +59,6 @@ namespace PixelArtTool
             RenderOptions.SetBitmapScalingMode(drawingImage, BitmapScalingMode.NearestNeighbor);
             RenderOptions.SetEdgeMode(drawingImage, EdgeMode.Aliased);
             w = (MainWindow)Application.Current.MainWindow;
-            var dpiX = 96;
-            var dpiY = 96;
             canvasScaleX = (int)drawingImage.Width / canvasResolutionX;
             canvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgr32, null);
             drawingImage.Source = canvasBitmap;
@@ -86,6 +88,8 @@ namespace PixelArtTool
 
             // init
             LoadPalette();
+            currentColorIndex = 5;
+            UpdateCurrentColor();
         }
 
         PixelColor[] palette;
@@ -322,7 +326,6 @@ namespace PixelArtTool
         {
             /*
             System.Windows.Media.Matrix m = i.RenderTransform.Value;
-
             if (e.Delta > 0)
             {
                 m.ScaleAt(
@@ -339,12 +342,23 @@ namespace PixelArtTool
                     e.GetPosition(w).X,
                     e.GetPosition(w).Y);
             }
-
             i.RenderTransform = new MatrixTransform(m);
             */
         }
 
-    }
+        private void OnClearButton(object sender, RoutedEventArgs e)
+        {
+            ClearImage(canvasBitmap);
+        }
+
+        // clears bitmap by re-creating it
+        void ClearImage(WriteableBitmap target)
+        {
+            canvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgr32, null);
+            drawingImage.Source = canvasBitmap;
+        }
 
 
-}
+
+    } // class
+} // namespace
