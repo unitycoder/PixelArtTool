@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using Microsoft.Win32;
+using System;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace PixelArtTool
 {
@@ -27,8 +18,10 @@ namespace PixelArtTool
         WriteableBitmap canvasBitmap;
         WriteableBitmap paletteBitmap;
         Window w;
+
         Image drawingImage;
         Image paletteImage;
+
         int canvasResolutionX = 16;
         int canvasResolutionY = 16;
 
@@ -44,6 +37,10 @@ namespace PixelArtTool
 
         int dpiX = 96;
         int dpiY = 96;
+
+        PixelColor currentColor;
+        PixelColor[] palette;
+        int currentColorIndex = 0;
 
 
         public MainWindow()
@@ -67,6 +64,7 @@ namespace PixelArtTool
             drawingImage.MouseMove += new MouseEventHandler(DrawingAreaMouseMoved);
             drawingImage.MouseLeftButtonDown += new MouseButtonEventHandler(DrawingLeftButtonDown);
             drawingImage.MouseRightButtonDown += new MouseButtonEventHandler(DrawingRightButtonDown);
+            drawingImage.MouseDown += new MouseButtonEventHandler(DrawingMiddleButtonDown);
             w.MouseWheel += new MouseWheelEventHandler(drawingMouseWheel);
 
             // build palette
@@ -89,10 +87,10 @@ namespace PixelArtTool
             // init
             LoadPalette();
             currentColorIndex = 5;
+            currentColor = palette[currentColorIndex];
             UpdateCurrentColor();
         }
 
-        PixelColor[] palette;
 
         void LoadPalette()
         {
@@ -203,23 +201,25 @@ namespace PixelArtTool
             return result;
         }
 
-        // from palette
-        int currentColorIndex = 0;
 
         // https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.writeablebitmap?redirectedfrom=MSDN&view=netframework-4.7.2
         // The DrawPixel method updates the WriteableBitmap by using
         // unsafe code to write a pixel into the back buffer.
-        void DrawPixel(MouseEventArgs e)
+        void DrawPixel(int x, int y)
         {
-
+            /*
             int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
             int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
             if (x < 0 || x > canvasResolutionX - 1) return;
+            if (y < 0 || y > canvasResolutionY - 1) return;*/
+
+            if (x < 0 || x > canvasResolutionX - 1) return;
             if (y < 0 || y > canvasResolutionY - 1) return;
+
 
             //currentColorIndex = ++currentColorIndex % palette.Length;
 
-            SetPixel(canvasBitmap, x, y, (int)palette[currentColorIndex].ColorBGRA);
+            SetPixel(canvasBitmap, x, y, (int)currentColor.ColorBGRA);
 
             prevX = x;
             prevY = y;
@@ -247,6 +247,7 @@ namespace PixelArtTool
             if (x < 0 || x > paletteResolutionX - 1) return;
             if (y < 0 || y > paletteResolutionY - 1) return;
             currentColorIndex = y * paletteResolutionX + x + 1; // +1 for fix index magic number..
+            currentColor = palette[currentColorIndex];
         }
 
 
@@ -276,7 +277,8 @@ namespace PixelArtTool
 
         void UpdateCurrentColor()
         {
-            var col = Color.FromArgb(palette[currentColorIndex].Alpha, palette[currentColorIndex].Red, palette[currentColorIndex].Green, palette[currentColorIndex].Blue);
+            //            var col = Color.FromArgb(palette[currentColorIndex].Alpha, palette[currentColorIndex].Red, palette[currentColorIndex].Green, palette[currentColorIndex].Blue);
+            var col = Color.FromArgb(currentColor.Alpha, currentColor.Red, currentColor.Green, currentColor.Blue);
             rectCurrentColor.Fill = new SolidColorBrush(col);
         }
 
@@ -286,25 +288,45 @@ namespace PixelArtTool
             ErasePixel(e);
         }
 
+        void DrawingMiddleButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.MiddleButton == MouseButtonState.Pressed)
+            {
+                int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
+                int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
+
+                currentColor = GetPixelColor(x, y);
+                UpdateCurrentColor();
+            }
+        }
+
+
+
         void DrawingLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            DrawPixel(e);
+            int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
+            int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
+            DrawPixel(x, y);
         }
 
         void DrawingAreaMouseMoved(object sender, MouseEventArgs e)
         {
+            // update mousepos info
+            int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
+            int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
+
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                DrawPixel(e);
+                DrawPixel(x, y);
             }
             else if (e.RightButton == MouseButtonState.Pressed)
             {
                 ErasePixel(e);
             }
-
-            // update mousepos info
-            int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
-            int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
+            else if (e.MiddleButton == MouseButtonState.Pressed)
+            {
+                currentColor = GetPixelColor(x, y);
+            }
 
             ShowMousePos(x, y);
             ShowMousePixelColor(x, y);
@@ -358,7 +380,36 @@ namespace PixelArtTool
             drawingImage.Source = canvasBitmap;
         }
 
+        private void OnSaveButton(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
 
+            saveFileDialog.FileName = "pixel";
+            saveFileDialog.DefaultExt = ".png";
+            saveFileDialog.Filter = "PNG|*.png";
+            UseDefaultExtAsFilterIndex(saveFileDialog);
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                Console.WriteLine("TODO: save image to " + saveFileDialog.FileName);
+            }
+        }
+
+        // https://stackoverflow.com/a/6104319/5452781
+        public static void UseDefaultExtAsFilterIndex(FileDialog dialog)
+        {
+            var ext = "*." + dialog.DefaultExt;
+            var filter = dialog.Filter;
+            var filters = filter.Split('|');
+            for (int i = 1; i < filters.Length; i += 2)
+            {
+                if (filters[i] == ext)
+                {
+                    dialog.FilterIndex = 1 + (i - 1) / 2;
+                    return;
+                }
+            }
+        }
 
     } // class
 } // namespace
