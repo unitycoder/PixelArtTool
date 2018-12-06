@@ -12,7 +12,7 @@
 				<Button x:Name="btnNew" ToolTip="New (clear image)" Click="OnClearButton">
 					<Image Source="/Resources/Buttons/emptybutton.png" />
 				</Button>
-				<Button x:Name="btnSave" ToolTip="Save.." Click="OnSaveButton">
+				<Button x:Name="btnSave" ToolTip="Save as.." Click="OnSaveButton">
 					<Image Source="/Resources/Buttons/emptybutton.png" />
 				</Button>
 			</ToolBar>

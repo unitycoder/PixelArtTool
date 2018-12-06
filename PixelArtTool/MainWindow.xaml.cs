@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -391,7 +392,12 @@ namespace PixelArtTool
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                Console.WriteLine("TODO: save image to " + saveFileDialog.FileName);
+                FileStream stream = new FileStream(saveFileDialog.FileName, FileMode.Create);
+                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Interlace = PngInterlaceOption.On;
+                encoder.Frames.Add(BitmapFrame.Create(canvasBitmap));
+                encoder.Save(stream);
+                stream.Close();
             }
         }
 
