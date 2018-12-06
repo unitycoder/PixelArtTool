@@ -23,25 +23,26 @@ namespace PixelArtTool
         Image drawingImage;
         Image paletteImage;
 
+        // bitmap settings
         int canvasResolutionX = 16;
         int canvasResolutionY = 16;
-
         int paletteResolutionX = 4;
         int paletteResolutionY = 16;
-
-        int prevX;
-        int prevY;
-
         int canvasScaleX = 1;
         int paletteScaleX = 1;
         int paletteScaleY = 1;
-
         int dpiX = 96;
         int dpiY = 96;
 
+        // colors
         PixelColor currentColor;
         PixelColor[] palette;
         int currentColorIndex = 0;
+        byte opacity = 255;
+
+        // mouse
+        int prevX;
+        int prevY;
 
 
         public MainWindow()
@@ -58,7 +59,7 @@ namespace PixelArtTool
             RenderOptions.SetEdgeMode(drawingImage, EdgeMode.Aliased);
             w = (MainWindow)Application.Current.MainWindow;
             canvasScaleX = (int)drawingImage.Width / canvasResolutionX;
-            canvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgr32, null);
+            canvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             drawingImage.Source = canvasBitmap;
 
             // drawing events
@@ -77,13 +78,12 @@ namespace PixelArtTool
             dpiY = 96;
             paletteScaleX = (int)paletteImage.Width / paletteResolutionX;
             paletteScaleY = (int)paletteImage.Height / paletteResolutionY;
-            paletteBitmap = new WriteableBitmap(paletteResolutionX, paletteResolutionY, dpiX, dpiY, PixelFormats.Bgr32, null);
+            paletteBitmap = new WriteableBitmap(paletteResolutionX, paletteResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             paletteImage.Source = paletteBitmap;
 
             // palette events
             paletteImage.MouseLeftButtonDown += new MouseButtonEventHandler(PaletteLeftButtonDown);
             //paletteImage.MouseRightButtonDown += new MouseButtonEventHandler(PaletteRightButtonDown);
-
 
             // init
             LoadPalette();
@@ -129,10 +129,7 @@ namespace PixelArtTool
                 x = i % paletteResolutionX;
                 y = (i % len) / paletteResolutionX;
             }
-
-
         }
-
 
         void SetPixel(WriteableBitmap bitmap, int x, int y, int color)
         {
@@ -278,7 +275,6 @@ namespace PixelArtTool
 
         void UpdateCurrentColor()
         {
-            //            var col = Color.FromArgb(palette[currentColorIndex].Alpha, palette[currentColorIndex].Red, palette[currentColorIndex].Green, palette[currentColorIndex].Blue);
             var col = Color.FromArgb(currentColor.Alpha, currentColor.Red, currentColor.Green, currentColor.Blue);
             rectCurrentColor.Fill = new SolidColorBrush(col);
         }
@@ -377,7 +373,7 @@ namespace PixelArtTool
         // clears bitmap by re-creating it
         void ClearImage(WriteableBitmap target)
         {
-            canvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgr32, null);
+            canvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             drawingImage.Source = canvasBitmap;
         }
 
@@ -417,5 +413,13 @@ namespace PixelArtTool
             }
         }
 
+        private void OpacitySliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            var slider = sender as Slider;
+            opacity = (byte)slider.Value;
+            currentColor.Alpha = opacity;
+            // ... Set Window Title.
+            //this.Title = "Value: " + value.ToString("0.0") + "/" + slider.Maximum;
+        }
     } // class
 } // namespace

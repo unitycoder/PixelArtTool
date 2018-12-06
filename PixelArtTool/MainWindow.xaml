@@ -16,7 +16,7 @@
 					<Image Source="/Resources/Buttons/emptybutton.png" />
 				</Button>
 			</ToolBar>
-			
+
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
 				<RadioButton GroupName="Toolbar" Style="{StaticResource {x:Type ToggleButton}}">
 					<Image Source="/Resources/Buttons/drawmode.png" />
@@ -34,8 +34,13 @@
 					<Image Source="/Resources/Buttons/emptybutton.png" />
 				</RadioButton>
 			</ToolBar>
+
+			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
+				<Slider x:Name="sliderOpacity" ToolTip="Opacity" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="50" Height="28" Value="255" Maximum="255" LargeChange="0" SmallChange="1" ValueChanged="OpacitySliderValueChanged"/>
+			</ToolBar>
+
 		</ToolBarTray>
-		
+
 		<StatusBar Height="30" Margin="0,281,0,0" VerticalAlignment="Bottom">
 			<StatusBarItem Height="30" VerticalAlignment="Center">
 				<Label x:Name="lblMousePos" Content="Label"/>
