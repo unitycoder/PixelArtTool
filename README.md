@@ -15,7 +15,12 @@ https://www.assetstore.unity3d.com/en/#!/content/28312?staystaystay
 - Pick colors from palette
 - Show currently selected color in rectangle
 - Show pixel color under mouse
+- Color picker with middle mouse button
+- Save image as png
+- Alpha support
+- Opacity slider
 
 # Screenshot
-![image](https://user-images.githubusercontent.com/5438317/49344155-55c2af80-f67c-11e8-8bb7-29ab2f635542.png)
+![image](https://user-images.githubusercontent.com/5438317/49604588-e8be5b00-f996-11e8-9dd7-f754f65b1565.png)
+
 
