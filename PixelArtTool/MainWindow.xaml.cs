@@ -44,6 +44,10 @@ namespace PixelArtTool
         int prevX;
         int prevY;
 
+        // undo
+        const int maxUndoCount = 100;
+        int currentUndoIndex = 0;
+        WriteableBitmap[] undoBufferBitmap = new WriteableBitmap[maxUndoCount];
 
         public MainWindow()
         {
@@ -68,6 +72,7 @@ namespace PixelArtTool
             drawingImage.MouseRightButtonDown += new MouseButtonEventHandler(DrawingRightButtonDown);
             drawingImage.MouseDown += new MouseButtonEventHandler(DrawingMiddleButtonDown);
             w.MouseWheel += new MouseWheelEventHandler(drawingMouseWheel);
+            drawingImage.MouseUp += new MouseButtonEventHandler(DrawingMouseUp);
 
             // build palette
             paletteImage = imgPalette;
@@ -221,7 +226,6 @@ namespace PixelArtTool
 
             prevX = x;
             prevY = y;
-
         }
 
         void ErasePixel(MouseEventArgs e)
@@ -305,6 +309,14 @@ namespace PixelArtTool
             int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
             DrawPixel(x, y);
         }
+
+        void DrawingMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            // undo test
+            undoBufferBitmap[++currentUndoIndex] = canvasBitmap.Clone();
+            Console.WriteLine("save undo " + currentUndoIndex);
+        }
+
 
         void DrawingAreaMouseMoved(object sender, MouseEventArgs e)
         {
@@ -420,6 +432,16 @@ namespace PixelArtTool
             currentColor.Alpha = opacity;
             // ... Set Window Title.
             //this.Title = "Value: " + value.ToString("0.0") + "/" + slider.Maximum;
+        }
+
+        private void OnUndoButtonDown(object sender, RoutedEventArgs e)
+        {
+            if (currentUndoIndex > 0)
+            {
+                canvasBitmap = undoBufferBitmap[--currentUndoIndex];
+                Console.WriteLine("restore undo " + currentUndoIndex);
+                imgCanvas.Source = canvasBitmap;
+            }
         }
     } // class
 } // namespace

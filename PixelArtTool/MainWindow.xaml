@@ -39,6 +39,15 @@
 				<Slider x:Name="sliderOpacity" ToolTip="Opacity" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="50" Height="28" Value="255" Maximum="255" LargeChange="0" SmallChange="1" ValueChanged="OpacitySliderValueChanged"/>
 			</ToolBar>
 
+			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
+				<Button x:Name="btnUndo" ToolTip="Undo" Click="OnUndoButtonDown">
+					<Image Source="/Resources/Buttons/emptybutton.png" />
+				</Button>
+				<Button x:Name="btnRedo" ToolTip="Redo">
+					<Image Source="/Resources/Buttons/emptybutton.png" />
+				</Button>
+			</ToolBar>
+
 		</ToolBarTray>
 
 		<StatusBar Height="30" Margin="0,281,0,0" VerticalAlignment="Bottom">
