@@ -136,6 +136,7 @@ namespace PixelArtTool
             }
         }
 
+        // used in drawing
         void SetPixel(WriteableBitmap bitmap, int x, int y, int color)
         {
             try
@@ -210,23 +211,43 @@ namespace PixelArtTool
         // unsafe code to write a pixel into the back buffer.
         void DrawPixel(int x, int y)
         {
-            /*
-            int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
-            int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
-            if (x < 0 || x > canvasResolutionX - 1) return;
-            if (y < 0 || y > canvasResolutionY - 1) return;*/
-
             if (x < 0 || x > canvasResolutionX - 1) return;
             if (y < 0 || y > canvasResolutionY - 1) return;
 
+            // get old color
+            var oc = GetPixelColor(x, y, undoBufferBitmap[currentUndoIndex]);
 
-            //currentColorIndex = ++currentColorIndex % palette.Length;
+            // mix colors ADDITIVE mode
+            var newc = new PixelColor();
+            int r = (int)(oc.Red + currentColor.Red * ((float)opacity / (float)255));
+            int g = (int)(oc.Green + currentColor.Green * ((float)opacity / (float)255));
+            int b = (int)(oc.Blue + currentColor.Blue * ((float)opacity / (float)255));
 
-            SetPixel(canvasBitmap, x, y, (int)currentColor.ColorBGRA);
+            newc.Red = ClampToByte(r);
+            newc.Green = ClampToByte(g);
+            newc.Blue = ClampToByte(b);
+            newc.Alpha = opacity;
+
+            //Console.WriteLine(oc.Red + "+" + currentColor.Red + "*" + (opacity / (float)255) + " = " + newc.Red);
+
+            // draw
+            SetPixel(canvasBitmap, x, y, (int)newc.ColorBGRA);
 
             prevX = x;
             prevY = y;
         }
+
+        byte Clamp(byte n)
+        {
+            return n <= 255 ? n : (byte)Math.Min(n, (byte)255);
+        }
+
+        byte ClampToByte(int n)
+        {
+            var r = n <= 255 ? n : (byte)Math.Min(n, (byte)255);
+            return (byte)r;
+        }
+
 
         void ErasePixel(MouseEventArgs e)
         {
@@ -271,6 +292,24 @@ namespace PixelArtTool
             return pix;
         }
 
+        unsafe PixelColor GetPixelColor(int x, int y, WriteableBitmap source)
+        {
+            var pix = new PixelColor();
+            byte[] ColorData = { 0, 0, 0, 0 }; // B G R !
+            IntPtr pBackBuffer = source.BackBuffer;
+            byte* pBuff = (byte*)pBackBuffer.ToPointer();
+            var b = pBuff[4 * x + (y * source.BackBufferStride)];
+            var g = pBuff[4 * x + (y * source.BackBufferStride) + 1];
+            var r = pBuff[4 * x + (y * source.BackBufferStride) + 2];
+            var a = pBuff[4 * x + (y * source.BackBufferStride) + 3];
+            pix.Red = r;
+            pix.Green = g;
+            pix.Blue = b;
+            pix.Alpha = a;
+            return pix;
+        }
+
+
         void PaletteLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             PickPalette(e);
@@ -305,6 +344,10 @@ namespace PixelArtTool
 
         void DrawingLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            // undo test
+            undoBufferBitmap[++currentUndoIndex] = canvasBitmap.Clone();
+            Console.WriteLine("save undo " + currentUndoIndex);
+
             int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
             int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
             DrawPixel(x, y);
@@ -312,9 +355,6 @@ namespace PixelArtTool
 
         void DrawingMouseUp(object sender, MouseButtonEventArgs e)
         {
-            // undo test
-            undoBufferBitmap[++currentUndoIndex] = canvasBitmap.Clone();
-            Console.WriteLine("save undo " + currentUndoIndex);
         }
 
 
