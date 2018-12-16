@@ -19,6 +19,10 @@ https://www.assetstore.unity3d.com/en/#!/content/28312?staystaystay
 - Save image as png
 - Alpha support
 - Opacity slider
+- Basic undo system
+- Additive and Replace draw modes
+- Drawmode(blend) selector
+- Draw straight lines with left shift down
 
 # Screenshot
 ![image](https://user-images.githubusercontent.com/5438317/49604588-e8be5b00-f996-11e8-9dd7-f754f65b1565.png)
