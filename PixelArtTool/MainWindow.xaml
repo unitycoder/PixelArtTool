@@ -1,11 +1,12 @@
-﻿<Window x:Class="PixelArtTool.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixelArtTool"
+        xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="PixelArtTool.MainWindow"
         mc:Ignorable="d"
-        Title="PixelArtTool" Height="412.222" Width="739.444" Background="#FF252526">
+        Title="PixelArtTool" Height="412.222" Width="739.444" Background="#FF252526" KeyDown="OnKeyDown" KeyUp="OnKeyUp">
 	<Grid>
 		<ToolBarTray Background="White" Height="36" VerticalAlignment="Top">
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
@@ -46,6 +47,13 @@
 				<Button x:Name="btnRedo" ToolTip="Redo">
 					<Image Source="/Resources/Buttons/emptybutton.png" />
 				</Button>
+			</ToolBar>
+
+			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
+				<ComboBox x:Name="cmbDrawMode" HorizontalAlignment="Left" VerticalAlignment="Top" Width="55" IsReadOnly="True" SelectedIndex="0" SelectionChanged="OnModeSelectionChanged">
+					<System:String>Default</System:String>
+					<System:String>Additive</System:String>
+				</ComboBox>
 			</ToolBar>
 
 		</ToolBarTray>

@@ -11,6 +11,12 @@ using System.Windows.Media.Imaging;
 namespace PixelArtTool
 {
 
+    public enum DrawMode : byte
+    {
+        Default = 0,
+        Additive = 1
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -48,6 +54,9 @@ namespace PixelArtTool
         const int maxUndoCount = 100;
         int currentUndoIndex = 0;
         WriteableBitmap[] undoBufferBitmap = new WriteableBitmap[maxUndoCount];
+
+        // modes
+        DrawMode drawMode;
 
         public MainWindow()
         {
@@ -95,6 +104,9 @@ namespace PixelArtTool
             currentColorIndex = 5;
             currentColor = palette[currentColorIndex];
             UpdateCurrentColor();
+
+            //this.KeyDown += new KeyEventHandler(OnKeyDown);
+            //this.keyup += new KeyEventHandler(OnKeyDown);
         }
 
 
@@ -201,10 +213,17 @@ namespace PixelArtTool
             PixelColor[,] result = new PixelColor[width, height];
 
             CopyPixels2(source, result, width * 4, 0, false);
-            //source.CopyPixels(result, width * 4, 0, false);
             return result;
         }
 
+        bool firstPixel = true;
+        int startPixelX = 0;
+        int startPixelY = 0;
+        bool verticalLine = false;
+        bool horizontalLine = false;
+        //        bool diagonalLines = false; // TODO allow diagonal straigh lines
+        int lockedX = 0;
+        int lockedY = 0;
 
         // https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.writeablebitmap?redirectedfrom=MSDN&view=netframework-4.7.2
         // The DrawPixel method updates the WriteableBitmap by using
@@ -214,24 +233,76 @@ namespace PixelArtTool
             if (x < 0 || x > canvasResolutionX - 1) return;
             if (y < 0 || y > canvasResolutionY - 1) return;
 
-            // get old color
-            var oc = GetPixelColor(x, y, undoBufferBitmap[currentUndoIndex]);
+            // is using straight lines
+            if (leftShiftDown == true)
+            {
+                // get first pixel, to measure direction
+                if (firstPixel == true)
+                {
+                    startPixelX = x;
+                    startPixelY = y;
+                    firstPixel = false;
+                }
+                else // already drew before
+                {
+                    if (horizontalLine == false && verticalLine == false)
+                    {
+                        // vertical
+                        if (x == startPixelX && y != startPixelY)
+                        {
+                            verticalLine = true;
+                            lockedX = x;
+                        }
+                        else if (y == startPixelY && x != startPixelX)
+                        {
+                            horizontalLine = true;
+                            lockedY = y;
+                        }
+                    }
 
-            // mix colors ADDITIVE mode
-            var newc = new PixelColor();
-            int r = (int)(oc.Red + currentColor.Red * ((float)opacity / (float)255));
-            int g = (int)(oc.Green + currentColor.Green * ((float)opacity / (float)255));
-            int b = (int)(oc.Blue + currentColor.Blue * ((float)opacity / (float)255));
+                    // lock coordinates if straight lines
+                    if (verticalLine == true)
+                    {
+                        x = lockedX;
+                    }
+                    else if (horizontalLine == true)
+                    {
+                        y = lockedY;
+                    }
+                }
+            }
+            else // left shift not down
+            {
+                verticalLine = false;
+                horizontalLine = false;
+                firstPixel = true;
+            }
 
-            newc.Red = ClampToByte(r);
-            newc.Green = ClampToByte(g);
-            newc.Blue = ClampToByte(b);
-            newc.Alpha = opacity;
+            PixelColor draw = new PixelColor();
 
-            //Console.WriteLine(oc.Red + "+" + currentColor.Red + "*" + (opacity / (float)255) + " = " + newc.Red);
+            switch (drawMode)
+            {
+                case DrawMode.Default: // replace
+                    draw = currentColor;
+                    break;
+                case DrawMode.Additive:
+                    // get old color from undo buffer
+                    var oc = GetPixelColor(x, y, undoBufferBitmap[currentUndoIndex]);
+                    // mix colors ADDITIVE mode
+                    int r = (int)(oc.Red + currentColor.Red * (opacity / (float)255));
+                    int g = (int)(oc.Green + currentColor.Green * (opacity / (float)255));
+                    int b = (int)(oc.Blue + currentColor.Blue * (opacity / (float)255));
+                    draw.Red = ClampToByte(r);
+                    draw.Green = ClampToByte(g);
+                    draw.Blue = ClampToByte(b);
+                    draw.Alpha = opacity;
+                    break;
+                default:
+                    break;
+            }
 
             // draw
-            SetPixel(canvasBitmap, x, y, (int)newc.ColorBGRA);
+            SetPixel(canvasBitmap, x, y, (int)draw.ColorBGRA);
 
             prevX = x;
             prevY = y;
@@ -346,7 +417,7 @@ namespace PixelArtTool
         {
             // undo test
             undoBufferBitmap[++currentUndoIndex] = canvasBitmap.Clone();
-            Console.WriteLine("save undo " + currentUndoIndex);
+            //Console.WriteLine("save undo " + currentUndoIndex);
 
             int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
             int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
@@ -481,6 +552,43 @@ namespace PixelArtTool
                 canvasBitmap = undoBufferBitmap[--currentUndoIndex];
                 Console.WriteLine("restore undo " + currentUndoIndex);
                 imgCanvas.Source = canvasBitmap;
+            }
+        }
+
+        private void OnModeSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var s = sender as ComboBox;
+            drawMode = (DrawMode)s.SelectedIndex;
+        }
+
+        bool leftShiftDown = false;
+
+        // if key is pressed down globally
+        void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            // TODO: add tool shortcut keys
+            switch (e.Key)
+            {
+                case Key.LeftShift:
+                    leftShiftDown = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void OnKeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.LeftShift:
+                    leftShiftDown = false;
+                    verticalLine = false;
+                    horizontalLine = false;
+                    firstPixel = true;
+                    break;
+                default:
+                    break;
             }
         }
     } // class
