@@ -221,7 +221,7 @@ namespace PixelArtTool
         int startPixelY = 0;
         bool verticalLine = false;
         bool horizontalLine = false;
-        //        bool diagonalLines = false; // TODO allow diagonal straigh lines
+        bool diagonalLine = false;
         int lockedX = 0;
         int lockedY = 0;
 
@@ -245,7 +245,8 @@ namespace PixelArtTool
                 }
                 else // already drew before
                 {
-                    if (horizontalLine == false && verticalLine == false)
+                    // have detected linemode
+                    if (horizontalLine == false && verticalLine == false && diagonalLine == false)
                     {
                         // vertical
                         if (x == startPixelX && y != startPixelY)
@@ -253,10 +254,16 @@ namespace PixelArtTool
                             verticalLine = true;
                             lockedX = x;
                         }
+                        // horizontal
                         else if (y == startPixelY && x != startPixelX)
                         {
                             horizontalLine = true;
                             lockedY = y;
+                        }
+                        // diagonal
+                        else if (y != startPixelY && x != startPixelX)
+                        {
+                            diagonalLine = true;
                         }
                     }
 
@@ -269,12 +276,25 @@ namespace PixelArtTool
                     {
                         y = lockedY;
                     }
+                    else if (diagonalLine == true)
+                    {
+                        // force diagonal
+                        int xx = x - startPixelX;
+                        int yy = y - startPixelY;
+
+                        // stop drawing, if not in diagonal cell
+                        if (Math.Abs(xx) - Math.Abs(yy) != 0)
+                        {
+                            return;
+                        }
+                    }
                 }
             }
             else // left shift not down
             {
                 verticalLine = false;
                 horizontalLine = false;
+                diagonalLine = false;
                 firstPixel = true;
             }
 
@@ -585,6 +605,7 @@ namespace PixelArtTool
                     leftShiftDown = false;
                     verticalLine = false;
                     horizontalLine = false;
+                    diagonalLine = false;
                     firstPixel = true;
                     break;
                 default:
