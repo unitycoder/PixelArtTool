@@ -7,6 +7,13 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="PixelArtTool.MainWindow"
         mc:Ignorable="d"
         Title="PixelArtTool" Height="412.222" Width="739.444" Background="#FF252526" KeyDown="OnKeyDown" KeyUp="OnKeyUp">
+	<Window.CommandBindings>
+		<CommandBinding Command="ApplicationCommands.Undo" Executed="Executed_Undo" CanExecute="CanExecute_Undo"/>
+	</Window.CommandBindings>
+	<Window.InputBindings>
+		<KeyBinding Command="ApplicationCommands.Undo" Gesture="Ctrl+Z"/>
+	</Window.InputBindings>
+	
 	<Grid>
 		<ToolBarTray Background="White" Height="36" VerticalAlignment="Top">
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
@@ -19,19 +26,19 @@
 			</ToolBar>
 
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
-				<RadioButton GroupName="Toolbar" Style="{StaticResource {x:Type ToggleButton}}">
+				<RadioButton GroupName="Toolbar" ToolTip="Test" Style="{StaticResource {x:Type ToggleButton}}">
 					<Image Source="/Resources/Buttons/drawmode.png" />
 				</RadioButton>
-				<RadioButton GroupName="Toolbar" Style="{StaticResource {x:Type ToggleButton}}">
+				<RadioButton GroupName="Toolbar" ToolTip="Test" Style="{StaticResource {x:Type ToggleButton}}">
 					<Image Source="/Resources/Buttons/drawmode.png" />
 				</RadioButton>
 			</ToolBar>
 
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
-				<RadioButton GroupName="Toolbar2" Style="{StaticResource {x:Type ToggleButton}}">
+				<RadioButton GroupName="Toolbar2" ToolTip="Test" Style="{StaticResource {x:Type ToggleButton}}">
 					<Image Source="/Resources/Buttons/emptybutton.png" />
 				</RadioButton>
-				<RadioButton GroupName="Toolbar2" Style="{StaticResource {x:Type ToggleButton}}">
+				<RadioButton GroupName="Toolbar2" ToolTip="Test" Style="{StaticResource {x:Type ToggleButton}}">
 					<Image Source="/Resources/Buttons/emptybutton.png" />
 				</RadioButton>
 			</ToolBar>
@@ -60,10 +67,13 @@
 
 		<StatusBar Height="30" Margin="0,281,0,0" VerticalAlignment="Bottom">
 			<StatusBarItem Height="30" VerticalAlignment="Center">
-				<Label x:Name="lblMousePos" Content="Label"/>
+				<Label x:Name="lblMousePos" Content="Mouse Coord"/>
 			</StatusBarItem>
 			<StatusBarItem Height="30" VerticalAlignment="Center">
-				<Label x:Name="lblPixelColor" Content="Label"/>
+				<Label x:Name="lblPixelColor" Content="Pixel Color"/>
+			</StatusBarItem>
+			<StatusBarItem Height="30" VerticalAlignment="Center">
+				<Label x:Name="lblToolInfo" Content="-"/>
 			</StatusBarItem>
 		</StatusBar>
 		<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="128" Margin="10,50,0,0" VerticalAlignment="Top" Width="64">

@@ -436,7 +436,7 @@ namespace PixelArtTool
         void DrawingLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             // undo test
-            undoBufferBitmap[++currentUndoIndex] = canvasBitmap.Clone();
+            undoBufferBitmap[currentUndoIndex++] = canvasBitmap.Clone();
             //Console.WriteLine("save undo " + currentUndoIndex);
 
             int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
@@ -567,12 +567,7 @@ namespace PixelArtTool
 
         private void OnUndoButtonDown(object sender, RoutedEventArgs e)
         {
-            if (currentUndoIndex > 0)
-            {
-                canvasBitmap = undoBufferBitmap[--currentUndoIndex];
-                Console.WriteLine("restore undo " + currentUndoIndex);
-                imgCanvas.Source = canvasBitmap;
-            }
+            CallUndo();
         }
 
         private void OnModeSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -590,6 +585,7 @@ namespace PixelArtTool
             switch (e.Key)
             {
                 case Key.LeftShift:
+                    lblToolInfo.Content = "Straight Lines";
                     leftShiftDown = true;
                     break;
                 default:
@@ -602,6 +598,7 @@ namespace PixelArtTool
             switch (e.Key)
             {
                 case Key.LeftShift:
+                    lblToolInfo.Content = "";
                     leftShiftDown = false;
                     verticalLine = false;
                     horizontalLine = false;
@@ -611,6 +608,26 @@ namespace PixelArtTool
                 default:
                     break;
             }
+        }
+
+        private void CallUndo()
+        {
+            if (currentUndoIndex > 0)
+            {
+                canvasBitmap = undoBufferBitmap[--currentUndoIndex];
+                Console.WriteLine("restore undo " + currentUndoIndex);
+                imgCanvas.Source = canvasBitmap;
+            }
+        }
+
+        public void Executed_Undo(object sender, ExecutedRoutedEventArgs e)
+        {
+            CallUndo();
+        }
+
+        public void CanExecute_Undo(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
         }
     } // class
 } // namespace
