@@ -23,10 +23,12 @@ namespace PixelArtTool
     public partial class MainWindow : Window
     {
         WriteableBitmap canvasBitmap;
+        WriteableBitmap gridBitmap;
         WriteableBitmap paletteBitmap;
         Window w;
 
         Image drawingImage;
+        Image gridImage;
         Image paletteImage;
 
         // bitmap settings
@@ -39,6 +41,8 @@ namespace PixelArtTool
         int paletteScaleY = 1;
         int dpiX = 96;
         int dpiY = 96;
+
+        byte gridAlpha = 16;
 
         // colors
         PixelColor currentColor;
@@ -66,6 +70,18 @@ namespace PixelArtTool
 
         void Start()
         {
+
+            // setup background grid
+            gridImage = imgGrid;
+            RenderOptions.SetBitmapScalingMode(gridImage, BitmapScalingMode.NearestNeighbor);
+            RenderOptions.SetEdgeMode(gridImage, EdgeMode.Aliased);
+            w = (MainWindow)Application.Current.MainWindow;
+            //var gridScaleX = (int)gridImage.Width / canvasResolutionX;
+            gridBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
+            gridImage.Source = gridBitmap;
+            DrawBackgroundGrid();
+
+
             // build drawing area
             drawingImage = imgCanvas;
             RenderOptions.SetBitmapScalingMode(drawingImage, BitmapScalingMode.NearestNeighbor);
@@ -615,7 +631,6 @@ namespace PixelArtTool
             if (currentUndoIndex > 0)
             {
                 canvasBitmap = undoBufferBitmap[--currentUndoIndex];
-                Console.WriteLine("restore undo " + currentUndoIndex);
                 imgCanvas.Source = canvasBitmap;
             }
         }
@@ -629,5 +644,23 @@ namespace PixelArtTool
         {
             e.CanExecute = true;
         }
+
+        void DrawBackgroundGrid()
+        {
+            for (int x = 0; x < 16; x++)
+            {
+                for (int y = 0; y < 16; y++)
+                {
+                    PixelColor c = new PixelColor();
+                    c.Alpha = gridAlpha;
+                    byte v = (byte)(((x % 2) == (y % 2)) ? 255 : 0);
+                    c.Red = v;
+                    c.Green = v;
+                    c.Blue = v;
+                    SetPixel(gridBitmap, x, y, (int)c.ColorBGRA);
+                }
+            }
+        }
+
     } // class
 } // namespace
