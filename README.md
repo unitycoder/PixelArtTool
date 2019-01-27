@@ -22,9 +22,12 @@ https://www.assetstore.unity3d.com/en/#!/content/28312?staystaystay
 - Basic undo system
 - Additive and Replace draw modes
 - Drawmode(blend) selector
-- Draw straight lines with left shift down
+- Draw straight and diagonal lines with left shift down
+- Undo ctrl+z
+- Background pixel grid
+- Automatic 1px outline (optional)
 
 # Screenshot
-![image](https://user-images.githubusercontent.com/5438317/49604588-e8be5b00-f996-11e8-9dd7-f754f65b1565.png)
+![image](https://user-images.githubusercontent.com/5438317/51800843-70f60980-223e-11e9-9f1b-41a0ce988528.png)
 
 
