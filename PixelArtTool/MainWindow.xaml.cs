@@ -765,6 +765,50 @@ namespace PixelArtTool
                     SetPixel(outlineBitmap, x, y, (int)c.ColorBGRA);
                 }
             }
+        } // UpdateOutline()
+
+        void OnScrollButtonUpClicked(object sender, RoutedEventArgs e)
+        {
+            ScrollCanvas(0, -1);
+        }
+        void OnScrollButtonDownClicked(object sender, RoutedEventArgs e)
+        {
+            ScrollCanvas(0, 1);
+        }
+        void OnScrollButtonRightClicked(object sender, RoutedEventArgs e)
+        {
+            ScrollCanvas(1, 0);
+        }
+        void OnScrollButtonLeftClicked(object sender, RoutedEventArgs e)
+        {
+            ScrollCanvas(-1, 0);
+        }
+
+        void ScrollCanvas(int sx, int sy)
+        {
+            // clone canvas, FIXME not really needed..could just copy pixels to array or so..
+            var tempCanvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
+            tempCanvasBitmap = canvasBitmap.Clone();
+
+            // TODO add wrap or clamp option?
+
+            for (int x = 0; x < canvasResolutionX; x++)
+            {
+                for (int y = 0; y < canvasResolutionY; y++)
+                {
+                    var c = GetPixelColor(x, y, tempCanvasBitmap);
+                    int xx = Repeat(x + sx, canvasResolutionX);
+                    int yy = Repeat(y + sy, canvasResolutionY);
+                    SetPixel(canvasBitmap, xx, yy, (int)c.ColorBGRA);
+                }
+            }
+        }
+
+        int Repeat(int val, int max)
+        {
+            int result = val % max;
+            if (result < 0) result += max;
+            return result;
         }
 
     } // class

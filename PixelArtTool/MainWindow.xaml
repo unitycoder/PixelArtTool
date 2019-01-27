@@ -89,6 +89,10 @@
 			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="256" Margin="89,50,0,0" VerticalAlignment="Top" Width="256">
 				<Image x:Name="imgOutline" IsHitTestVisible="False" HorizontalAlignment="Left" Height="256" Margin="-1" VerticalAlignment="Top" Width="256" Stretch="Fill" IsEnabled="False"/>
 			</Border>
+			<Button x:Name="btnScrollUp" Click="OnScrollButtonUpClicked" Content="/\" HorizontalAlignment="Left" Margin="388,252,0,0" VerticalAlignment="Top" Width="24"/>
+			<Button x:Name="btnScrollDown" Click="OnScrollButtonDownClicked" Content="\/" HorizontalAlignment="Left" Margin="388,274,0,0" VerticalAlignment="Top" Width="24"/>
+			<Button x:Name="btnScrollLeft" Click="OnScrollButtonLeftClicked" Content="&lt;" HorizontalAlignment="Left" Margin="361,263,0,0" VerticalAlignment="Top" Width="24"/>
+			<Button x:Name="btnScrollRight" Click="OnScrollButtonRightClicked" Content="&gt;" HorizontalAlignment="Left" Margin="415,262,0,0" VerticalAlignment="Top" Width="24"/>
 		</Grid>
 		<CheckBox x:Name="chkOutline" Content="Outline" HorizontalAlignment="Left" Margin="648,50,0,0" VerticalAlignment="Top" Width="64"/>
 		<Rectangle x:Name="rectCurrentColor" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="24" Margin="10,181,0,0" Stroke="Black" VerticalAlignment="Top" Width="24"/>
