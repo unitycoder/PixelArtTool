@@ -380,6 +380,17 @@ namespace PixelArtTool
             canvasBitmap.WritePixels(rect, ColorData, 4, 0);
         }
 
+        void ErasePixel(int x, int y)
+        {
+            byte[] ColorData = { 0, 0, 0, 0 }; // B G R
+
+            if (x < 0 || x > canvasResolutionX - 1) return;
+            if (y < 0 || y > canvasResolutionY - 1) return;
+
+            Int32Rect rect = new Int32Rect(x, y, 1, 1);
+            canvasBitmap.WritePixels(rect, ColorData, 4, 0);
+        }
+
         void PickPalette(MouseEventArgs e)
         {
             byte[] ColorData = { 0, 0, 0, 0 }; // B G R !
@@ -474,6 +485,12 @@ namespace PixelArtTool
             {
                 UpdateOutline();
             }
+
+            // mirror
+            if (chkMirrorX.IsChecked == true)
+            {
+                DrawPixel(canvasResolutionX - x - 1, y);
+            }
         }
 
         void DrawingMouseUp(object sender, MouseButtonEventArgs e)
@@ -490,10 +507,20 @@ namespace PixelArtTool
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 DrawPixel(x, y);
+                // mirror
+                if (chkMirrorX.IsChecked == true)
+                {
+                    DrawPixel(canvasResolutionX - x - 1, y);
+                }
             }
             else if (e.RightButton == MouseButtonState.Pressed)
             {
-                ErasePixel(e);
+                ErasePixel(x, y);
+                // mirror
+                if (chkMirrorX.IsChecked == true)
+                {
+                    ErasePixel(canvasResolutionX - x - 1, y);
+                }
             }
             else if (e.MiddleButton == MouseButtonState.Pressed)
             {
@@ -502,10 +529,12 @@ namespace PixelArtTool
 
             ShowMousePos(x, y);
             ShowMousePixelColor(x, y);
+            // outline
             if (chkOutline.IsChecked == true)
             {
                 UpdateOutline();
             }
+
         }
 
         void ShowMousePos(int x, int y)
