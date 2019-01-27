@@ -86,7 +86,11 @@
 			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="256" Margin="89,50,0,0" VerticalAlignment="Top" Width="256">
 				<Image x:Name="imgCanvas" HorizontalAlignment="Left" Height="256" Margin="-1" VerticalAlignment="Top" Width="256" Stretch="Fill"/>
 			</Border>
+			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="256" Margin="89,50,0,0" VerticalAlignment="Top" Width="256">
+				<Image x:Name="imgOutline" IsHitTestVisible="False" HorizontalAlignment="Left" Height="256" Margin="-1" VerticalAlignment="Top" Width="256" Stretch="Fill" IsEnabled="False"/>
+			</Border>
 		</Grid>
+		<CheckBox x:Name="chkOutline" Content="Outline" HorizontalAlignment="Left" Margin="648,50,0,0" VerticalAlignment="Top" Width="64"/>
 		<Rectangle x:Name="rectCurrentColor" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="24" Margin="10,181,0,0" Stroke="Black" VerticalAlignment="Top" Width="24"/>
 	</Grid>
 </Window>

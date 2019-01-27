@@ -24,11 +24,13 @@ namespace PixelArtTool
     {
         WriteableBitmap canvasBitmap;
         WriteableBitmap gridBitmap;
+        WriteableBitmap outlineBitmap;
         WriteableBitmap paletteBitmap;
         Window w;
 
         Image drawingImage;
         Image gridImage;
+        Image outlineImage;
         Image paletteImage;
 
         // bitmap settings
@@ -80,6 +82,15 @@ namespace PixelArtTool
             gridBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             gridImage.Source = gridBitmap;
             DrawBackgroundGrid();
+
+            // setup outline bitmap
+            outlineImage = imgOutline;
+            RenderOptions.SetBitmapScalingMode(outlineImage, BitmapScalingMode.NearestNeighbor);
+            RenderOptions.SetEdgeMode(outlineImage, EdgeMode.Aliased);
+            w = (MainWindow)Application.Current.MainWindow;
+            //var gridScaleX = (int)gridImage.Width / canvasResolutionX;
+            outlineBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
+            outlineImage.Source = outlineBitmap;
 
 
             // build drawing area
@@ -458,6 +469,11 @@ namespace PixelArtTool
             int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
             int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
             DrawPixel(x, y);
+
+            if (chkOutline.IsChecked == true)
+            {
+                UpdateOutline();
+            }
         }
 
         void DrawingMouseUp(object sender, MouseButtonEventArgs e)
@@ -486,6 +502,10 @@ namespace PixelArtTool
 
             ShowMousePos(x, y);
             ShowMousePixelColor(x, y);
+            if (chkOutline.IsChecked == true)
+            {
+                UpdateOutline();
+            }
         }
 
         void ShowMousePos(int x, int y)
@@ -647,17 +667,73 @@ namespace PixelArtTool
 
         void DrawBackgroundGrid()
         {
-            for (int x = 0; x < 16; x++)
+            PixelColor c = new PixelColor();
+            for (int x = 0; x < canvasResolutionX; x++)
             {
-                for (int y = 0; y < 16; y++)
+                for (int y = 0; y < canvasResolutionY; y++)
                 {
-                    PixelColor c = new PixelColor();
                     c.Alpha = gridAlpha;
                     byte v = (byte)(((x % 2) == (y % 2)) ? 255 : 0);
                     c.Red = v;
                     c.Green = v;
                     c.Blue = v;
                     SetPixel(gridBitmap, x, y, (int)c.ColorBGRA);
+                }
+            }
+        }
+
+        // draw automatic outlines
+        void UpdateOutline()
+        {
+            PixelColor c = new PixelColor();
+            for (int x = 0; x < canvasResolutionX; x++)
+            {
+                for (int y = 0; y < canvasResolutionY; y++)
+                {
+                    int centerPix = GetPixelColor(x, y, canvasBitmap).Alpha > 0 ? 1 : 0;
+
+                    int yy = (y + 1) > (canvasResolutionY - 1) ? y : y;
+                    int upPix = GetPixelColor(x, yy + 1, canvasBitmap).Alpha > 0 ? 1 : 0;
+                    int xx = (x + 1) > (canvasResolutionX - 1) ? x : x + 1;
+                    int rightPix = GetPixelColor(xx, y, canvasBitmap).Alpha > 0 ? 1 : 0;
+                    yy = (y - 1) < 0 ? y : y - 1;
+                    int downPix = GetPixelColor(x, yy, canvasBitmap).Alpha > 0 ? 1 : 0;
+                    xx = (x - 1) < 0 ? x : x - 1;
+                    int leftPix = GetPixelColor(xx, y, canvasBitmap).Alpha > 0 ? 1 : 0;
+
+                    /*
+                    // decrease count if black color founded
+                    if (!automaticOutlineForBlack)
+                    {
+                        if (upPix > 0) upPix -= canvas.GetPixel(x, y + 1).grayscale == 0 ? 1 : 0;
+                        if (rightPix > 0) rightPix -= canvas.GetPixel(x + 1, y).grayscale == 0 ? 1 : 0;
+                        if (downPix > 0) downPix -= canvas.GetPixel(x, y - 1).grayscale == 0 ? 1 : 0;
+                        if (leftPix > 0) leftPix -= canvas.GetPixel(x - 1, y).grayscale == 0 ? 1 : 0;
+                    }*/
+
+                    c.Red = 0;
+                    c.Green = 0;
+                    c.Blue = 0;
+                    c.Alpha = 0;
+
+                    int neighbourAlphas = upPix + rightPix + downPix + leftPix;
+                    if (neighbourAlphas > 0)
+                    {
+                        if (centerPix == 0)
+                        {
+                            c.Alpha = 255;
+                        }
+                        else
+                        {
+                            c.Alpha = 0;
+                        }
+                    }
+                    else
+                    {
+                        c.Alpha = 0;
+                    }
+
+                    SetPixel(outlineBitmap, x, y, (int)c.ColorBGRA);
                 }
             }
         }
