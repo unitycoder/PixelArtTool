@@ -26,6 +26,8 @@ https://www.assetstore.unity3d.com/en/#!/content/28312?staystaystay
 - Undo ctrl+z
 - Background pixel grid
 - Automatic 1px outline (optional)
+- Mirror X-axis tool (Symmetry)
+- Canvas scroll/pan (to move image)
 
 # Screenshot
 ![image](https://user-images.githubusercontent.com/5438317/51800843-70f60980-223e-11e9-9f1b-41a0ce988528.png)
