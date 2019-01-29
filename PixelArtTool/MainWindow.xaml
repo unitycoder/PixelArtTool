@@ -26,11 +26,11 @@
 			</ToolBar>
 
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
-				<RadioButton GroupName="Toolbar" ToolTip="Test" Style="{StaticResource {x:Type ToggleButton}}">
+				<RadioButton GroupName="Toolbar" Tag="Draw" ToolTip="Pencil" Style="{StaticResource {x:Type ToggleButton}}" IsChecked="True" Click="OnToolChanged">
 					<Image Source="/Resources/Buttons/drawmode.png" />
 				</RadioButton>
-				<RadioButton GroupName="Toolbar" ToolTip="Test" Style="{StaticResource {x:Type ToggleButton}}">
-					<Image Source="/Resources/Buttons/drawmode.png" />
+				<RadioButton GroupName="Toolbar" Tag="Fill" ToolTip="Flood Fill" Style="{StaticResource {x:Type ToggleButton}}"  Click="OnToolChanged">
+					<Image Source="/Resources/Buttons/emptybutton.png" />
 				</RadioButton>
 			</ToolBar>
 

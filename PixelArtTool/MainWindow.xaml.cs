@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -11,10 +12,16 @@ using System.Windows.Media.Imaging;
 namespace PixelArtTool
 {
 
-    public enum DrawMode : byte
+    public enum BlendMode : byte
     {
         Default = 0,
         Additive = 1
+    }
+
+    public enum ToolMode : byte
+    {
+        Draw = 0,
+        Fill = 1
     }
 
     /// <summary>
@@ -62,7 +69,8 @@ namespace PixelArtTool
         WriteableBitmap[] undoBufferBitmap = new WriteableBitmap[maxUndoCount];
 
         // modes
-        DrawMode drawMode;
+        BlendMode blendMode;
+        ToolMode currentTool;
 
         public MainWindow()
         {
@@ -327,12 +335,12 @@ namespace PixelArtTool
 
             PixelColor draw = new PixelColor();
 
-            switch (drawMode)
+            switch (blendMode)
             {
-                case DrawMode.Default: // replace
+                case BlendMode.Default: // replace
                     draw = currentColor;
                     break;
-                case DrawMode.Additive:
+                case BlendMode.Additive:
                     // get old color from undo buffer
                     var oc = GetPixelColor(x, y, undoBufferBitmap[currentUndoIndex]);
                     // mix colors ADDITIVE mode
@@ -404,7 +412,7 @@ namespace PixelArtTool
 
 
         // return canvas pixel color from x,y
-        unsafe PixelColor GetPixelColor(int x, int y)
+        unsafe PixelColor GetPixel(int x, int y)
         {
             var pix = new PixelColor();
             byte[] ColorData = { 0, 0, 0, 0 }; // B G R !
@@ -464,7 +472,7 @@ namespace PixelArtTool
                 int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
                 int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
 
-                currentColor = GetPixelColor(x, y);
+                currentColor = GetPixel(x, y);
                 UpdateCurrentColor();
             }
         }
@@ -479,18 +487,30 @@ namespace PixelArtTool
 
             int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
             int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
-            DrawPixel(x, y);
+
+
+            switch (currentTool)
+            {
+                case ToolMode.Draw:
+                    DrawPixel(x, y);
+                    // mirror
+                    if (chkMirrorX.IsChecked == true)
+                    {
+                        DrawPixel(canvasResolutionX - x - 1, y);
+                    }
+                    break;
+                case ToolMode.Fill:
+                    FloodFill(x, y, (int)currentColor.ColorBGRA);
+                    break;
+                default:
+                    break;
+            }
 
             if (chkOutline.IsChecked == true)
             {
                 UpdateOutline();
             }
 
-            // mirror
-            if (chkMirrorX.IsChecked == true)
-            {
-                DrawPixel(canvasResolutionX - x - 1, y);
-            }
         }
 
         void DrawingMouseUp(object sender, MouseButtonEventArgs e)
@@ -506,12 +526,23 @@ namespace PixelArtTool
 
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                DrawPixel(x, y);
-                // mirror
-                if (chkMirrorX.IsChecked == true)
+                switch (currentTool)
                 {
-                    DrawPixel(canvasResolutionX - x - 1, y);
+                    case ToolMode.Draw:
+                        DrawPixel(x, y);
+                        // mirror
+                        if (chkMirrorX.IsChecked == true)
+                        {
+                            DrawPixel(canvasResolutionX - x - 1, y);
+                        }
+                        break;
+                    case ToolMode.Fill:
+                        FloodFill(x, y, (int)currentColor.ColorBGRA);
+                        break;
+                    default:
+                        break;
                 }
+
             }
             else if (e.RightButton == MouseButtonState.Pressed)
             {
@@ -524,7 +555,7 @@ namespace PixelArtTool
             }
             else if (e.MiddleButton == MouseButtonState.Pressed)
             {
-                currentColor = GetPixelColor(x, y);
+                currentColor = GetPixel(x, y);
             }
 
             ShowMousePos(x, y);
@@ -544,7 +575,7 @@ namespace PixelArtTool
 
         void ShowMousePixelColor(int x, int y)
         {
-            var col = GetPixelColor(x, y);
+            var col = GetPixel(x, y);
             //lblPixelColor.Content = palette[currentColorIndex].Red + "," + palette[currentColorIndex].Green + "," + palette[currentColorIndex].Blue + "," + palette[currentColorIndex].Alpha;
             lblPixelColor.Content = col.Red + "," + col.Green + "," + col.Blue + "," + col.Alpha;
         }
@@ -638,7 +669,7 @@ namespace PixelArtTool
         private void OnModeSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var s = sender as ComboBox;
-            drawMode = (DrawMode)s.SelectedIndex;
+            blendMode = (BlendMode)s.SelectedIndex;
         }
 
         bool leftShiftDown = false;
@@ -693,6 +724,68 @@ namespace PixelArtTool
         {
             e.CanExecute = true;
         }
+
+        void FloodFill(int x, int y, int fillColor)
+        {
+            // get hit color pixel
+            var hitColor = GetPixel(x, y);
+
+            // if same as current color, exit
+            if (hitColor.ColorBGRA == fillColor) return;
+
+            SetPixel(canvasBitmap, x, y, (int)hitColor.ColorBGRA);
+
+            List<int> ptsx = new List<int>();
+            ptsx.Add(x);
+            List<int> ptsy = new List<int>();
+            ptsy.Add(y);
+
+            int maxLoop = canvasResolutionX * canvasResolutionY + canvasResolutionX;
+            while (ptsx.Count > 0 && maxLoop > 0)
+            {
+                maxLoop--;
+
+                if (ptsx[0] - 1 >= 0)
+                {
+                    if (GetPixel(ptsx[0] - 1, ptsy[0]).ColorBGRA == hitColor.ColorBGRA)
+                    {
+                        ptsx.Add(ptsx[0] - 1); ptsy.Add(ptsy[0]);
+                        SetPixel(canvasBitmap, ptsx[0] - 1, ptsy[0], fillColor);
+                    }
+                }
+
+                if (ptsy[0] - 1 >= 0)
+                {
+                    if (GetPixel(ptsx[0], ptsy[0] - 1).ColorBGRA == hitColor.ColorBGRA)
+                    {
+                        ptsx.Add(ptsx[0]); ptsy.Add(ptsy[0] - 1);
+                        SetPixel(canvasBitmap, ptsx[0], ptsy[0] - 1, fillColor);
+                    }
+                }
+
+                if (ptsx[0] + 1 < canvasResolutionX)
+                {
+                    if (GetPixel(ptsx[0] + 1, ptsy[0]).ColorBGRA == hitColor.ColorBGRA)
+                    {
+                        ptsx.Add(ptsx[0] + 1); ptsy.Add(ptsy[0]);
+                        SetPixel(canvasBitmap, ptsx[0] + 1, ptsy[0], fillColor);
+                    }
+                }
+
+                if (ptsy[0] + 1 < canvasResolutionY)
+                {
+                    if (GetPixel(ptsx[0], ptsy[0] + 1).ColorBGRA == hitColor.ColorBGRA)
+                    {
+                        ptsx.Add(ptsx[0]); ptsy.Add(ptsy[0] + 1);
+                        SetPixel(canvasBitmap, ptsx[0], ptsy[0] + 1, fillColor);
+                    }
+                }
+                ptsx.RemoveAt(0);
+                ptsy.RemoveAt(0);
+            } // while can floodfill
+
+        } // floodfill
+
 
         void DrawBackgroundGrid()
         {
@@ -809,6 +902,12 @@ namespace PixelArtTool
             int result = val % max;
             if (result < 0) result += max;
             return result;
+        }
+
+        private void OnToolChanged(object sender, RoutedEventArgs e)
+        {
+            string tag = (string)((RadioButton)sender).Tag;
+            Enum.TryParse(tag, out currentTool);
         }
 
     } // class
