@@ -13,8 +13,11 @@
 	<Window.InputBindings>
 		<KeyBinding Command="ApplicationCommands.Undo" Gesture="Ctrl+Z"/>
 	</Window.InputBindings>
-	
+
 	<Grid>
+		<Grid.Resources>
+			<local:EnumBooleanConverter x:Key="ComparisonConverter" />
+		</Grid.Resources>
 		<ToolBarTray Background="White" Height="36" VerticalAlignment="Top">
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
 				<Button x:Name="btnNew" ToolTip="New (clear image)" Click="OnClearButton">
@@ -26,10 +29,12 @@
 			</ToolBar>
 
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
-				<RadioButton GroupName="Toolbar" Tag="Draw" ToolTip="Pencil" Style="{StaticResource {x:Type ToggleButton}}" IsChecked="True" Click="OnToolChanged">
+				<RadioButton GroupName="Toolbar" Tag="Draw" ToolTip="Pencil" Style="{StaticResource {x:Type ToggleButton}}"
+							 IsChecked="{Binding Path=CurrentTool, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static local:ToolMode.Draw},Mode=TwoWay}">
 					<Image Source="/Resources/Buttons/drawmode.png" />
 				</RadioButton>
-				<RadioButton GroupName="Toolbar" Tag="Fill" ToolTip="Flood Fill" Style="{StaticResource {x:Type ToggleButton}}"  Click="OnToolChanged">
+				<RadioButton GroupName="Toolbar" Tag="Fill" ToolTip="Flood Fill" Style="{StaticResource {x:Type ToggleButton}}"
+							 IsChecked="{Binding Path=CurrentTool, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static local:ToolMode.Fill},Mode=TwoWay}">
 					<Image Source="/Resources/Buttons/emptybutton.png" />
 				</RadioButton>
 			</ToolBar>

@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -18,10 +19,10 @@ namespace PixelArtTool
         Additive = 1
     }
 
-    public enum ToolMode : byte
+    public enum ToolMode
     {
-        Draw = 0,
-        Fill = 1
+        Draw,
+        Fill
     }
 
     /// <summary>
@@ -70,7 +71,22 @@ namespace PixelArtTool
 
         // modes
         BlendMode blendMode;
-        ToolMode currentTool;
+
+        // TEST property binding
+        private ToolMode myVar = ToolMode.Draw;
+        public ToolMode CurrentTool
+        {
+            get
+            {
+                Console.WriteLine("get:"+myVar);
+                return myVar; }
+            set {
+                Console.WriteLine("set:"+value);
+                myVar = value; }
+        }
+
+
+        //public MyLovelyEnum VeryLovelyEnum { get; set; }
 
         public MainWindow()
         {
@@ -80,6 +96,7 @@ namespace PixelArtTool
 
         void Start()
         {
+            DataContext = this;
 
             // setup background grid
             gridImage = imgGrid;
@@ -139,9 +156,6 @@ namespace PixelArtTool
             currentColorIndex = 5;
             currentColor = palette[currentColorIndex];
             UpdateCurrentColor();
-
-            //this.KeyDown += new KeyEventHandler(OnKeyDown);
-            //this.keyup += new KeyEventHandler(OnKeyDown);
         }
 
 
@@ -489,7 +503,7 @@ namespace PixelArtTool
             int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
 
 
-            switch (currentTool)
+            switch (CurrentTool)
             {
                 case ToolMode.Draw:
                     DrawPixel(x, y);
@@ -526,7 +540,7 @@ namespace PixelArtTool
 
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                switch (currentTool)
+                switch (CurrentTool)
                 {
                     case ToolMode.Draw:
                         DrawPixel(x, y);
@@ -680,7 +694,15 @@ namespace PixelArtTool
             // TODO: add tool shortcut keys
             switch (e.Key)
             {
-                case Key.LeftShift:
+                case Key.B: // brush
+                    CurrentTool = ToolMode.Draw;
+                    Console.WriteLine("drawmode");
+                    break;
+                case Key.F: // floodfill
+                    CurrentTool = ToolMode.Fill;
+                    Console.WriteLine("fillmode");
+                    break;
+                case Key.LeftShift: // left shift
                     lblToolInfo.Content = "Straight Lines";
                     leftShiftDown = true;
                     break;
@@ -906,9 +928,29 @@ namespace PixelArtTool
 
         private void OnToolChanged(object sender, RoutedEventArgs e)
         {
-            string tag = (string)((RadioButton)sender).Tag;
-            Enum.TryParse(tag, out currentTool);
+            //string tag = (string)((RadioButton)sender).Tag;
+            //Enum.TryParse(tag, out currentTool);
         }
 
+
+
     } // class
+
+    public class EnumBooleanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            Console.WriteLine("valueA:"+ value);
+            Console.WriteLine("parameter:" + parameter);
+            return value?.Equals(parameter);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            Console.WriteLine("valueB:" + value);
+            Console.WriteLine("parameter:" + parameter);
+            return value?.Equals(true) == true ? parameter : Binding.DoNothing;
+        }
+    }
+
 } // namespace
