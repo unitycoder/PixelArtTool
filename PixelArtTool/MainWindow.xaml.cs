@@ -1,12 +1,16 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -28,7 +32,7 @@ namespace PixelArtTool
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         WriteableBitmap canvasBitmap;
         WriteableBitmap gridBitmap;
@@ -73,20 +77,20 @@ namespace PixelArtTool
         BlendMode blendMode;
 
         // TEST property binding
-        private ToolMode myVar = ToolMode.Draw;
+        private ToolMode myVar = ToolMode.Fill;
         public ToolMode CurrentTool
         {
             get
             {
-                Console.WriteLine("get:"+myVar);
-                return myVar; }
-            set {
-                Console.WriteLine("set:"+value);
-                myVar = value; }
+                return myVar;
+            }
+            set
+            {
+                myVar = value;
+                OnPropertyChanged();
+            }
         }
 
-
-        //public MyLovelyEnum VeryLovelyEnum { get; set; }
 
         public MainWindow()
         {
@@ -96,6 +100,7 @@ namespace PixelArtTool
 
         void Start()
         {
+            // needed for binding
             DataContext = this;
 
             // setup background grid
@@ -696,11 +701,9 @@ namespace PixelArtTool
             {
                 case Key.B: // brush
                     CurrentTool = ToolMode.Draw;
-                    Console.WriteLine("drawmode");
                     break;
                 case Key.F: // floodfill
                     CurrentTool = ToolMode.Fill;
-                    Console.WriteLine("fillmode");
                     break;
                 case Key.LeftShift: // left shift
                     lblToolInfo.Content = "Straight Lines";
@@ -932,23 +935,25 @@ namespace PixelArtTool
             //Enum.TryParse(tag, out currentTool);
         }
 
-
+        // https://github.com/crclayton/WPF-DataBinding-Example
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
     } // class
 
+    // https://stackoverflow.com/a/2908885/5452781
     public class EnumBooleanConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            Console.WriteLine("valueA:"+ value);
-            Console.WriteLine("parameter:" + parameter);
             return value?.Equals(parameter);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            Console.WriteLine("valueB:" + value);
-            Console.WriteLine("parameter:" + parameter);
             return value?.Equals(true) == true ? parameter : Binding.DoNothing;
         }
     }
