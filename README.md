@@ -25,11 +25,16 @@ https://www.assetstore.unity3d.com/en/#!/content/28312?staystaystay
 - Draw straight and diagonal lines with left shift down
 - Undo ctrl+z
 - Background pixel grid
-- Automatic 1px outline (optional)
+- Automatic 1px outline
 - Mirror X-axis tool (Symmetry)
 - Canvas scroll/pan (to move image)
+- FloodFill tool
+- Flip Horizontal/Vertial tool
+- Secondary color (with swap key "X")
+- Palette loader dialog
 
 # Screenshot
-![image](https://user-images.githubusercontent.com/5438317/51800843-70f60980-223e-11e9-9f1b-41a0ce988528.png)
+![image](https://user-images.githubusercontent.com/5438317/52136020-cae83c00-264f-11e9-89a2-6f1eb2a4f75a.png)
+
 
 
