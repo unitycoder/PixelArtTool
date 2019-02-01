@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -10,7 +9,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -76,17 +74,16 @@ namespace PixelArtTool
         // modes
         BlendMode blendMode;
 
-        // TEST property binding
-        private ToolMode myVar = ToolMode.Fill;
+        private ToolMode _currentTool = ToolMode.Draw;
         public ToolMode CurrentTool
         {
             get
             {
-                return myVar;
+                return _currentTool;
             }
             set
             {
-                myVar = value;
+                _currentTool = value;
                 OnPropertyChanged();
             }
         }
@@ -157,16 +154,16 @@ namespace PixelArtTool
             //paletteImage.MouseRightButtonDown += new MouseButtonEventHandler(PaletteRightButtonDown);
 
             // init
-            LoadPalette();
+            LoadPalette("pack://application:,,,/Resources/Palettes/aap-64-1x.png");
             currentColorIndex = 5;
             currentColor = palette[currentColorIndex];
             UpdateCurrentColor();
         }
 
 
-        void LoadPalette()
+        void LoadPalette(string path)
         {
-            Uri uri = new Uri("pack://application:,,,/Resources/Palettes/aap-64-1x.png");
+            Uri uri = new Uri(path);
             var img = new BitmapImage(uri);
 
             // get colors
@@ -699,6 +696,20 @@ namespace PixelArtTool
             // TODO: add tool shortcut keys
             switch (e.Key)
             {
+                case Key.X: // swap current/secondary colors
+                    var tempcolor = rectCurrentColor.Fill;
+                    rectCurrentColor.Fill = rectSecondaryColor.Fill;
+                    rectSecondaryColor.Fill = tempcolor;
+                    // TODO move to converter
+                    var c = new PixelColor();
+                    var t = ((SolidColorBrush)rectCurrentColor.Fill).Color;
+                    c.Red = t.R;
+                    c.Green = t.G;
+                    c.Blue = t.B;
+                    c.Alpha = t.A;
+                    currentColor = c;
+
+                    break;
                 case Key.B: // brush
                     CurrentTool = ToolMode.Draw;
                     break;
@@ -942,6 +953,41 @@ namespace PixelArtTool
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        void BitmapFlip(bool horizontal)
+        {
+            // clone canvas, FIXME not really needed..could just copy pixels to array or backbuffer directly
+            var tempCanvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
+            tempCanvasBitmap = canvasBitmap.Clone();
+            for (int x = 0; x < canvasResolutionX; x++)
+            {
+                for (int y = 0; y < canvasResolutionY; y++)
+                {
+                    int xx = horizontal ? (canvasResolutionX - x - 1) : x;
+                    int yy = !horizontal ? (canvasResolutionY - y - 1) : y;
+                    var c = GetPixelColor(xx, yy, tempCanvasBitmap);
+                    SetPixel(canvasBitmap, x, y, (int)c.ColorBGRA);
+                }
+            }
+        }
+
+        private void OnFlipXButtonDown(object sender, RoutedEventArgs e)
+        {
+            BitmapFlip(horizontal: true);
+        }
+
+        private void OnFlipYButtonDown(object sender, RoutedEventArgs e)
+        {
+            BitmapFlip(horizontal: false);
+        }
+
+        private void OnLoadPaletteButton(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                LoadPalette(openFileDialog.FileName);
+            }
+        }
     } // class
 
     // https://stackoverflow.com/a/2908885/5452781

@@ -82,8 +82,8 @@
 				<Label x:Name="lblToolInfo" Content="-"/>
 			</StatusBarItem>
 		</StatusBar>
-		<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="128" Margin="10,50,0,0" VerticalAlignment="Top" Width="64">
-			<Image x:Name="imgPalette" HorizontalAlignment="Left" Height="128" Margin="0,0,0,-30" VerticalAlignment="Top" Width="64" Stretch="Fill"/>
+		<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="198" Margin="10,50,0,0" VerticalAlignment="Top" Width="64">
+			<Image x:Name="imgPalette" HorizontalAlignment="Left" Height="198" Margin="0,0,0,-30" VerticalAlignment="Top" Width="64" Stretch="Fill"/>
 		</Border>
 		<Grid>
 			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="256" Margin="89,50,0,0" VerticalAlignment="Top" Width="256">
@@ -99,9 +99,13 @@
 			<Button x:Name="btnScrollDown" Click="OnScrollButtonDownClicked" Content="\/" HorizontalAlignment="Left" Margin="388,274,0,0" VerticalAlignment="Top" Width="24"/>
 			<Button x:Name="btnScrollLeft" Click="OnScrollButtonLeftClicked" Content="&lt;" HorizontalAlignment="Left" Margin="361,263,0,0" VerticalAlignment="Top" Width="24"/>
 			<Button x:Name="btnScrollRight" Click="OnScrollButtonRightClicked" Content="&gt;" HorizontalAlignment="Left" Margin="415,262,0,0" VerticalAlignment="Top" Width="24"/>
+			<Button x:Name="btnFlipX" Click="OnFlipXButtonDown" Content="FlipX" HorizontalAlignment="Left" Margin="462,251,0,0" VerticalAlignment="Top" Width="32"/>
+			<Button x:Name="btnFlipY" Click="OnFlipYButtonDown" Content="FlipY" HorizontalAlignment="Left" Margin="462,276,0,0" VerticalAlignment="Top" Width="32"/>
+			<Button x:Name="btnLoadPalette" Click="OnLoadPaletteButton" Content="Load Palette" HorizontalAlignment="Left" Margin="620,276,0,0" VerticalAlignment="Top" Width="77"/>
 		</Grid>
 		<CheckBox x:Name="chkOutline" Content="Outline" HorizontalAlignment="Left" Margin="648,50,0,0" VerticalAlignment="Top" Width="64"/>
-		<Rectangle x:Name="rectCurrentColor" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="24" Margin="10,181,0,0" Stroke="Black" VerticalAlignment="Top" Width="24"/>
+		<Rectangle x:Name="rectCurrentColor" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="28" Margin="10,276,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
 		<CheckBox x:Name="chkMirrorX" Content="MirrorX" HorizontalAlignment="Left" Margin="648,80,0,0" VerticalAlignment="Top" Width="64"/>
+		<Rectangle x:Name="rectSecondaryColor" Fill="Black" HorizontalAlignment="Left" Height="28" Margin="47,276,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
 	</Grid>
 </Window>
