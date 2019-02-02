@@ -13,7 +13,6 @@
 	<Window.InputBindings>
 		<KeyBinding Command="ApplicationCommands.Undo" Gesture="Ctrl+Z"/>
 	</Window.InputBindings>
-
 	<Window.Resources>
 
 		<!-- Change this to any pure hue i.e. no more than 2 rgb components set and at least 1 set to FF -->
@@ -80,7 +79,7 @@
 				</RadioButton>
 				<RadioButton GroupName="Toolbar" Tag="Fill" ToolTip="Flood Fill (F)" Style="{StaticResource {x:Type ToggleButton}}"
 							 IsChecked="{Binding Path=CurrentTool, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static local:ToolMode.Fill},Mode=TwoWay}">
-					<Image Source="/Resources/Buttons/emptybutton.png" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+					<Image Source="/Resources/Buttons/paint.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
 				</RadioButton>
 			</ToolBar>
 
