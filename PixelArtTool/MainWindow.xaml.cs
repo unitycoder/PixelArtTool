@@ -32,6 +32,29 @@ namespace PixelArtTool
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        [StructLayout(LayoutKind.Sequential)]
+        public struct POINT
+        {
+            public int X;
+            public int Y;
+
+            public static implicit operator Point(POINT point)
+            {
+                return new Point(point.X, point.Y);
+            }
+        }
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr GetDesktopWindow();
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr GetWindowDC(IntPtr window);
+        [DllImport("gdi32.dll", SetLastError = true)]
+        public static extern uint GetPixel(IntPtr dc, int x, int y);
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern int ReleaseDC(IntPtr window, IntPtr dc);
+        [DllImport("user32.dll")]
+        static extern bool GetCursorPos(out POINT lpPoint);
+
         WriteableBitmap canvasBitmap;
         WriteableBitmap gridBitmap;
         WriteableBitmap outlineBitmap;
@@ -133,6 +156,14 @@ namespace PixelArtTool
             imgPreview1x.Source = canvasBitmap;
             RenderOptions.SetBitmapScalingMode(imgPreview2x, BitmapScalingMode.NearestNeighbor);
             imgPreview2x.Source = canvasBitmap;
+            RenderOptions.SetBitmapScalingMode(imgPreview1xb, BitmapScalingMode.NearestNeighbor);
+            imgPreview1xb.Source = canvasBitmap;
+            RenderOptions.SetBitmapScalingMode(imgPreview2xb, BitmapScalingMode.NearestNeighbor);
+            imgPreview2xb.Source = canvasBitmap;
+            RenderOptions.SetBitmapScalingMode(imgPreview1xc, BitmapScalingMode.NearestNeighbor);
+            imgPreview1xc.Source = canvasBitmap;
+            RenderOptions.SetBitmapScalingMode(imgPreview2xc, BitmapScalingMode.NearestNeighbor);
+            imgPreview2xc.Source = canvasBitmap;
 
             // drawing events
             drawingImage.MouseMove += new MouseEventHandler(DrawingAreaMouseMoved);
@@ -705,6 +736,19 @@ namespace PixelArtTool
             // TODO: add tool shortcut keys
             switch (e.Key)
             {
+                case Key.I: // TEST global color picker
+                    POINT cursor;
+                    GetCursorPos(out cursor);
+                    var c1 = Win32GetScreenPixel((int)cursor.X, (int)cursor.Y);
+                    var c2 = new PixelColor();
+                    c2.Alpha = c1.A;
+                    c2.Red = c1.R;
+                    c2.Green = c1.G;
+                    c2.Blue = c1.B;
+                    currentColor = c2;
+                    rectCurrentColor.Fill = new SolidColorBrush(Color.FromArgb(c2.Alpha, c2.Red, c2.Green, c2.Blue));
+//                    Console.WriteLine(cursor.X + "," + cursor.Y + " = " + c1);
+                    break;
                 case Key.X: // swap current/secondary colors
                     var tempcolor = rectCurrentColor.Fill;
                     rectCurrentColor.Fill = rectSecondaryColor.Fill;
@@ -717,7 +761,6 @@ namespace PixelArtTool
                     c.Blue = t.B;
                     c.Alpha = t.A;
                     currentColor = c;
-
                     break;
                 case Key.B: // brush
                     CurrentTool = ToolMode.Draw;
@@ -997,6 +1040,24 @@ namespace PixelArtTool
                 LoadPalette(openFileDialog.FileName);
             }
         }
+
+        // https://stackoverflow.com/a/24759418/5452781
+        public static Color Win32GetScreenPixel(int x, int y)
+        {
+            IntPtr desk = GetDesktopWindow();
+            IntPtr dc = GetWindowDC(desk);
+            int a = (int)GetPixel(dc, x, y);
+            ReleaseDC(desk, dc);
+            return Color.FromArgb(255, (byte)((a >> 0) & 0xff), (byte)((a >> 8) & 0xff), (byte)((a >> 16) & 0xff));
+        }
+
+        public static Point GetCursorPosition()
+        {
+            POINT lpPoint;
+            GetCursorPos(out lpPoint);
+            return lpPoint;
+        }
+
     } // class
 
     // https://stackoverflow.com/a/2908885/5452781

@@ -14,12 +14,56 @@
 		<KeyBinding Command="ApplicationCommands.Undo" Gesture="Ctrl+Z"/>
 	</Window.InputBindings>
 
+	<Window.Resources>
+
+		<!-- Change this to any pure hue i.e. no more than 2 rgb components set and at least 1 set to FF -->
+		<Color x:Key="CurrentColor">#00FF00</Color>
+
+		<LinearGradientBrush x:Key="HueBrush" StartPoint="0,0" EndPoint="0,1">
+			<LinearGradientBrush.GradientStops>
+				<GradientStop Color="#FF0000" Offset="0" />
+				<GradientStop Color="#FFFF00" Offset="0.167" />
+				<GradientStop Color="#00FF00" Offset="0.333" />
+				<GradientStop Color="#00FFFF" Offset="0.5" />
+				<GradientStop Color="#0000FF" Offset="0.667" />
+				<GradientStop Color="#FF00FF" Offset="0.833" />
+				<GradientStop Color="#FF0000" Offset="1" />
+			</LinearGradientBrush.GradientStops>
+		</LinearGradientBrush>
+
+		<VisualBrush x:Key="LevelSaturationBrush" TileMode="None">
+			<VisualBrush.Visual>
+				<Canvas Background="Black" Width="1" Height="1" SnapsToDevicePixels="True">
+					<Rectangle Width="1" Height="1" SnapsToDevicePixels="True">
+						<Rectangle.Fill>
+							<LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+								<LinearGradientBrush.GradientStops>
+									<GradientStop Color="White" Offset="0" />
+									<GradientStop Color="{DynamicResource CurrentColor}" Offset="1" />
+								</LinearGradientBrush.GradientStops>
+							</LinearGradientBrush>
+						</Rectangle.Fill>
+						<Rectangle.OpacityMask>
+							<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+								<LinearGradientBrush.GradientStops>
+									<GradientStop Color="#FFFFFFFF" Offset="0"/>
+									<GradientStop Color="#00FFFFFF" Offset="1"/>
+								</LinearGradientBrush.GradientStops>
+							</LinearGradientBrush>
+						</Rectangle.OpacityMask>
+					</Rectangle>
+				</Canvas>
+			</VisualBrush.Visual>
+		</VisualBrush>
+
+	</Window.Resources>
+
 	<Grid>
 		<Grid.Resources>
 			<local:EnumBooleanConverter x:Key="ComparisonConverter" />
 		</Grid.Resources>
 
-		<ToolBarTray Background="White" Height="36" VerticalAlignment="Top">
+		<ToolBarTray Background="White" Height="32" VerticalAlignment="Top">
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
 				<Button x:Name="btnNew" ToolTip="New (clear image)" Click="OnClearButton">
 					<Image Source="/Resources/Buttons/emptybutton.png" />
@@ -32,11 +76,11 @@
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
 				<RadioButton GroupName="Toolbar" Tag="Draw" ToolTip="Pencil" Style="{StaticResource {x:Type ToggleButton}}"
 							 IsChecked="{Binding Path=CurrentTool, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static local:ToolMode.Draw},Mode=TwoWay}">
-					<Image Source="/Resources/Buttons/drawmode.png" />
+					<Image Source="/Resources/Buttons/drawmode.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
 				</RadioButton>
 				<RadioButton GroupName="Toolbar" Tag="Fill" ToolTip="Flood Fill" Style="{StaticResource {x:Type ToggleButton}}"
 							 IsChecked="{Binding Path=CurrentTool, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static local:ToolMode.Fill},Mode=TwoWay}">
-					<Image Source="/Resources/Buttons/emptybutton.png" />
+					<Image Source="/Resources/Buttons/emptybutton.png" RenderOptions.BitmapScalingMode="NearestNeighbor" />
 				</RadioButton>
 			</ToolBar>
 
@@ -103,17 +147,40 @@
 			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="16" Margin="425,50,0,0" VerticalAlignment="Top" Width="16">
 				<Image x:Name="imgPreview1x" HorizontalAlignment="Left" Height="16" Margin="-1" VerticalAlignment="Top" Width="16" Stretch="Fill"/>
 			</Border>
+			<Rectangle x:Name="recPreviewBg2xb" Fill="Gray" HorizontalAlignment="Left" Height="32" Margin="375,100,0,0" VerticalAlignment="Top" Width="32"/>
+			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="32" Margin="375,100,0,0" VerticalAlignment="Top" Width="32">
+				<Image x:Name="imgPreview2xb" HorizontalAlignment="Left" Height="32" Margin="-1" VerticalAlignment="Top" Width="32" Stretch="Fill"/>
+			</Border>
+			<Rectangle x:Name="recPreviewBg1xb" Fill="Gray" HorizontalAlignment="Left" Height="16" Margin="425,100,0,0" VerticalAlignment="Top" Width="16"/>
+			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="16" Margin="425,100,0,0" VerticalAlignment="Top" Width="16">
+				<Image x:Name="imgPreview1xb" HorizontalAlignment="Left" Height="16" Margin="-1" VerticalAlignment="Top" Width="16" Stretch="Fill"/>
+			</Border>
+			<Rectangle x:Name="recPreviewBg2xc" Fill="White" HorizontalAlignment="Left" Height="32" Margin="375,150,0,0" VerticalAlignment="Top" Width="32"/>
+			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="32" Margin="375,150,0,0" VerticalAlignment="Top" Width="32">
+				<Image x:Name="imgPreview2xc" HorizontalAlignment="Left" Height="32" Margin="-1" VerticalAlignment="Top" Width="32" Stretch="Fill"/>
+			</Border>
+			<Rectangle x:Name="recPreviewBg1xc" Fill="White" HorizontalAlignment="Left" Height="16" Margin="425,150,0,0" VerticalAlignment="Top" Width="16"/>
+			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="16" Margin="425,150,0,0" VerticalAlignment="Top" Width="16">
+				<Image x:Name="imgPreview1xc" HorizontalAlignment="Left" Height="16" Margin="-1" VerticalAlignment="Top" Width="16" Stretch="Fill"/>
+			</Border>
 			<Button x:Name="btnScrollUp" Click="OnScrollButtonUpClicked" Content="/\" HorizontalAlignment="Left" Margin="388,252,0,0" VerticalAlignment="Top" Width="24"/>
 			<Button x:Name="btnScrollDown" Click="OnScrollButtonDownClicked" Content="\/" HorizontalAlignment="Left" Margin="388,274,0,0" VerticalAlignment="Top" Width="24"/>
 			<Button x:Name="btnScrollLeft" Click="OnScrollButtonLeftClicked" Content="&lt;" HorizontalAlignment="Left" Margin="361,263,0,0" VerticalAlignment="Top" Width="24"/>
 			<Button x:Name="btnScrollRight" Click="OnScrollButtonRightClicked" Content="&gt;" HorizontalAlignment="Left" Margin="415,262,0,0" VerticalAlignment="Top" Width="24"/>
-			<Button x:Name="btnFlipX" Click="OnFlipXButtonDown" Content="FlipX" HorizontalAlignment="Left" Margin="462,251,0,0" VerticalAlignment="Top" Width="32"/>
-			<Button x:Name="btnFlipY" Click="OnFlipYButtonDown" Content="FlipY" HorizontalAlignment="Left" Margin="462,276,0,0" VerticalAlignment="Top" Width="32"/>
-			<Button x:Name="btnLoadPalette" Click="OnLoadPaletteButton" Content="Load Palette" HorizontalAlignment="Left" Margin="620,276,0,0" VerticalAlignment="Top" Width="77"/>
+			<Button x:Name="btnFlipX" Click="OnFlipXButtonDown" Content="FlipX" HorizontalAlignment="Left" Margin="353,316,0,0" VerticalAlignment="Top" Width="32"/>
+			<Button x:Name="btnFlipY" Click="OnFlipYButtonDown" Content="FlipY" HorizontalAlignment="Left" Margin="390,316,0,0" VerticalAlignment="Top" Width="32"/>
+			<Button x:Name="btnLoadPalette" Click="OnLoadPaletteButton" Content="Load Palette" HorizontalAlignment="Left" Margin="10,321,0,0" VerticalAlignment="Top" Width="71"/>
 		</Grid>
 		<CheckBox x:Name="chkOutline" Content="Outline" HorizontalAlignment="Left" Margin="648,50,0,0" VerticalAlignment="Top" Width="64"/>
 		<Rectangle x:Name="rectCurrentColor" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="28" Margin="10,276,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
 		<CheckBox x:Name="chkMirrorX" Content="MirrorX" HorizontalAlignment="Left" Margin="648,80,0,0" VerticalAlignment="Top" Width="64"/>
 		<Rectangle x:Name="rectSecondaryColor" Fill="Black" HorizontalAlignment="Left" Height="28" Margin="47,276,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
+
+		<!-- https://stackoverflow.com/a/32514853/5452781 -->
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="452,113,0,0">
+			<Rectangle Fill="{StaticResource LevelSaturationBrush}" Width="200" Height="200" Margin="10" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" />
+			<Rectangle Fill="{StaticResource HueBrush}" Width="20" Height="200" Margin="10" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" />
+		</StackPanel>
+
 	</Grid>
 </Window>
