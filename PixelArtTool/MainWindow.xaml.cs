@@ -119,7 +119,6 @@ namespace PixelArtTool
             outlineBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             outlineImage.Source = outlineBitmap;
 
-
             // build drawing area
             drawingImage = imgCanvas;
             RenderOptions.SetBitmapScalingMode(drawingImage, BitmapScalingMode.NearestNeighbor);
@@ -128,6 +127,12 @@ namespace PixelArtTool
             canvasScaleX = (int)drawingImage.Width / canvasResolutionX;
             canvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             drawingImage.Source = canvasBitmap;
+
+            // setup preview area
+            RenderOptions.SetBitmapScalingMode(imgPreview1x, BitmapScalingMode.NearestNeighbor);
+            imgPreview1x.Source = canvasBitmap;
+            RenderOptions.SetBitmapScalingMode(imgPreview2x, BitmapScalingMode.NearestNeighbor);
+            imgPreview2x.Source = canvasBitmap;
 
             // drawing events
             drawingImage.MouseMove += new MouseEventHandler(DrawingAreaMouseMoved);
@@ -499,7 +504,11 @@ namespace PixelArtTool
         {
             // undo test
             undoBufferBitmap[currentUndoIndex++] = canvasBitmap.Clone();
-            //Console.WriteLine("save undo " + currentUndoIndex);
+
+            // FIXME if undobuffer enabled above, sometimes Exception thrown: 'System.IndexOutOfRangeException' in PixelArtTool.exe
+            // An unhandled exception of type 'System.IndexOutOfRangeException' occurred in PixelArtTool.exe
+            // Index was outside the bounds of the array.
+            // Console.WriteLine(drawingImage);
 
             int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
             int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);

@@ -95,6 +95,14 @@
 			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="256" Margin="89,50,0,0" VerticalAlignment="Top" Width="256">
 				<Image x:Name="imgOutline" IsHitTestVisible="False" HorizontalAlignment="Left" Height="256" Margin="-1" VerticalAlignment="Top" Width="256" Stretch="Fill" IsEnabled="False"/>
 			</Border>
+			<Rectangle x:Name="recPreviewBg2x" Fill="Black" HorizontalAlignment="Left" Height="32" Margin="375,50,0,0" VerticalAlignment="Top" Width="32"/>
+			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="32" Margin="375,50,0,0" VerticalAlignment="Top" Width="32">
+				<Image x:Name="imgPreview2x" HorizontalAlignment="Left" Height="32" Margin="-1" VerticalAlignment="Top" Width="32" Stretch="Fill"/>
+			</Border>
+			<Rectangle x:Name="recPreviewBg1x" Fill="Black" HorizontalAlignment="Left" Height="16" Margin="425,50,0,0" VerticalAlignment="Top" Width="16"/>
+			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="16" Margin="425,50,0,0" VerticalAlignment="Top" Width="16">
+				<Image x:Name="imgPreview1x" HorizontalAlignment="Left" Height="16" Margin="-1" VerticalAlignment="Top" Width="16" Stretch="Fill"/>
+			</Border>
 			<Button x:Name="btnScrollUp" Click="OnScrollButtonUpClicked" Content="/\" HorizontalAlignment="Left" Margin="388,252,0,0" VerticalAlignment="Top" Width="24"/>
 			<Button x:Name="btnScrollDown" Click="OnScrollButtonDownClicked" Content="\/" HorizontalAlignment="Left" Margin="388,274,0,0" VerticalAlignment="Top" Width="24"/>
 			<Button x:Name="btnScrollLeft" Click="OnScrollButtonLeftClicked" Content="&lt;" HorizontalAlignment="Left" Margin="361,263,0,0" VerticalAlignment="Top" Width="24"/>
