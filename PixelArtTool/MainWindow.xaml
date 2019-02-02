@@ -34,7 +34,7 @@
 		<VisualBrush x:Key="LevelSaturationBrush" TileMode="None">
 			<VisualBrush.Visual>
 				<Canvas Background="Black" Width="1" Height="1" SnapsToDevicePixels="True">
-					<Rectangle Width="1" Height="1" SnapsToDevicePixels="True">
+					<Rectangle x:Name="rectGradientSingle" Width="1" Height="1" SnapsToDevicePixels="True">
 						<Rectangle.Fill>
 							<LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
 								<LinearGradientBrush.GradientStops>
@@ -63,28 +63,28 @@
 			<local:EnumBooleanConverter x:Key="ComparisonConverter" />
 		</Grid.Resources>
 
-		<ToolBarTray Background="White" Height="32" VerticalAlignment="Top">
-			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
+		<ToolBarTray Background="#FF1F1F1F" Height="32" VerticalAlignment="Top">
+			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top" Background="#FF9C9C9C">
 				<Button x:Name="btnNew" ToolTip="New (clear image)" Click="OnClearButton">
-					<Image Source="/Resources/Buttons/emptybutton.png" />
+					<Image Source="/Resources/Buttons/newimage.png"  Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
 				</Button>
 				<Button x:Name="btnSave" ToolTip="Save as.." Click="OnSaveButton">
-					<Image Source="/Resources/Buttons/emptybutton.png" />
+					<Image Source="/Resources/Buttons/save.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
 				</Button>
 			</ToolBar>
 
-			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
-				<RadioButton GroupName="Toolbar" Tag="Draw" ToolTip="Pencil" Style="{StaticResource {x:Type ToggleButton}}"
+			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top" Background="#FF9C9C9C">
+				<RadioButton GroupName="Toolbar" Tag="Draw" ToolTip="Brush (D)" Style="{StaticResource {x:Type ToggleButton}}"
 							 IsChecked="{Binding Path=CurrentTool, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static local:ToolMode.Draw},Mode=TwoWay}">
 					<Image Source="/Resources/Buttons/drawmode.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
 				</RadioButton>
-				<RadioButton GroupName="Toolbar" Tag="Fill" ToolTip="Flood Fill" Style="{StaticResource {x:Type ToggleButton}}"
+				<RadioButton GroupName="Toolbar" Tag="Fill" ToolTip="Flood Fill (F)" Style="{StaticResource {x:Type ToggleButton}}"
 							 IsChecked="{Binding Path=CurrentTool, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static local:ToolMode.Fill},Mode=TwoWay}">
 					<Image Source="/Resources/Buttons/emptybutton.png" RenderOptions.BitmapScalingMode="NearestNeighbor" />
 				</RadioButton>
 			</ToolBar>
 
-			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
+			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top" Background="#FF9C9C9C">
 				<RadioButton GroupName="Toolbar2" ToolTip="Test" Style="{StaticResource {x:Type ToggleButton}}">
 					<Image Source="/Resources/Buttons/emptybutton.png" />
 				</RadioButton>
@@ -93,11 +93,11 @@
 				</RadioButton>
 			</ToolBar>
 
-			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
+			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top" Background="#FF9C9C9C">
 				<Slider x:Name="sliderOpacity" ToolTip="Opacity" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="50" Height="28" Value="255" Maximum="255" LargeChange="0" SmallChange="1" ValueChanged="OpacitySliderValueChanged"/>
 			</ToolBar>
 
-			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
+			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top" Background="#FF9C9C9C">
 				<Button x:Name="btnUndo" ToolTip="Undo" Click="OnUndoButtonDown">
 					<Image Source="/Resources/Buttons/emptybutton.png" />
 				</Button>
@@ -106,7 +106,7 @@
 				</Button>
 			</ToolBar>
 
-			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top">
+			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top" Background="#FF9C9C9C">
 				<ComboBox x:Name="cmbDrawMode" HorizontalAlignment="Left" VerticalAlignment="Top" Width="55" IsReadOnly="True" SelectedIndex="0" SelectionChanged="OnModeSelectionChanged">
 					<System:String>Default</System:String>
 					<System:String>Additive</System:String>
@@ -171,16 +171,15 @@
 			<Button x:Name="btnFlipY" Click="OnFlipYButtonDown" Content="FlipY" HorizontalAlignment="Left" Margin="390,316,0,0" VerticalAlignment="Top" Width="32"/>
 			<Button x:Name="btnLoadPalette" Click="OnLoadPaletteButton" Content="Load Palette" HorizontalAlignment="Left" Margin="10,321,0,0" VerticalAlignment="Top" Width="71"/>
 		</Grid>
-		<CheckBox x:Name="chkOutline" Content="Outline" HorizontalAlignment="Left" Margin="648,50,0,0" VerticalAlignment="Top" Width="64"/>
+		<CheckBox x:Name="chkOutline" Content="Outline" HorizontalAlignment="Left" Margin="638,50,0,0" VerticalAlignment="Top" Width="64" Click="chkOutline_Click"/>
 		<Rectangle x:Name="rectCurrentColor" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="28" Margin="10,276,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
-		<CheckBox x:Name="chkMirrorX" Content="MirrorX" HorizontalAlignment="Left" Margin="648,80,0,0" VerticalAlignment="Top" Width="64"/>
+		<CheckBox x:Name="chkMirrorX" Content="Symmetry X" HorizontalAlignment="Left" Margin="638,71,0,0" VerticalAlignment="Top" Width="93"/>
 		<Rectangle x:Name="rectSecondaryColor" Fill="Black" HorizontalAlignment="Left" Height="28" Margin="47,276,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
 
 		<!-- https://stackoverflow.com/a/32514853/5452781 -->
-		<StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="452,113,0,0">
-			<Rectangle Fill="{StaticResource LevelSaturationBrush}" Width="200" Height="200" Margin="10" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" />
-			<Rectangle Fill="{StaticResource HueBrush}" Width="20" Height="200" Margin="10" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" />
-		</StackPanel>
+			<Rectangle x:Name="tempRect" Width="200" Height="200" Margin="459,130,0,0" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" Fill="Black" />
+		<Rectangle x:Name="rectSaturation"  Fill="{StaticResource LevelSaturationBrush}" Width="200" Height="200" Margin="459,130,0,0" StrokeThickness="1" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" />
+			<Rectangle x:Name="rectHueBar" Fill="{StaticResource HueBrush}" Width="20" Height="200" Margin="664,130,0,0" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" MouseDown="rectHueBar_MouseDown" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
 	</Grid>
 </Window>

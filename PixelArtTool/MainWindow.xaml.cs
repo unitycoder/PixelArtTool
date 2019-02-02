@@ -97,6 +97,12 @@ namespace PixelArtTool
         // modes
         BlendMode blendMode;
 
+        // clear buffers
+        Int32Rect emptyRect;
+        int bytesPerPixel;
+        byte[] emptyPixels;
+        int emptyStride;
+
         private ToolMode _currentTool = ToolMode.Draw;
         public ToolMode CurrentTool
         {
@@ -128,7 +134,6 @@ namespace PixelArtTool
             RenderOptions.SetBitmapScalingMode(gridImage, BitmapScalingMode.NearestNeighbor);
             RenderOptions.SetEdgeMode(gridImage, EdgeMode.Aliased);
             w = (MainWindow)Application.Current.MainWindow;
-            //var gridScaleX = (int)gridImage.Width / canvasResolutionX;
             gridBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             gridImage.Source = gridBitmap;
             DrawBackgroundGrid();
@@ -138,7 +143,6 @@ namespace PixelArtTool
             RenderOptions.SetBitmapScalingMode(outlineImage, BitmapScalingMode.NearestNeighbor);
             RenderOptions.SetEdgeMode(outlineImage, EdgeMode.Aliased);
             w = (MainWindow)Application.Current.MainWindow;
-            //var gridScaleX = (int)gridImage.Width / canvasResolutionX;
             outlineBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             outlineImage.Source = outlineBitmap;
 
@@ -150,6 +154,12 @@ namespace PixelArtTool
             canvasScaleX = (int)drawingImage.Width / canvasResolutionX;
             canvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             drawingImage.Source = canvasBitmap;
+
+            // init clear buffers
+            emptyRect = new Int32Rect(0, 0, canvasBitmap.PixelWidth, canvasBitmap.PixelHeight);
+            bytesPerPixel = canvasBitmap.Format.BitsPerPixel / 8;
+            emptyPixels = new byte[emptyRect.Width * emptyRect.Height * bytesPerPixel];
+            emptyStride = emptyRect.Width * bytesPerPixel;
 
             // setup preview area
             RenderOptions.SetBitmapScalingMode(imgPreview1x, BitmapScalingMode.NearestNeighbor);
@@ -663,13 +673,13 @@ namespace PixelArtTool
         private void OnClearButton(object sender, RoutedEventArgs e)
         {
             ClearImage(canvasBitmap);
+            UpdateOutline();
         }
 
         // clears bitmap by re-creating it
-        void ClearImage(WriteableBitmap target)
+        void ClearImage(WriteableBitmap targetBitmap)
         {
-            canvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
-            drawingImage.Source = canvasBitmap;
+            targetBitmap.WritePixels(emptyRect, emptyPixels, emptyStride, 0);
         }
 
         private void OnSaveButton(object sender, RoutedEventArgs e)
@@ -747,7 +757,7 @@ namespace PixelArtTool
                     c2.Blue = c1.B;
                     currentColor = c2;
                     rectCurrentColor.Fill = new SolidColorBrush(Color.FromArgb(c2.Alpha, c2.Red, c2.Green, c2.Blue));
-//                    Console.WriteLine(cursor.X + "," + cursor.Y + " = " + c1);
+                    //                    Console.WriteLine(cursor.X + "," + cursor.Y + " = " + c1);
                     break;
                 case Key.X: // swap current/secondary colors
                     var tempcolor = rectCurrentColor.Fill;
@@ -1058,6 +1068,63 @@ namespace PixelArtTool
             return lpPoint;
         }
 
+        private void chkOutline_Click(object sender, RoutedEventArgs e)
+        {
+            if (chkOutline.IsChecked == true)
+            {
+                UpdateOutline();
+            }
+            else // clear
+            {
+                ClearImage(outlineBitmap);
+            }
+        }
+
+        private void rectHueBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            POINT cursor;
+            GetCursorPos(out cursor);
+            var c = Win32GetScreenPixel((int)cursor.X, (int)cursor.Y);
+            //Console.WriteLine("color:"+c);
+            var f = rectSaturation.Fill;
+
+            // build hue gradient
+            LinearGradientBrush myBrush = new LinearGradientBrush();
+            var c1 = new Color();
+            c1.R = 255;
+            c1.G = 255;
+            c1.B = 255;
+            c1.A = 255;
+            var c2 = new Color();
+            c2.R = c.R;
+            c2.G = c.G;
+            c2.B = c.B;
+            c2.A = 255;
+            myBrush.StartPoint = new Point(0, 0);
+            myBrush.EndPoint = new Point(1, 0);
+
+            var g1 = new GradientStop(c1, 0.0);
+            myBrush.GradientStops.Add(g1);
+
+            var g2 = new GradientStop(c2, 1.0);
+            myBrush.GradientStops.Add(g2);
+            rectSaturation.Fill = myBrush;
+
+            // set opacity mask
+            var opacityBrush = new LinearGradientBrush();
+            opacityBrush.StartPoint = new Point(0, 0);
+            opacityBrush.EndPoint = new Point(0, 1);
+            var g1b = new GradientStop(c1, 0.0);
+            opacityBrush.GradientStops.Add(g1b);
+            c2.A = 0;
+            c2.R = 0;
+            c2.G = 0;
+            c2.B = 0;
+            var g2b = new GradientStop(c2, 1.0);
+            opacityBrush.GradientStops.Add(g2b);
+            rectSaturation.OpacityMask = opacityBrush;
+
+        }
     } // class
 
     // https://stackoverflow.com/a/2908885/5452781
