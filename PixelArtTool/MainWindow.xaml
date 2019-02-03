@@ -60,6 +60,37 @@
 	<Grid>
 		<Grid.Resources>
 			<local:EnumBooleanConverter x:Key="ComparisonConverter" />
+
+			<!-- https://stackoverflow.com/a/18400415/5452781 -->
+			<!-- Brushes for colours/backgrounds -->
+			<SolidColorBrush x:Key="BackgroundBrushKey" Color="Transparent"/>
+			<SolidColorBrush x:Key="BorderBrushHiddenKey" Color="Transparent"/>
+			<SolidColorBrush x:Key="CheckedBrushKey" Color="Black"/>
+
+			<!-- Template -->
+			<ControlTemplate x:Key="ToggleButtonLeft" TargetType="{x:Type ToggleButton}">
+				<Border
+                Name="Border"
+                Background="{StaticResource BackgroundBrushKey}"
+                BorderBrush="{StaticResource BorderBrushHiddenKey}"
+                BorderThickness="1"
+                CornerRadius="0,0,0,0">
+					<ContentPresenter
+                    HorizontalAlignment="Center"
+                    Margin="{TemplateBinding Padding}"
+                    VerticalAlignment="Center"
+                    Content="{TemplateBinding Content}"
+					/>
+				</Border>
+				<ControlTemplate.Triggers>
+					<Trigger Property="ToggleButton.IsMouseOver" Value="true">
+						<Setter TargetName="Border" Property="Background" Value="Yellow"/>
+					</Trigger>
+					<Trigger Property="IsChecked" Value="true">
+						<Setter TargetName="Border" Property="Background" Value="{StaticResource CheckedBrushKey}"/>
+					</Trigger>
+				</ControlTemplate.Triggers>
+			</ControlTemplate>
 		</Grid.Resources>
 
 		<ToolBarTray Background="#FF1F1F1F" Height="32" VerticalAlignment="Top">
@@ -73,11 +104,11 @@
 			</ToolBar>
 
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top" Background="#FF9C9C9C">
-				<RadioButton GroupName="Toolbar" Tag="Draw" ToolTip="Brush (D)" Style="{StaticResource {x:Type ToggleButton}}"
+				<RadioButton GroupName="Toolbar" Tag="Draw" ToolTip="Brush (D)" Template="{DynamicResource ToggleButtonLeft}" Style="{StaticResource {x:Type ToggleButton}}"
 							 IsChecked="{Binding Path=CurrentTool, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static local:ToolMode.Draw},Mode=TwoWay}">
 					<Image Source="/Resources/Buttons/drawmode.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
 				</RadioButton>
-				<RadioButton GroupName="Toolbar" Tag="Fill" ToolTip="Flood Fill (F)" Style="{StaticResource {x:Type ToggleButton}}"
+				<RadioButton GroupName="Toolbar" Tag="Fill" ToolTip="Flood Fill (F)" Template="{DynamicResource ToggleButtonLeft}" Style="{StaticResource {x:Type ToggleButton}}"
 							 IsChecked="{Binding Path=CurrentTool, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static local:ToolMode.Fill},Mode=TwoWay}">
 					<Image Source="/Resources/Buttons/paint.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
 				</RadioButton>
@@ -176,9 +207,9 @@
 		<Rectangle x:Name="rectSecondaryColor" Fill="Black" HorizontalAlignment="Left" Height="28" Margin="47,276,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
 
 		<!-- https://stackoverflow.com/a/32514853/5452781 -->
-			<Rectangle x:Name="tempRect" Width="200" Height="200" Margin="459,130,0,0" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" Fill="Black" />
-		<Rectangle x:Name="rectSaturation"  Fill="{StaticResource LevelSaturationBrush}" Width="200" Height="200" Margin="459,130,0,0" StrokeThickness="1" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" />
-			<Rectangle x:Name="rectHueBar" Fill="{StaticResource HueBrush}" Width="20" Height="200" Margin="664,130,0,0" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" MouseDown="rectHueBar_MouseDown" HorizontalAlignment="Left" VerticalAlignment="Top" />
+		<Rectangle x:Name="tempRect" Width="200" Height="200" Margin="459,130,0,0" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" Fill="Black" />
+		<Rectangle x:Name="rectSaturation"  Fill="{StaticResource LevelSaturationBrush}" Width="200" Height="200" Margin="459,130,0,0" StrokeThickness="1" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" MouseDown="OnLevelSaturationMouseDown" />
+		<Rectangle x:Name="rectHueBar" Fill="{StaticResource HueBrush}" Width="20" Height="200" Margin="664,130,0,0" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" MouseDown="rectHueBar_MouseDown" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
 	</Grid>
 </Window>

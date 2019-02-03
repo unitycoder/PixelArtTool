@@ -1125,6 +1125,20 @@ namespace PixelArtTool
             rectSaturation.OpacityMask = opacityBrush;
 
         }
+
+        private void OnLevelSaturationMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            POINT cursor;
+            GetCursorPos(out cursor);
+            var c1 = Win32GetScreenPixel((int)cursor.X, (int)cursor.Y);
+            var c2 = new PixelColor();
+            c2.Alpha = c1.A;
+            c2.Red = c1.R;
+            c2.Green = c1.G;
+            c2.Blue = c1.B;
+            currentColor = c2;
+            rectCurrentColor.Fill = new SolidColorBrush(Color.FromArgb(c2.Alpha, c2.Red, c2.Green, c2.Blue));
+        }
     } // class
 
     // https://stackoverflow.com/a/2908885/5452781
