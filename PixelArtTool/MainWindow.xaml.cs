@@ -4,57 +4,17 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using static PixelArtTool.Tools;
 
 namespace PixelArtTool
 {
-
-    public enum BlendMode : byte
-    {
-        Default = 0,
-        Additive = 1
-    }
-
-    public enum ToolMode
-    {
-        Draw,
-        Fill
-    }
-
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        [StructLayout(LayoutKind.Sequential)]
-        public struct POINT
-        {
-            public int X;
-            public int Y;
-
-            public static implicit operator Point(POINT point)
-            {
-                return new Point(point.X, point.Y);
-            }
-        }
-
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern IntPtr GetDesktopWindow();
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern IntPtr GetWindowDC(IntPtr window);
-        [DllImport("gdi32.dll", SetLastError = true)]
-        public static extern uint GetPixel(IntPtr dc, int x, int y);
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern int ReleaseDC(IntPtr window, IntPtr dc);
-        [DllImport("user32.dll")]
-        static extern bool GetCursorPos(out POINT lpPoint);
-
         WriteableBitmap canvasBitmap;
         WriteableBitmap gridBitmap;
         WriteableBitmap outlineBitmap;
@@ -94,6 +54,16 @@ namespace PixelArtTool
         int currentUndoIndex = 0;
         WriteableBitmap[] undoBufferBitmap = new WriteableBitmap[maxUndoCount];
 
+        // drawing lines
+        bool firstPixel = true;
+        int startPixelX = 0;
+        int startPixelY = 0;
+        bool verticalLine = false;
+        bool horizontalLine = false;
+        bool diagonalLine = false;
+        int lockedX = 0;
+        int lockedY = 0;
+
         // modes
         BlendMode blendMode;
 
@@ -117,7 +87,6 @@ namespace PixelArtTool
             }
         }
 
-
         public MainWindow()
         {
             InitializeComponent();
@@ -136,7 +105,7 @@ namespace PixelArtTool
             w = (MainWindow)Application.Current.MainWindow;
             gridBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             gridImage.Source = gridBitmap;
-            DrawBackgroundGrid();
+            DrawBackgroundGrid(gridBitmap, canvasResolutionX, canvasResolutionY, gridAlpha);
 
             // setup outline bitmap
             outlineImage = imgOutline;
@@ -180,7 +149,7 @@ namespace PixelArtTool
             drawingImage.MouseLeftButtonDown += new MouseButtonEventHandler(DrawingLeftButtonDown);
             drawingImage.MouseRightButtonDown += new MouseButtonEventHandler(DrawingRightButtonDown);
             drawingImage.MouseDown += new MouseButtonEventHandler(DrawingMiddleButtonDown);
-            w.MouseWheel += new MouseWheelEventHandler(drawingMouseWheel);
+            w.MouseWheel += new MouseWheelEventHandler(DrawingMouseWheel);
             drawingImage.MouseUp += new MouseButtonEventHandler(DrawingMouseUp);
 
             // build palette
@@ -200,127 +169,12 @@ namespace PixelArtTool
             //paletteImage.MouseRightButtonDown += new MouseButtonEventHandler(PaletteRightButtonDown);
 
             // init
-            LoadPalette("pack://application:,,,/Resources/Palettes/aap-64-1x.png");
+            palette = LoadPalette("pack://application:,,,/Resources/Palettes/aap-64-1x.png", paletteBitmap, paletteResolutionX, paletteResolutionY);
             currentColorIndex = 5;
             currentColor = palette[currentColorIndex];
-            UpdateCurrentColor();
+            SetRectangleFillColor(rectCurrentColor, currentColor);
         }
 
-
-        void LoadPalette(string path)
-        {
-            Uri uri = new Uri(path);
-            var img = new BitmapImage(uri);
-
-            // get colors
-            var pixels = GetPixels(img);
-
-            var width = pixels.GetLength(0);
-            var height = pixels.GetLength(1);
-
-            palette = new PixelColor[width * height];
-
-            int index = 0;
-            int x = 0;
-            int y = 0;
-            for (y = 0; y < height; y++)
-            {
-                for (x = 0; x < width; x++)
-                {
-                    //Console.WriteLine(x + "," + y);
-                    var c = pixels[x, y];
-                    //                    Console.WriteLine(c.Red + "," + c.Green + "," + c.Blue);
-                    palette[index++] = c;
-                }
-            }
-
-            // put pixels on palette canvas
-
-            x = y = 0;
-            for (int i = 0, len = palette.Length; i < len; i++)
-            {
-                SetPixel(paletteBitmap, x, y, (int)palette[i].ColorBGRA);
-                x = i % paletteResolutionX;
-                y = (i % len) / paletteResolutionX;
-            }
-        }
-
-        // used in drawing
-        void SetPixel(WriteableBitmap bitmap, int x, int y, int color)
-        {
-            try
-            {
-                // Reserve the back buffer for updates.
-                bitmap.Lock();
-
-                unsafe
-                {
-                    // Get a pointer to the back buffer.
-                    int pBackBuffer = (int)bitmap.BackBuffer;
-
-                    // Find the address of the pixel to draw.
-                    pBackBuffer += y * bitmap.BackBufferStride;
-                    pBackBuffer += x * 4;
-
-                    // Assign the color data to the pixel.
-                    *((int*)pBackBuffer) = color;
-                }
-
-                // Specify the area of the bitmap that changed.
-                bitmap.AddDirtyRect(new Int32Rect(x, y, 1, 1));
-            }
-            finally
-            {
-                // Release the back buffer and make it available for display.
-                bitmap.Unlock();
-            }
-        }
-
-        // https://stackoverflow.com/a/1740553/5452781
-        public unsafe static void CopyPixels2(BitmapSource source, PixelColor[,] pixels, int stride, int offset, bool dummy)
-        //        public unsafe static void CopyPixels(BitmapSource source, PixelColor[,] pixels, int stride, int offset)
-        {
-            fixed (PixelColor* buffer = &pixels[0, 0])
-                source.CopyPixels(
-                  new Int32Rect(0, 0, source.PixelWidth, source.PixelHeight),
-                  (IntPtr)(buffer + offset),
-                  pixels.GetLength(0) * pixels.GetLength(1) * sizeof(PixelColor),
-                  stride);
-        }
-
-        [StructLayout(LayoutKind.Explicit)]
-        public struct PixelColor
-        {
-            // 32 bit BGRA 
-            [FieldOffset(0)] public UInt32 ColorBGRA;
-            // 8 bit components
-            [FieldOffset(0)] public byte Blue;
-            [FieldOffset(1)] public byte Green;
-            [FieldOffset(2)] public byte Red;
-            [FieldOffset(3)] public byte Alpha;
-        }
-
-        public PixelColor[,] GetPixels(BitmapSource source)
-        {
-            if (source.Format != PixelFormats.Bgra32)
-                source = new FormatConvertedBitmap(source, PixelFormats.Bgra32, null, 0);
-
-            int width = source.PixelWidth;
-            int height = source.PixelHeight;
-            PixelColor[,] result = new PixelColor[width, height];
-
-            CopyPixels2(source, result, width * 4, 0, false);
-            return result;
-        }
-
-        bool firstPixel = true;
-        int startPixelX = 0;
-        int startPixelY = 0;
-        bool verticalLine = false;
-        bool horizontalLine = false;
-        bool diagonalLine = false;
-        int lockedX = 0;
-        int lockedY = 0;
 
         // https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.writeablebitmap?redirectedfrom=MSDN&view=netframework-4.7.2
         // The DrawPixel method updates the WriteableBitmap by using
@@ -423,19 +277,7 @@ namespace PixelArtTool
 
             prevX = x;
             prevY = y;
-        }
-
-        byte Clamp(byte n)
-        {
-            return n <= 255 ? n : (byte)Math.Min(n, (byte)255);
-        }
-
-        byte ClampToByte(int n)
-        {
-            var r = n <= 255 ? n : (byte)Math.Min(n, (byte)255);
-            return (byte)r;
-        }
-
+        } // drawpixel
 
         void ErasePixel(MouseEventArgs e)
         {
@@ -508,19 +350,11 @@ namespace PixelArtTool
             return pix;
         }
 
-
         void PaletteLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             PickPalette(e);
-            UpdateCurrentColor();
+            SetRectangleFillColor(rectCurrentColor, currentColor);
         }
-
-        void UpdateCurrentColor()
-        {
-            var col = Color.FromArgb(currentColor.Alpha, currentColor.Red, currentColor.Green, currentColor.Blue);
-            rectCurrentColor.Fill = new SolidColorBrush(col);
-        }
-
 
         void DrawingRightButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -535,11 +369,9 @@ namespace PixelArtTool
                 int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
 
                 currentColor = GetPixel(x, y);
-                UpdateCurrentColor();
+                SetRectangleFillColor(rectCurrentColor, currentColor);
             }
         }
-
-
 
         void DrawingLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -646,7 +478,7 @@ namespace PixelArtTool
             lblPixelColor.Content = col.Red + "," + col.Green + "," + col.Blue + "," + col.Alpha;
         }
 
-        void drawingMouseWheel(object sender, MouseWheelEventArgs e)
+        void DrawingMouseWheel(object sender, MouseWheelEventArgs e)
         {
             /*
             System.Windows.Media.Matrix m = i.RenderTransform.Value;
@@ -668,18 +500,18 @@ namespace PixelArtTool
             }
             i.RenderTransform = new MatrixTransform(m);
             */
+            //Console.WriteLine(e.Delta);
+            int amount = e.Delta < 0 ? -1 : 1;
+            //var c = ColorToHSV(currentColor);
+            //ColorToHSV(currentColor);
+            currentColor = AdjustColorLightness(currentColor, amount);
+            //currentColor = 
         }
 
         private void OnClearButton(object sender, RoutedEventArgs e)
         {
-            ClearImage(canvasBitmap);
+            ClearImage(canvasBitmap, emptyRect, emptyPixels, emptyStride);
             UpdateOutline();
-        }
-
-        // clears bitmap by re-creating it
-        void ClearImage(WriteableBitmap targetBitmap)
-        {
-            targetBitmap.WritePixels(emptyRect, emptyPixels, emptyStride, 0);
         }
 
         private void OnSaveButton(object sender, RoutedEventArgs e)
@@ -689,7 +521,7 @@ namespace PixelArtTool
             saveFileDialog.FileName = "pixel";
             saveFileDialog.DefaultExt = ".png";
             saveFileDialog.Filter = "PNG|*.png";
-            UseDefaultExtAsFilterIndex(saveFileDialog);
+            UseDefaultExtensionAsFilterIndex(saveFileDialog);
 
             if (saveFileDialog.ShowDialog() == true)
             {
@@ -699,22 +531,6 @@ namespace PixelArtTool
                 encoder.Frames.Add(BitmapFrame.Create(canvasBitmap));
                 encoder.Save(stream);
                 stream.Close();
-            }
-        }
-
-        // https://stackoverflow.com/a/6104319/5452781
-        public static void UseDefaultExtAsFilterIndex(FileDialog dialog)
-        {
-            var ext = "*." + dialog.DefaultExt;
-            var filter = dialog.Filter;
-            var filters = filter.Split('|');
-            for (int i = 1; i < filters.Length; i += 2)
-            {
-                if (filters[i] == ext)
-                {
-                    dialog.FilterIndex = 1 + (i - 1) / 2;
-                    return;
-                }
             }
         }
 
@@ -747,7 +563,7 @@ namespace PixelArtTool
             switch (e.Key)
             {
                 case Key.I: // TEST global color picker
-                    POINT cursor;
+                    CustomPoint cursor;
                     GetCursorPos(out cursor);
                     var c1 = Win32GetScreenPixel((int)cursor.X, (int)cursor.Y);
                     var c2 = new PixelColor();
@@ -808,10 +624,17 @@ namespace PixelArtTool
         {
             if (currentUndoIndex > 0)
             {
-                canvasBitmap = undoBufferBitmap[--currentUndoIndex];
-                imgCanvas.Source = canvasBitmap;
+                CopyBitmapPixels(undoBufferBitmap[--currentUndoIndex], canvasBitmap);
             }
         }
+
+        void CopyBitmapPixels(WriteableBitmap source, WriteableBitmap target)
+        {
+            byte[] data = new byte[source.BackBufferStride * source.PixelHeight];
+            source.CopyPixels(data, source.BackBufferStride, 0);
+            target.WritePixels(new Int32Rect(0, 0, source.PixelWidth, source.PixelHeight), data, source.BackBufferStride, 0);
+        }
+
 
         public void Executed_Undo(object sender, ExecutedRoutedEventArgs e)
         {
@@ -883,24 +706,6 @@ namespace PixelArtTool
             } // while can floodfill
 
         } // floodfill
-
-
-        void DrawBackgroundGrid()
-        {
-            PixelColor c = new PixelColor();
-            for (int x = 0; x < canvasResolutionX; x++)
-            {
-                for (int y = 0; y < canvasResolutionY; y++)
-                {
-                    c.Alpha = gridAlpha;
-                    byte v = (byte)(((x % 2) == (y % 2)) ? 255 : 0);
-                    c.Red = v;
-                    c.Green = v;
-                    c.Blue = v;
-                    SetPixel(gridBitmap, x, y, (int)c.ColorBGRA);
-                }
-            }
-        }
 
         // draw automatic outlines
         void UpdateOutline()
@@ -995,13 +800,6 @@ namespace PixelArtTool
             }
         }
 
-        int Repeat(int val, int max)
-        {
-            int result = val % max;
-            if (result < 0) result += max;
-            return result;
-        }
-
         private void OnToolChanged(object sender, RoutedEventArgs e)
         {
             //string tag = (string)((RadioButton)sender).Tag;
@@ -1047,25 +845,8 @@ namespace PixelArtTool
             OpenFileDialog openFileDialog = new OpenFileDialog();
             if (openFileDialog.ShowDialog() == true)
             {
-                LoadPalette(openFileDialog.FileName);
+                palette = LoadPalette(openFileDialog.FileName, paletteBitmap, paletteResolutionX, paletteResolutionY);
             }
-        }
-
-        // https://stackoverflow.com/a/24759418/5452781
-        public static Color Win32GetScreenPixel(int x, int y)
-        {
-            IntPtr desk = GetDesktopWindow();
-            IntPtr dc = GetWindowDC(desk);
-            int a = (int)GetPixel(dc, x, y);
-            ReleaseDC(desk, dc);
-            return Color.FromArgb(255, (byte)((a >> 0) & 0xff), (byte)((a >> 8) & 0xff), (byte)((a >> 16) & 0xff));
-        }
-
-        public static Point GetCursorPosition()
-        {
-            POINT lpPoint;
-            GetCursorPos(out lpPoint);
-            return lpPoint;
         }
 
         private void chkOutline_Click(object sender, RoutedEventArgs e)
@@ -1076,13 +857,13 @@ namespace PixelArtTool
             }
             else // clear
             {
-                ClearImage(outlineBitmap);
+                ClearImage(outlineBitmap, emptyRect, emptyPixels, emptyStride);
             }
         }
 
         private void rectHueBar_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            POINT cursor;
+            CustomPoint cursor;
             GetCursorPos(out cursor);
             var c = Win32GetScreenPixel((int)cursor.X, (int)cursor.Y);
             //Console.WriteLine("color:"+c);
@@ -1123,12 +904,11 @@ namespace PixelArtTool
             var g2b = new GradientStop(c2, 1.0);
             opacityBrush.GradientStops.Add(g2b);
             rectSaturation.OpacityMask = opacityBrush;
-
         }
 
         private void OnLevelSaturationMouseDown(object sender, MouseButtonEventArgs e)
         {
-            POINT cursor;
+            CustomPoint cursor;
             GetCursorPos(out cursor);
             var c1 = Win32GetScreenPixel((int)cursor.X, (int)cursor.Y);
             var c2 = new PixelColor();
@@ -1140,19 +920,5 @@ namespace PixelArtTool
             rectCurrentColor.Fill = new SolidColorBrush(Color.FromArgb(c2.Alpha, c2.Red, c2.Green, c2.Blue));
         }
     } // class
-
-    // https://stackoverflow.com/a/2908885/5452781
-    public class EnumBooleanConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            return value?.Equals(parameter);
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            return value?.Equals(true) == true ? parameter : Binding.DoNothing;
-        }
-    }
 
 } // namespace

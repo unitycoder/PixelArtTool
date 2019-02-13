@@ -104,7 +104,7 @@
 			</ToolBar>
 
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top" Background="#FF9C9C9C">
-				<RadioButton GroupName="Toolbar" Tag="Draw" ToolTip="Brush (D)" Template="{DynamicResource ToggleButtonLeft}" Style="{StaticResource {x:Type ToggleButton}}"
+				<RadioButton GroupName="Toolbar" Tag="Draw" ToolTip="Brush (B)" Template="{DynamicResource ToggleButtonLeft}" Style="{StaticResource {x:Type ToggleButton}}"
 							 IsChecked="{Binding Path=CurrentTool, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static local:ToolMode.Draw},Mode=TwoWay}">
 					<Image Source="/Resources/Buttons/drawmode.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
 				</RadioButton>
