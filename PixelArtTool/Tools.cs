@@ -189,35 +189,212 @@ namespace PixelArtTool
                 }
             }
         }
-
+        /*
         public static void ColorToHSV(PixelColor c)
         {
             double h, l, s;
             RgbToHls(c.Red, c.Green, c.Blue, out h, out l, out s);
             //Console.WriteLine(h + "," + s + "," + l);
+        }*/
+
+        // http://www.java2s.com/Code/CSharp/2D-Graphics/HsvToRgb.htm
+        public static Color HsvToRgb(double h, double s, double v)
+        {
+            int hi = (int)Math.Floor(h / 60.0) % 6;
+            double f = (h / 60.0) - Math.Floor(h / 60.0);
+
+            double p = v * (1.0 - s);
+            double q = v * (1.0 - (f * s));
+            double t = v * (1.0 - ((1.0 - f) * s));
+
+            Color ret;
+
+            switch (hi)
+            {
+                case 0:
+                    ret = GetRgb(v, t, p);
+                    break;
+                case 1:
+                    ret = GetRgb(q, v, p);
+                    break;
+                case 2:
+                    ret = GetRgb(p, v, t);
+                    break;
+                case 3:
+                    ret = GetRgb(p, q, v);
+                    break;
+                case 4:
+                    ret = GetRgb(t, p, v);
+                    break;
+                case 5:
+                    ret = GetRgb(v, p, q);
+                    break;
+                default:
+                    ret = Color.FromArgb(0xFF, 0x00, 0x00, 0x00);
+                    break;
+            }
+            return ret;
+        }
+        public static Color GetRgb(double r, double g, double b)
+        {
+            return Color.FromArgb(255, (byte)(r * 255.0), (byte)(g * 255.0), (byte)(b * 255.0));
         }
 
         // FIXME not working properly yet
         public static PixelColor AdjustColorLightness(PixelColor c, int dir)
         {
             // convert to hls
-            double h, l, s;
-            RgbToHls(c.Red, c.Green, c.Blue, out h, out l, out s);
+            //double h, l, s;
+            double h, s, v;
+            //RgbToHls(c.Red, c.Green, c.Blue, out h, out l, out s);
+            RGB2HSV(c.Red, c.Green, c.Blue, out h, out s, out v);
 
             // adjust lightness
-            l *= dir < 0 ? 0.9 : 1.1;
+            v *= dir < 0 ? 0.9 : 1.1;
 
-            //Console.WriteLine(l);
+            v = Clamp(v, 0, 1);
+
+            Console.WriteLine(v);
 
             // convert back to pixelcolor
             int r, g, b;
-            HlsToRgb(h, l, s, out r, out g, out b);
+            //HlsToRgb(h, s, v, out r, out g, out b);
+            HSV2RGB(h, s, v, out r, out g, out b);
+
+
 
             c.Red = (byte)r;
             c.Green = (byte)g;
             c.Blue = (byte)b;
 
             return c;
+        }
+
+
+
+        // http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl
+        //vec3 rgb2hsv(vec3 c)
+        public static void RGB2HSV(int r, int g, int b, out double h, out double s, out double v)
+        {
+            //vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+            float Kx = 0;
+            float Ky = -1.0f / 3.0f;
+            float Kz = 2.0f / 3.0f;
+            float Kw = -1;
+
+            float cr = r / (float)255;
+            float cg = g / (float)255;
+            float cb = b / (float)255;
+
+            //vec4 p = c.g < c.b ? vec4(c.bg, K.wz) : vec4(c.gb, K.xy);
+            //vec4 q = c.r < p.x ? vec4(p.xyw, c.r) : vec4(c.r, p.yzx);
+
+            float px = cb;
+            float py = cg;
+            float pz = Kw;
+            float pw = Kz;
+            if (cg < cb)
+            {
+            }
+            else
+            {
+                px = cg;
+                py = cb;
+                pz = Kx;
+                pw = Ky;
+            }
+
+            float qx = px;
+            float qy = py;
+            float qz = pw;
+            float qw = cr;
+            if (cg < cb)
+            {
+            }
+            else
+            {
+                qx = cr;
+                qy = py;
+                qz = pz;
+                qw = px;
+            }
+
+            //float d = q.x - min(q.w, q.y);
+            float d = qx - Math.Min(qw, qy);
+
+            // float e = 1.0e-10;
+            float e = -float.Epsilon;
+
+            //return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+            h = Math.Abs(qz + (qw - qy) / (6.0 * d + e));
+            s = d / (qx + e);
+            v = qx;
+        }
+
+        // https://stackoverflow.com/a/51509540/5452781
+        public static float Lerp(float firstFloat, float secondFloat, float by)
+        {
+            return firstFloat + (secondFloat - firstFloat) * by;
+        }
+
+        public static double Lerp(double firstFloat, double secondFloat, double by)
+        {
+            return firstFloat + (secondFloat - firstFloat) * by;
+        }
+
+        // Returns the fractional portion of a scalar or each vector component.
+        // http://developer.download.nvidia.com/cg/frac.html
+        public static float Frac(float v)
+        {
+            return v - (float)Math.Floor(v);
+        }
+
+        public static double Frac(double v)
+        {
+            return v - Math.Floor(v);
+        }
+
+        // http://developer.download.nvidia.com/cg/clamp.html
+        public static float Clamp(float x, float a, float b)
+        {
+            return Math.Max(a, Math.Min(b, x));
+        }
+
+        public static double Clamp(double x, double a, double b)
+        {
+            return Math.Max(a, Math.Min(b, x));
+        }
+
+        public static void HSV2RGB(double h, double s, double v, out int r, out int g, out int b)
+        {
+            //vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+            double Kx = 0;
+            double Ky = -1.0f / 3.0f;
+            double Kz = 2.0f / 3.0f;
+            double Kw = -1;
+
+            double cx = h;// r / (float)255;
+            double cy = s;// g / (float)255;
+            double cz = v;// b / (float)255;
+
+            //vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+
+            double fx = Frac(cx + Kx) * 6.0f - Kw;
+            double fy = Frac(cx + Ky) * 6.0f - Kw;
+            double fz = Frac(cx + Kz) * 6.0f - Kw;
+
+            double px = Math.Abs(fx);
+            double py = Math.Abs(fy);
+            double pz = Math.Abs(fz);
+
+            //            return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+            double rx = cz * Lerp(Kx, Clamp(px - Kx, 0.0f, 1.0f), cy);
+            double ry = cz * Lerp(Kx, Clamp(py - Kx, 0.0f, 1.0f), cy);
+            double rz = cz * Lerp(Kx, Clamp(pz - Kx, 0.0f, 1.0f), cy);
+
+            r = (int)(rx * 255);
+            g = (int)(ry * 255);
+            b = (int)(rz * 255);
         }
 
         // http://csharphelper.com/blog/2016/08/convert-between-rgb-and-hls-color-models-in-c/

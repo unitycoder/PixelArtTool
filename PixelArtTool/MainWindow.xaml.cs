@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -72,6 +73,9 @@ namespace PixelArtTool
         int bytesPerPixel;
         byte[] emptyPixels;
         int emptyStride;
+
+        // settings
+        double wheelSpeed = 0.05;
 
         private ToolMode _currentTool = ToolMode.Draw;
         public ToolMode CurrentTool
@@ -173,6 +177,7 @@ namespace PixelArtTool
             currentColorIndex = 5;
             currentColor = palette[currentColorIndex];
             SetRectangleFillColor(rectCurrentColor, currentColor);
+            UpdateCurrentHue(currentColor);
         }
 
 
@@ -312,8 +317,74 @@ namespace PixelArtTool
             if (y < 0 || y > paletteResolutionY - 1) return;
             currentColorIndex = y * paletteResolutionX + x + 1; // +1 for fix index magic number..
             currentColor = palette[currentColorIndex];
+
+            UpdateCurrentHue(currentColor);
         }
 
+        LinearGradientBrush myBrush;
+        void UpdateCurrentHue(PixelColor c)
+        {
+            hueLocation = 0.5;
+
+            myBrush = new LinearGradientBrush();
+            var c1 = new Color();
+            c1.R = 0;
+            c1.G = 0;
+            c1.B = 0;
+            c1.A = 255;
+            var c2 = new Color();
+            c2.R = c.Red;
+            c2.G = c.Green;
+            c2.B = c.Blue;
+            c2.A = 255;
+            var c3 = new Color();
+            c3.R = 255;
+            c3.G = 255;
+            c3.B = 255;
+            c3.A = 255;
+
+            myBrush.StartPoint = new Point(0, 0);
+            myBrush.EndPoint = new Point(1, 0);
+
+            var g1 = new GradientStop(c1, 0.0);
+            myBrush.GradientStops.Add(g1);
+
+            var g2 = new GradientStop(c2, 0.5);
+            myBrush.GradientStops.Add(g2);
+
+            var g3 = new GradientStop(c3, 1);
+            myBrush.GradientStops.Add(g3);
+
+            rectCurrentHue.Fill = myBrush;
+
+            //myBrush.GradientStops
+
+        }
+
+        // https://stackoverflow.com/a/39450207/5452781
+        private static Color GetColorByOffset(GradientStopCollection collection, double offset)
+        {
+            GradientStop[] stops = collection.OrderBy(x => x.Offset).ToArray();
+            if (offset <= 0) return stops[0].Color;
+            if (offset >= 1) return stops[stops.Length - 1].Color;
+            GradientStop left = stops[0], right = null;
+            foreach (GradientStop stop in stops)
+            {
+                if (stop.Offset >= offset)
+                {
+                    right = stop;
+                    break;
+                }
+                left = stop;
+            }
+            //Debug.Assert(right != null);
+            offset = Math.Round((offset - left.Offset) / (right.Offset - left.Offset), 2);
+            byte a = (byte)((right.Color.A - left.Color.A) * offset + left.Color.A);
+            byte r = (byte)((right.Color.R - left.Color.R) * offset + left.Color.R);
+            byte g = (byte)((right.Color.G - left.Color.G) * offset + left.Color.G);
+            byte b = (byte)((right.Color.B - left.Color.B) * offset + left.Color.B);
+            return Color.FromArgb(a, r, g, b);
+        }
 
         // return canvas pixel color from x,y
         unsafe PixelColor GetPixel(int x, int y)
@@ -370,6 +441,7 @@ namespace PixelArtTool
 
                 currentColor = GetPixel(x, y);
                 SetRectangleFillColor(rectCurrentColor, currentColor);
+                UpdateCurrentHue(currentColor);
             }
         }
 
@@ -454,6 +526,7 @@ namespace PixelArtTool
             else if (e.MiddleButton == MouseButtonState.Pressed)
             {
                 currentColor = GetPixel(x, y);
+                UpdateCurrentHue(currentColor);
             }
 
             ShowMousePos(x, y);
@@ -478,6 +551,7 @@ namespace PixelArtTool
             lblPixelColor.Content = col.Red + "," + col.Green + "," + col.Blue + "," + col.Alpha;
         }
 
+        double hueLocation = 0.5;
         void DrawingMouseWheel(object sender, MouseWheelEventArgs e)
         {
             /*
@@ -500,12 +574,19 @@ namespace PixelArtTool
             }
             i.RenderTransform = new MatrixTransform(m);
             */
-            //Console.WriteLine(e.Delta);
-            int amount = e.Delta < 0 ? -1 : 1;
-            //var c = ColorToHSV(currentColor);
-            //ColorToHSV(currentColor);
-            currentColor = AdjustColorLightness(currentColor, amount);
-            //currentColor = 
+
+            hueLocation += e.Delta < 0 ? -wheelSpeed : wheelSpeed;
+            if (hueLocation < 0) hueLocation = 0;
+            if (hueLocation > 1) hueLocation = 1;
+
+            var c = GetColorByOffset(myBrush.GradientStops, hueLocation);
+            var cc = new PixelColor();
+            cc.Red = c.R;
+            cc.Green = c.G;
+            cc.Blue = c.B;
+            cc.Alpha = 255;
+            currentColor = cc;
+            SetRectangleFillColor(rectCurrentColor, currentColor);
         }
 
         private void OnClearButton(object sender, RoutedEventArgs e)
@@ -918,6 +999,7 @@ namespace PixelArtTool
             c2.Blue = c1.B;
             currentColor = c2;
             rectCurrentColor.Fill = new SolidColorBrush(Color.FromArgb(c2.Alpha, c2.Red, c2.Green, c2.Blue));
+            UpdateCurrentHue(currentColor);
         }
     } // class
 

@@ -197,8 +197,8 @@
 			<Button x:Name="btnScrollDown" Click="OnScrollButtonDownClicked" Content="\/" HorizontalAlignment="Left" Margin="388,274,0,0" VerticalAlignment="Top" Width="24"/>
 			<Button x:Name="btnScrollLeft" Click="OnScrollButtonLeftClicked" Content="&lt;" HorizontalAlignment="Left" Margin="361,263,0,0" VerticalAlignment="Top" Width="24"/>
 			<Button x:Name="btnScrollRight" Click="OnScrollButtonRightClicked" Content="&gt;" HorizontalAlignment="Left" Margin="415,262,0,0" VerticalAlignment="Top" Width="24"/>
-			<Button x:Name="btnFlipX" Click="OnFlipXButtonDown" Content="FlipX" HorizontalAlignment="Left" Margin="353,316,0,0" VerticalAlignment="Top" Width="32"/>
-			<Button x:Name="btnFlipY" Click="OnFlipYButtonDown" Content="FlipY" HorizontalAlignment="Left" Margin="390,316,0,0" VerticalAlignment="Top" Width="32"/>
+			<Button x:Name="btnFlipX" Click="OnFlipXButtonDown" Content="FlipX" HorizontalAlignment="Left" Margin="365,316,0,0" VerticalAlignment="Top" Width="32"/>
+			<Button x:Name="btnFlipY" Click="OnFlipYButtonDown" Content="FlipY" HorizontalAlignment="Left" Margin="402,316,0,0" VerticalAlignment="Top" Width="32"/>
 			<Button x:Name="btnLoadPalette" Click="OnLoadPaletteButton" Content="Load Palette" HorizontalAlignment="Left" Margin="10,321,0,0" VerticalAlignment="Top" Width="71"/>
 		</Grid>
 		<CheckBox x:Name="chkOutline" Content="Outline" HorizontalAlignment="Left" Margin="638,50,0,0" VerticalAlignment="Top" Width="64" Click="chkOutline_Click"/>
@@ -210,6 +210,14 @@
 		<Rectangle x:Name="tempRect" Width="200" Height="200" Margin="459,130,0,0" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" Fill="Black" />
 		<Rectangle x:Name="rectSaturation"  Fill="{StaticResource LevelSaturationBrush}" Width="200" Height="200" Margin="459,130,0,0" StrokeThickness="1" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" MouseDown="OnLevelSaturationMouseDown" />
 		<Rectangle x:Name="rectHueBar" Fill="{StaticResource HueBrush}" Width="20" Height="200" Margin="664,130,0,0" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" MouseDown="rectHueBar_MouseDown" HorizontalAlignment="Left" VerticalAlignment="Top" />
+		<Rectangle x:Name="rectCurrentHue" Width="253" Height="14" Margin="91,316,0,0" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" >
+			<Rectangle.Fill>
+				<LinearGradientBrush EndPoint="1,0" StartPoint="0,0">
+					<GradientStop Color="Black" Offset="0"/>
+					<GradientStop Color="White" Offset="1"/>
+				</LinearGradientBrush>
+			</Rectangle.Fill>
+		</Rectangle>
 
 	</Grid>
 </Window>
