@@ -210,14 +210,17 @@
 		<Rectangle x:Name="tempRect" Width="200" Height="200" Margin="459,130,0,0" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" Fill="Black" />
 		<Rectangle x:Name="rectSaturation"  Fill="{StaticResource LevelSaturationBrush}" Width="200" Height="200" Margin="459,130,0,0" StrokeThickness="1" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" MouseDown="OnLevelSaturationMouseDown" />
 		<Rectangle x:Name="rectHueBar" Fill="{StaticResource HueBrush}" Width="20" Height="200" Margin="664,130,0,0" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" MouseDown="rectHueBar_MouseDown" HorizontalAlignment="Left" VerticalAlignment="Top" />
-		<Rectangle x:Name="rectCurrentHue" Width="253" Height="14" Margin="91,316,0,0" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" >
-			<Rectangle.Fill>
-				<LinearGradientBrush EndPoint="1,0" StartPoint="0,0">
-					<GradientStop Color="Black" Offset="0"/>
-					<GradientStop Color="White" Offset="1"/>
-				</LinearGradientBrush>
-			</Rectangle.Fill>
-		</Rectangle>
+		<Grid>
+			<Rectangle x:Name="rectCurrentHue" Width="253" Height="14" Margin="91,316,0,0" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" >
+				<Rectangle.Fill>
+					<LinearGradientBrush EndPoint="1,0" StartPoint="0,0">
+						<GradientStop Color="Black" Offset="0"/>
+						<GradientStop Color="White" Offset="1"/>
+					</LinearGradientBrush>
+				</Rectangle.Fill>
+			</Rectangle>
+			<Line x:Name="lineCurrentHueLine" X1="91" Y1="312" X2="91" Y2="334" Stroke="Red" StrokeThickness="1" />
+		</Grid>
 
 	</Grid>
 </Window>

@@ -43,6 +43,7 @@ namespace PixelArtTool
         // colors
         PixelColor currentColor;
         PixelColor[] palette;
+
         int currentColorIndex = 0;
         byte opacity = 255;
 
@@ -176,8 +177,8 @@ namespace PixelArtTool
             palette = LoadPalette("pack://application:,,,/Resources/Palettes/aap-64-1x.png", paletteBitmap, paletteResolutionX, paletteResolutionY);
             currentColorIndex = 5;
             currentColor = palette[currentColorIndex];
-            SetRectangleFillColor(rectCurrentColor, currentColor);
-            UpdateCurrentHue(currentColor);
+            SetCurrentColorPreviewBox(rectCurrentColor, currentColor);
+            ResetCurrentBrightnessPreview(currentColor);
         }
 
 
@@ -318,11 +319,11 @@ namespace PixelArtTool
             currentColorIndex = y * paletteResolutionX + x + 1; // +1 for fix index magic number..
             currentColor = palette[currentColorIndex];
 
-            UpdateCurrentHue(currentColor);
+            ResetCurrentBrightnessPreview(currentColor);
         }
 
         LinearGradientBrush myBrush;
-        void UpdateCurrentHue(PixelColor c)
+        void ResetCurrentBrightnessPreview(PixelColor c)
         {
             hueLocation = 0.5;
 
@@ -357,8 +358,9 @@ namespace PixelArtTool
 
             rectCurrentHue.Fill = myBrush;
 
-            //myBrush.GradientStops
-
+            // move hueline
+            int offset = (int)(hueLocation * 253);
+            lineCurrentHueLine.Margin = new Thickness(offset, 0, offset, 0);
         }
 
         // https://stackoverflow.com/a/39450207/5452781
@@ -424,7 +426,8 @@ namespace PixelArtTool
         void PaletteLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             PickPalette(e);
-            SetRectangleFillColor(rectCurrentColor, currentColor);
+            SetCurrentColorPreviewBox(rectCurrentColor, currentColor);
+            ResetCurrentBrightnessPreview(currentColor);
         }
 
         void DrawingRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -440,8 +443,8 @@ namespace PixelArtTool
                 int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
 
                 currentColor = GetPixel(x, y);
-                SetRectangleFillColor(rectCurrentColor, currentColor);
-                UpdateCurrentHue(currentColor);
+                SetCurrentColorPreviewBox(rectCurrentColor, currentColor);
+                ResetCurrentBrightnessPreview(currentColor);
             }
         }
 
@@ -526,7 +529,7 @@ namespace PixelArtTool
             else if (e.MiddleButton == MouseButtonState.Pressed)
             {
                 currentColor = GetPixel(x, y);
-                UpdateCurrentHue(currentColor);
+                ResetCurrentBrightnessPreview(currentColor);
             }
 
             ShowMousePos(x, y);
@@ -586,7 +589,12 @@ namespace PixelArtTool
             cc.Blue = c.B;
             cc.Alpha = 255;
             currentColor = cc;
-            SetRectangleFillColor(rectCurrentColor, currentColor);
+            SetCurrentColorPreviewBox(rectCurrentColor, currentColor);
+            //ResetCurrentBrightnessPreview(currentColor);
+
+            // move hueline
+            int offset = (int)(hueLocation * 253);
+            lineCurrentHueLine.Margin = new Thickness(offset, 0, offset, 0);
         }
 
         private void OnClearButton(object sender, RoutedEventArgs e)
@@ -999,7 +1007,7 @@ namespace PixelArtTool
             c2.Blue = c1.B;
             currentColor = c2;
             rectCurrentColor.Fill = new SolidColorBrush(Color.FromArgb(c2.Alpha, c2.Red, c2.Green, c2.Blue));
-            UpdateCurrentHue(currentColor);
+            ResetCurrentBrightnessPreview(currentColor);
         }
     } // class
 

@@ -153,7 +153,7 @@ namespace PixelArtTool
             targetBitmap.WritePixels(emptyRect, emptyPixels, emptyStride, 0);
         }
 
-        public static void SetRectangleFillColor(Rectangle targetRectangle, PixelColor color)
+        public static void SetCurrentColorPreviewBox(Rectangle targetRectangle, PixelColor color)
         {
             var col = Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
             targetRectangle.Fill = new SolidColorBrush(col);
