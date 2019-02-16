@@ -1009,6 +1009,18 @@ namespace PixelArtTool
             rectCurrentColor.Fill = new SolidColorBrush(Color.FromArgb(c2.Alpha, c2.Red, c2.Green, c2.Blue));
             ResetCurrentBrightnessPreview(currentColor);
         }
+
+        private void OnGetTransparentColorButton(object sender, MouseButtonEventArgs e)
+        {
+            var c = new PixelColor();
+            c.Red = 255;
+            c.Green = 255;
+            c.Blue = 255;
+            c.Alpha = 0;
+            currentColor = c;
+            rectCurrentColor.Fill = new SolidColorBrush(Color.FromArgb(c.Alpha, c.Red, c.Green, c.Blue));
+            ResetCurrentBrightnessPreview(currentColor);
+        }
     } // class
 
 } // namespace
