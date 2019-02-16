@@ -1,7 +1,7 @@
 # PixelArtTool
 Homemade Pixel Art Tool
 
-Work-in-Progress, initial features should be mainly based on this unfinished project
+Work-in-Progress, initial features should be mainly based on this unfinished project, and then adding more advanced features.
 https://www.assetstore.unity3d.com/en/#!/content/28312?staystaystay
 (and also practice project for working with WPF)
 
@@ -32,9 +32,14 @@ https://www.assetstore.unity3d.com/en/#!/content/28312?staystaystay
 - Flip Horizontal/Vertial tool
 - Secondary color (with swap key "X")
 - Palette loader dialog
+- 1x and 2x preview images
+- hue saturation lightness color picker
+- quick current color brightness adjust (mousewheel), for drawing easy gradients or lighter/darker parts
+- quick 'get transparent color as current color' - button
 
 # Screenshot
-![image](https://user-images.githubusercontent.com/5438317/52136020-cae83c00-264f-11e9-89a2-6f1eb2a4f75a.png)
+![image](https://user-images.githubusercontent.com/5438317/52905332-704f0280-3241-11e9-9535-d570d8cea184.png)
+
 
 
 
