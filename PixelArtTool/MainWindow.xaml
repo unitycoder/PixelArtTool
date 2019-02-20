@@ -219,7 +219,7 @@
 					</LinearGradientBrush>
 				</Rectangle.Fill>
 			</Rectangle>
-			<Line x:Name="lineCurrentHueLine" X1="91" Y1="312" X2="91" Y2="334" Stroke="Red" StrokeThickness="1" />
+			<Line x:Name="lineCurrentHueLine" X1="91" Y1="312" X2="91" Y2="334" Stroke="White" StrokeThickness="1" />
 		</Grid>
 		<Rectangle x:Name="rectGetTransparent" HorizontalAlignment="Left" Height="28" Margin="10,289,0,0" Stroke="Black" VerticalAlignment="Top" Width="28" MouseDown="OnGetTransparentColorButton">
 			<Rectangle.Fill>
