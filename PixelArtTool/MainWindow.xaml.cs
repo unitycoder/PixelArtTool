@@ -157,6 +157,13 @@ namespace PixelArtTool
             w.MouseWheel += new MouseWheelEventHandler(DrawingMouseWheel);
             drawingImage.MouseUp += new MouseButtonEventHandler(DrawingMouseUp);
 
+            // FIXME init undos
+            for (int i = 0; i < maxUndoCount; i++)
+            {
+                undoBufferBitmap[i] = canvasBitmap.Clone();
+            }
+
+
             // build palette
             paletteImage = imgPalette;
             RenderOptions.SetBitmapScalingMode(paletteImage, BitmapScalingMode.NearestNeighbor);
@@ -432,7 +439,15 @@ namespace PixelArtTool
 
         void DrawingRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            ErasePixel(e);
+            int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
+            int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
+
+            ErasePixel(x, y);
+
+            if (chkMirrorX.IsChecked == true)
+            {
+                ErasePixel(canvasResolutionX - x, y);
+            }
         }
 
         void DrawingMiddleButtonDown(object sender, MouseButtonEventArgs e)
@@ -451,9 +466,11 @@ namespace PixelArtTool
         void DrawingLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             // undo test
-            undoBufferBitmap[currentUndoIndex++] = canvasBitmap.Clone();
+            //undoBufferBitmap[currentUndoIndex++] = canvasBitmap.Clone();
+            currentUndoIndex = ++currentUndoIndex % maxUndoCount; // wrap
+            CopyBitmapPixels(canvasBitmap, undoBufferBitmap[currentUndoIndex]);
 
-            // FIXME if undobuffer enabled above, sometimes Exception thrown: 'System.IndexOutOfRangeException' in PixelArtTool.exe
+            // FIXME if undobuffer clone enabled above, sometimes Exception thrown: 'System.IndexOutOfRangeException' in PixelArtTool.exe
             // An unhandled exception of type 'System.IndexOutOfRangeException' occurred in PixelArtTool.exe
             // Index was outside the bounds of the array.
             // Console.WriteLine(drawingImage);
@@ -469,11 +486,15 @@ namespace PixelArtTool
                     // mirror
                     if (chkMirrorX.IsChecked == true)
                     {
-                        DrawPixel(canvasResolutionX - x - 1, y);
+                        DrawPixel(canvasResolutionX - x, y);
                     }
                     break;
                 case ToolMode.Fill:
                     FloodFill(x, y, (int)currentColor.ColorBGRA);
+                    if (chkMirrorX.IsChecked == true)
+                    {
+                        FloodFill(canvasResolutionX - x, y, (int)currentColor.ColorBGRA);
+                    }
                     break;
                 default:
                     break;
@@ -506,11 +527,15 @@ namespace PixelArtTool
                         // mirror
                         if (chkMirrorX.IsChecked == true)
                         {
-                            DrawPixel(canvasResolutionX - x - 1, y);
+                            DrawPixel(canvasResolutionX - x, y);
                         }
                         break;
                     case ToolMode.Fill:
                         FloodFill(x, y, (int)currentColor.ColorBGRA);
+                        if (chkMirrorX.IsChecked == true)
+                        {
+                            FloodFill(canvasResolutionX - x, y, (int)currentColor.ColorBGRA);
+                        }
                         break;
                     default:
                         break;
@@ -523,7 +548,7 @@ namespace PixelArtTool
                 // mirror
                 if (chkMirrorX.IsChecked == true)
                 {
-                    ErasePixel(canvasResolutionX - x - 1, y);
+                    ErasePixel(canvasResolutionX - x, y);
                 }
             }
             else if (e.MiddleButton == MouseButtonState.Pressed)
@@ -711,10 +736,10 @@ namespace PixelArtTool
 
         private void CallUndo()
         {
-            if (currentUndoIndex > 0)
-            {
-                CopyBitmapPixels(undoBufferBitmap[--currentUndoIndex], canvasBitmap);
-            }
+            currentUndoIndex--;
+            // TODO: only wrap to current last active index
+            if (currentUndoIndex < 0) currentUndoIndex += maxUndoCount; // wrap
+            CopyBitmapPixels(undoBufferBitmap[currentUndoIndex], canvasBitmap);
         }
 
         void CopyBitmapPixels(WriteableBitmap source, WriteableBitmap target)
