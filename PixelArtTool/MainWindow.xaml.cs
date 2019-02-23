@@ -825,6 +825,16 @@ namespace PixelArtTool
             e.CanExecute = true;
         }
 
+        public void Executed_Copy(object sender, ExecutedRoutedEventArgs e)
+        {
+            OnCopyImageToClipboard();
+        }
+
+        public void CanExecute_Copy(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
         // paste image from clipboard to canvas
         void OnPasteImageFromClipboard()
         {
@@ -878,7 +888,40 @@ namespace PixelArtTool
             }
         }
 
+        void OnCopyImageToClipboard()
+        {
+            // FIXME no transparency
+            Clipboard.SetImage(ConvertWriteableBitmapToBitmapImage(canvasBitmap.Clone()));
 
+            /*
+            var bitmap = ConvertWriteableBitmapToBitmapImage(canvasBitmap.Clone());
+            Stream stream = new MemoryStream();
+            BitmapEncoder enc = new BmpBitmapEncoder();
+            enc.Frames.Add(BitmapFrame.Create(bitmap));
+            enc.Save(stream);
+            var data = new DataObject("PNG", stream);
+            Clipboard.Clear();
+            Clipboard.SetDataObject(data, true);
+            */
+        }
+
+        // https://stackoverflow.com/a/14165162/5452781
+        public BitmapImage ConvertWriteableBitmapToBitmapImage(WriteableBitmap wbm)
+        {
+            BitmapImage bmImage = new BitmapImage();
+            using (MemoryStream stream = new MemoryStream())
+            {
+                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(wbm));
+                encoder.Save(stream);
+                bmImage.BeginInit();
+                bmImage.CacheOption = BitmapCacheOption.OnLoad;
+                bmImage.StreamSource = stream;
+                bmImage.EndInit();
+                bmImage.Freeze();
+            }
+            return bmImage;
+        }
 
         void FloodFill(int x, int y, int fillColor)
         {
