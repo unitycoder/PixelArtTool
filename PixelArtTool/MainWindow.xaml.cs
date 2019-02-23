@@ -6,9 +6,11 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static PixelArtTool.Tools;
@@ -813,6 +815,71 @@ namespace PixelArtTool
             e.CanExecute = true;
         }
 
+        public void Executed_Paste(object sender, ExecutedRoutedEventArgs e)
+        {
+            OnPasteImageFromClipboard();
+        }
+
+        public void CanExecute_Paste(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        // paste image from clipboard to canvas
+        void OnPasteImageFromClipboard()
+        {
+            if (Clipboard.ContainsImage())
+            {
+                IDataObject clipboardData = Clipboard.GetDataObject();
+
+                // https://markheath.net/post/save-clipboard-image-to-file
+                if (clipboardData != null)
+                {
+                    BitmapSource source = Clipboard.GetImage();
+
+                    // https://stackoverflow.com/questions/5867657/copying-from-bitmapsource-to-writablebitmap
+                    // Calculate stride of source
+                    int stride = source.PixelWidth * (source.Format.BitsPerPixel + 7) / 8;
+                    Console.WriteLine("stride:" + stride);
+                    // Create data array to hold source pixel data
+                    byte[] data = new byte[stride * source.PixelHeight];
+
+                    // Copy source image pixels to the data array
+                    source.CopyPixels(data, stride, 0);
+
+                    // Create WriteableBitmap to copy the pixel data to.      
+                    WriteableBitmap target = new WriteableBitmap(
+                      source.PixelWidth,
+                      source.PixelHeight,
+                      source.DpiX, source.DpiY,
+                      source.Format, null);
+
+                    // Write the pixel data to the WriteableBitmap.
+                    target.WritePixels(
+                      new Int32Rect(0, 0, source.PixelWidth, source.PixelHeight),
+                      data, stride, 0);
+
+                    PixelColor c = new PixelColor();
+                    for (int x = 0; x < canvasResolutionX; x++)
+                    {
+                        for (int y = 0; y < canvasResolutionY; y++)
+                        {
+                            var cc = GetPixelColor(x, y, target);
+                            Console.WriteLine();
+                            var ccc = new PixelColor();
+                            ccc.Red = cc.Red;
+                            ccc.Green = cc.Green;
+                            ccc.Blue = cc.Blue;
+                            ccc.Alpha = 255;
+                            SetPixel(canvasBitmap, x, y, (int)ccc.ColorBGRA);
+                        }
+                    }
+                }
+            }
+        }
+
+
+
         void FloodFill(int x, int y, int fillColor)
         {
             // get hit color pixel
@@ -1099,6 +1166,9 @@ namespace PixelArtTool
             rectCurrentColor.Fill = new SolidColorBrush(Color.FromArgb(c.Alpha, c.Red, c.Green, c.Blue));
             ResetCurrentBrightnessPreview(currentColor);
         }
+
+
+
     } // class
 
 } // namespace

@@ -10,10 +10,12 @@
 	<Window.CommandBindings>
 		<CommandBinding Command="ApplicationCommands.Undo" Executed="Executed_Undo" CanExecute="CanExecute_Undo"/>
 		<CommandBinding Command="ApplicationCommands.Redo" Executed="Executed_Redo" CanExecute="CanExecute_Redo"/>
+		<CommandBinding Command="ApplicationCommands.Paste" Executed="Executed_Paste" CanExecute="CanExecute_Paste"/>
 	</Window.CommandBindings>
 	<Window.InputBindings>
 		<KeyBinding Command="ApplicationCommands.Undo" Gesture="Ctrl+Z"/>
 		<KeyBinding Command="ApplicationCommands.Redo" Gesture="Ctrl+Y"/>
+		<KeyBinding Command="ApplicationCommands.Paste" Gesture="Ctrl+V"/>
 	</Window.InputBindings>
 	<Window.Resources>
 
