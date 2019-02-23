@@ -35,11 +35,12 @@ https://www.assetstore.unity3d.com/en/?stay#!/content/28312
 - 1x and 2x preview images
 - hue saturation lightness color picker
 - quick current color brightness adjust (mousewheel), for drawing easy gradients or lighter/darker parts
-- quick 'get transparent color as current color' - button
+- quick 'set transparent color as current color' - button
+- Redo ctrl+y
+- Paste images from clipboard (only 16x16 for now, no alpha)
+- Copy image to clipboard (no alpha)
+
 
 # Screenshot
 ![image](https://user-images.githubusercontent.com/5438317/52905332-704f0280-3241-11e9-9535-d570d8cea184.png)
-
-
-
 
