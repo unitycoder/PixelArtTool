@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -53,8 +54,27 @@ namespace PixelArtTool
 
         // undo
         const int maxUndoCount = 100;
-        int currentUndoIndex = 0;
-        WriteableBitmap[] undoBufferBitmap = new WriteableBitmap[maxUndoCount];
+        //int currentUndoIndex = 0;
+        private int myVar = 0;
+
+        public int currentUndoIndex
+        {
+            get
+            {
+                Console.WriteLine("set:" + myVar);
+                return myVar;
+            }
+            set
+            {
+                Console.WriteLine("get:" + myVar);
+                myVar = value;
+            }
+        }
+
+
+        //WriteableBitmap[] undoBufferBitmap = new WriteableBitmap[maxUndoCount];
+        //List<WriteableBitmap> undoBufferBitmap = new List<WriteableBitmap>();
+        //Stack<WriteableBitmap> undoBufferBitmap = new Stack<WriteableBitmap>();
 
         // drawing lines
         bool firstPixel = true;
@@ -97,6 +117,10 @@ namespace PixelArtTool
             InitializeComponent();
             Start();
         }
+
+        Stack<WriteableBitmap> undoStack = new Stack<WriteableBitmap>();
+        Stack<WriteableBitmap> redoStack = new Stack<WriteableBitmap>();
+        WriteableBitmap currentItem;
 
         void Start()
         {
@@ -156,13 +180,6 @@ namespace PixelArtTool
             drawingImage.MouseDown += new MouseButtonEventHandler(DrawingMiddleButtonDown);
             w.MouseWheel += new MouseWheelEventHandler(DrawingMouseWheel);
             drawingImage.MouseUp += new MouseButtonEventHandler(DrawingMouseUp);
-
-            // FIXME init undos
-            for (int i = 0; i < maxUndoCount; i++)
-            {
-                undoBufferBitmap[i] = canvasBitmap.Clone();
-            }
-
 
             // build palette
             paletteImage = imgPalette;
@@ -270,8 +287,10 @@ namespace PixelArtTool
                     draw = currentColor;
                     break;
                 case BlendMode.Additive:
+                    /*
                     // get old color from undo buffer
-                    var oc = GetPixelColor(x, y, undoBufferBitmap[currentUndoIndex]);
+                    // TODO add undo back
+                    //var oc = GetPixelColor(x, y, undoBufferBitmap.Pop());
                     // mix colors ADDITIVE mode
                     int r = (int)(oc.Red + currentColor.Red * (opacity / (float)255));
                     int g = (int)(oc.Green + currentColor.Green * (opacity / (float)255));
@@ -280,6 +299,7 @@ namespace PixelArtTool
                     draw.Green = ClampToByte(g);
                     draw.Blue = ClampToByte(b);
                     draw.Alpha = opacity;
+                    */
                     break;
                 default:
                     break;
@@ -463,21 +483,15 @@ namespace PixelArtTool
             }
         }
 
+        // clicked, but not moved
         void DrawingLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            // undo test
-            //undoBufferBitmap[currentUndoIndex++] = canvasBitmap.Clone();
-            currentUndoIndex = ++currentUndoIndex % maxUndoCount; // wrap
-            CopyBitmapPixels(canvasBitmap, undoBufferBitmap[currentUndoIndex]);
-
-            // FIXME if undobuffer clone enabled above, sometimes Exception thrown: 'System.IndexOutOfRangeException' in PixelArtTool.exe
-            // An unhandled exception of type 'System.IndexOutOfRangeException' occurred in PixelArtTool.exe
-            // Index was outside the bounds of the array.
-            // Console.WriteLine(drawingImage);
+            // take current bitmap as currentimage
+            currentItem = canvasBitmap.Clone();
+            undoStack.Push(currentItem);
 
             int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
             int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
-
 
             switch (CurrentTool)
             {
@@ -504,8 +518,8 @@ namespace PixelArtTool
             {
                 UpdateOutline();
             }
+        } // DrawingLeftButtonDown
 
-        }
 
         void DrawingMouseUp(object sender, MouseButtonEventArgs e)
         {
@@ -624,6 +638,7 @@ namespace PixelArtTool
 
         private void OnClearButton(object sender, RoutedEventArgs e)
         {
+            //undoRedoWrapper.AddItem(canvasBitmap.Clone());
             ClearImage(canvasBitmap, emptyRect, emptyPixels, emptyStride);
             UpdateOutline();
         }
@@ -659,7 +674,12 @@ namespace PixelArtTool
 
         private void OnUndoButtonDown(object sender, RoutedEventArgs e)
         {
-            CallUndo();
+            DoUndo();
+        }
+
+        private void OnRedoButtonDown(object sender, RoutedEventArgs e)
+        {
+            DoRedo();
         }
 
         private void OnModeSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -734,13 +754,36 @@ namespace PixelArtTool
             }
         }
 
-        private void CallUndo()
+
+        // restore to previous bitmap
+        private void DoUndo()
         {
-            currentUndoIndex--;
-            // TODO: only wrap to current last active index
-            if (currentUndoIndex < 0) currentUndoIndex += maxUndoCount; // wrap
-            CopyBitmapPixels(undoBufferBitmap[currentUndoIndex], canvasBitmap);
+            if (undoStack.Count > 0)
+            {
+                // TODO: clear redo?
+                // save current image in top of redo stack
+                redoStack.Push(canvasBitmap.Clone());
+                // take latest image from top of undo stack
+                currentItem = undoStack.Pop();
+                // show latest image
+                CopyBitmapPixels(currentItem, canvasBitmap);
+            }
         }
+
+        // go to next existing undo buffer, if available
+        private void DoRedo()
+        {
+            if (redoStack.Count > 0)
+            {
+                // save current image in top of redo stack
+                undoStack.Push(canvasBitmap.Clone());
+                // take latest image from top of redo stack
+                currentItem = redoStack.Pop();
+                // show latest redo image
+                CopyBitmapPixels(currentItem, canvasBitmap);
+            }
+        }
+
 
         void CopyBitmapPixels(WriteableBitmap source, WriteableBitmap target)
         {
@@ -752,10 +795,20 @@ namespace PixelArtTool
 
         public void Executed_Undo(object sender, ExecutedRoutedEventArgs e)
         {
-            CallUndo();
+            DoUndo();
         }
 
         public void CanExecute_Undo(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        public void Executed_Redo(object sender, ExecutedRoutedEventArgs e)
+        {
+            DoRedo();
+        }
+
+        public void CanExecute_Redo(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
         }

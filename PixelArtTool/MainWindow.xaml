@@ -9,9 +9,11 @@
         Title="PixelArtTool" Height="412.222" Width="739.444" Background="#FF252526" KeyDown="OnKeyDown" KeyUp="OnKeyUp">
 	<Window.CommandBindings>
 		<CommandBinding Command="ApplicationCommands.Undo" Executed="Executed_Undo" CanExecute="CanExecute_Undo"/>
+		<CommandBinding Command="ApplicationCommands.Redo" Executed="Executed_Redo" CanExecute="CanExecute_Redo"/>
 	</Window.CommandBindings>
 	<Window.InputBindings>
 		<KeyBinding Command="ApplicationCommands.Undo" Gesture="Ctrl+Z"/>
+		<KeyBinding Command="ApplicationCommands.Redo" Gesture="Ctrl+Y"/>
 	</Window.InputBindings>
 	<Window.Resources>
 
@@ -131,7 +133,7 @@
 				<Button x:Name="btnUndo" ToolTip="Undo" Click="OnUndoButtonDown">
 					<Image Source="/Resources/Buttons/emptybutton.png" />
 				</Button>
-				<Button x:Name="btnRedo" ToolTip="Redo">
+				<Button x:Name="btnRedo" ToolTip="Redo" Click="OnRedoButtonDown">
 					<Image Source="/Resources/Buttons/emptybutton.png" />
 				</Button>
 			</ToolBar>
