@@ -205,6 +205,10 @@ namespace PixelArtTool
             currentColor = palette[currentColorIndex];
             SetCurrentColorPreviewBox(rectCurrentColor, currentColor);
             ResetCurrentBrightnessPreview(currentColor);
+
+            lineSymmetryXpositionA.Visibility = Visibility.Hidden;
+            lineSymmetryXpositionB.Visibility = Visibility.Hidden;
+
         }
 
 
@@ -461,6 +465,8 @@ namespace PixelArtTool
 
         void DrawingRightButtonDown(object sender, MouseButtonEventArgs e)
         {
+            RegisterUndo();
+
             int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
             int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
 
@@ -489,8 +495,7 @@ namespace PixelArtTool
         void DrawingLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             // take current bitmap as currentimage
-            currentItem = canvasBitmap.Clone();
-            undoStack.Push(currentItem);
+            RegisterUndo();
 
             int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
             int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
@@ -522,6 +527,13 @@ namespace PixelArtTool
             }
         } // DrawingLeftButtonDown
 
+        // save undo state
+        void RegisterUndo()
+        {
+            currentItem = canvasBitmap.Clone();
+            undoStack.Push(currentItem);
+            redoStack.Clear();
+        }
 
         void DrawingMouseUp(object sender, MouseButtonEventArgs e)
         {
@@ -640,7 +652,7 @@ namespace PixelArtTool
 
         private void OnClearButton(object sender, RoutedEventArgs e)
         {
-            //undoRedoWrapper.AddItem(canvasBitmap.Clone());
+            RegisterUndo();
             ClearImage(canvasBitmap, emptyRect, emptyPixels, emptyStride);
             UpdateOutline();
         }
@@ -1210,6 +1222,17 @@ namespace PixelArtTool
             ResetCurrentBrightnessPreview(currentColor);
         }
 
+        private void chkMirrorX_Unchecked(object sender, RoutedEventArgs e)
+        {
+            lineSymmetryXpositionA.Visibility = Visibility.Hidden;
+            lineSymmetryXpositionB.Visibility = Visibility.Hidden;
+        }
+
+        private void chkMirrorX_Checked(object sender, RoutedEventArgs e)
+        {
+            lineSymmetryXpositionA.Visibility = Visibility.Visible;
+            lineSymmetryXpositionB.Visibility = Visibility.Visible;
+        }
 
 
     } // class
