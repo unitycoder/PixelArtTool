@@ -1232,7 +1232,6 @@ namespace PixelArtTool
             lineSymmetryXpositionB.Visibility = Visibility.Visible;
         }
 
-
     } // class
 
 } // namespace
