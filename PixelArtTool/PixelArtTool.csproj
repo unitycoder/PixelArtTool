@@ -64,12 +64,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="BlendMode.cs" />
-    <Compile Include="CustomPoint.cs" />
-    <Compile Include="PixelColor.cs" />
-    <Compile Include="ToolMode.cs" />
+    <Compile Include="EnumsAndStructs.cs" />
     <Compile Include="Tools.cs" />
-    <Compile Include="EnumBooleanConverter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
