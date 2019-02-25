@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PixelArtTool"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Name="window" x:Class="PixelArtTool.MainWindow"
         mc:Ignorable="d"
-        Title="PixelArtTool" Height="412.222" Width="739.444" Background="#FF252526" KeyDown="OnKeyDown" KeyUp="OnKeyUp">
+        Title="PixelArtTool (Test Version)" Height="412.222" Width="739.444" Background="#FF252526" KeyDown="OnKeyDown" KeyUp="OnKeyUp">
 	<Window.CommandBindings>
 		<CommandBinding Command="ApplicationCommands.Undo" Executed="Executed_Undo" CanExecute="CanExecute_Undo"/>
 		<CommandBinding Command="ApplicationCommands.Redo" Executed="Executed_Redo" CanExecute="CanExecute_Redo"/>
