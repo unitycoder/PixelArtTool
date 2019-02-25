@@ -456,6 +456,7 @@ namespace PixelArtTool
             return pix;
         }
 
+
         void PaletteLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             PickPalette(e);

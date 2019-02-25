@@ -1,6 +1,0 @@
-language: csharp
-solution: PixelArtTool.sln
-install:
-  - nuget restore PixelArtTool.sln
-script:
-  - xbuild /p:Configuration=Release PixelArtTool.sln /p:TargetFrameworkVersion="v4.5"
