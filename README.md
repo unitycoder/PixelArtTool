@@ -1,3 +1,5 @@
+[![](https://ci.appveyor.com/api/projects/status/vyfdau7shd8vhv99?svg=true)](#)
+
 # PixelArtTool
 Homemade Pixel Art Tool
 
