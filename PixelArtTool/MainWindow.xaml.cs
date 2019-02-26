@@ -591,7 +591,12 @@ namespace PixelArtTool
                 UpdateOutline();
             }
 
-        }
+            // snap preview rectangle to grid
+            var left = x * canvasScaleX;
+            var top = y * canvasScaleX;
+            rectPixelPos.Margin = new Thickness(89+left, 50+top, 0, 0);
+
+        } // drawingareamousemoved
 
         void ShowMousePos(int x, int y)
         {
@@ -841,6 +846,26 @@ namespace PixelArtTool
         }
 
         public void CanExecute_Copy(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        public void Executed_SaveAs(object sender, ExecutedRoutedEventArgs e)
+        {
+            OnSaveButton(null, null);
+        }
+
+        public void CanExecute_SaveAs(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        public void Executed_New(object sender, ExecutedRoutedEventArgs e)
+        {
+            OnClearButton(null, null);
+        }
+
+        public void CanExecute_New(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
         }
@@ -1193,20 +1218,7 @@ namespace PixelArtTool
             rectSaturation.OpacityMask = opacityBrush;
         }
 
-        private void OnLevelSaturationMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            CustomPoint cursor;
-            GetCursorPos(out cursor);
-            var c1 = Win32GetScreenPixel((int)cursor.X, (int)cursor.Y);
-            var c2 = new PixelColor();
-            c2.Alpha = c1.A;
-            c2.Red = c1.R;
-            c2.Green = c1.G;
-            c2.Blue = c1.B;
-            currentColor = c2;
-            rectCurrentColor.Fill = new SolidColorBrush(Color.FromArgb(c2.Alpha, c2.Red, c2.Green, c2.Blue));
-            ResetCurrentBrightnessPreview(currentColor);
-        }
+
 
         private void OnGetTransparentColorButton(object sender, MouseButtonEventArgs e)
         {
@@ -1232,6 +1244,32 @@ namespace PixelArtTool
             lineSymmetryXpositionB.Visibility = Visibility.Visible;
         }
 
+        private void OnLevelSaturationMouseMoved(object sender, MouseEventArgs e)
+        {
+            if (rectSaturation.IsMouseOver == false) return;
+            if (e.LeftButton == MouseButtonState.Pressed) OnLevelSaturationMouseDown(null, null);
+        }
+
+        private void OnLevelSaturationMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            CustomPoint cursor;
+            GetCursorPos(out cursor);
+            var c1 = Win32GetScreenPixel((int)cursor.X, (int)cursor.Y);
+            var c2 = new PixelColor();
+            c2.Alpha = c1.A;
+            c2.Red = c1.R;
+            c2.Green = c1.G;
+            c2.Blue = c1.B;
+            currentColor = c2;
+            rectCurrentColor.Fill = new SolidColorBrush(Color.FromArgb(c2.Alpha, c2.Red, c2.Green, c2.Blue));
+            ResetCurrentBrightnessPreview(currentColor);
+        }
+
+        private void OnHueRectangleMouseMoved(object sender, MouseEventArgs e)
+        {
+            if (rectHueBar.IsMouseOver == false) return;
+            if (e.LeftButton == MouseButtonState.Pressed) rectHueBar_MouseDown(null, null);
+        }
     } // class
 
 } // namespace
