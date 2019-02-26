@@ -1272,4 +1272,5 @@ namespace PixelArtTool
         }
     } // class
 
+	
 } // namespace
