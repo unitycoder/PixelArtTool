@@ -16,6 +16,8 @@ namespace PixelArtTool
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        string windowTitle = "";
+
         WriteableBitmap canvasBitmap;
         WriteableBitmap gridBitmap;
         WriteableBitmap outlineBitmap;
@@ -111,6 +113,10 @@ namespace PixelArtTool
             }
         }
 
+        // files
+        string saveFile = null;
+
+
         public MainWindow()
         {
             InitializeComponent();
@@ -123,6 +129,8 @@ namespace PixelArtTool
 
         void Start()
         {
+            windowTitle = window.Title;
+
             // needed for binding
             DataContext = this;
 
@@ -594,7 +602,7 @@ namespace PixelArtTool
             // snap preview rectangle to grid
             var left = x * canvasScaleX;
             var top = y * canvasScaleX;
-            rectPixelPos.Margin = new Thickness(89+left, 50+top, 0, 0);
+            rectPixelPos.Margin = new Thickness(89 + left, 50 + top, 0, 0);
 
         } // drawingareamousemoved
 
@@ -658,26 +666,47 @@ namespace PixelArtTool
             RegisterUndo();
             ClearImage(canvasBitmap, emptyRect, emptyPixels, emptyStride);
             UpdateOutline();
+            // reset title
+            window.Title = windowTitle;
+            saveFile = null;
         }
 
+        // if unsaved, this is same as save as.., if already saved, then overwrite current
         private void OnSaveButton(object sender, RoutedEventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-
             saveFileDialog.FileName = "pixel";
             saveFileDialog.DefaultExt = ".png";
             saveFileDialog.Filter = "PNG|*.png";
             UseDefaultExtensionAsFilterIndex(saveFileDialog);
 
-            if (saveFileDialog.ShowDialog() == true)
+            // save to current file
+            if (saveFile != null)// || doSaveAs==true)
             {
-                FileStream stream = new FileStream(saveFileDialog.FileName, FileMode.Create);
-                PngBitmapEncoder encoder = new PngBitmapEncoder();
-                encoder.Interlace = PngInterlaceOption.On;
-                encoder.Frames.Add(BitmapFrame.Create(canvasBitmap));
-                encoder.Save(stream);
-                stream.Close();
+                SaveImageAsPng(saveFile);
             }
+            else // save as
+            {
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    SaveImageAsPng(saveFileDialog.FileName);
+                    // update window title
+                    window.Title = windowTitle + " - " + saveFileDialog.FileName;
+                    saveFile = saveFileDialog.FileName;
+                }
+            }
+
+        }
+
+        void SaveImageAsPng(string file)
+        {
+            FileStream stream = new FileStream(file, FileMode.Create);
+            PngBitmapEncoder encoder = new PngBitmapEncoder();
+            encoder.Interlace = PngInterlaceOption.On;
+            encoder.Frames.Add(BitmapFrame.Create(canvasBitmap));
+            encoder.Save(stream);
+            stream.Close();
+
         }
 
         private void OpacitySliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -852,10 +881,21 @@ namespace PixelArtTool
 
         public void Executed_SaveAs(object sender, ExecutedRoutedEventArgs e)
         {
+            saveFile = null;
             OnSaveButton(null, null);
         }
 
         public void CanExecute_SaveAs(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        public void Executed_Save(object sender, ExecutedRoutedEventArgs e)
+        {
+            OnSaveButton(null, null);
+        }
+
+        public void CanExecute_Save(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
         }

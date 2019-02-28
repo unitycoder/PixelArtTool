@@ -12,6 +12,7 @@
 		<CommandBinding Command="ApplicationCommands.Redo" Executed="Executed_Redo" CanExecute="CanExecute_Redo"/>
 		<CommandBinding Command="ApplicationCommands.Paste" Executed="Executed_Paste" CanExecute="CanExecute_Paste"/>
 		<CommandBinding Command="ApplicationCommands.Copy" Executed="Executed_Copy" CanExecute="CanExecute_Copy"/>
+		<CommandBinding Command="ApplicationCommands.Save" Executed="Executed_Save" CanExecute="CanExecute_Save"/>
 		<CommandBinding Command="ApplicationCommands.SaveAs" Executed="Executed_SaveAs" CanExecute="CanExecute_SaveAs"/>
 		<CommandBinding Command="ApplicationCommands.New" Executed="Executed_New" CanExecute="CanExecute_New"/>
 	</Window.CommandBindings>
@@ -21,6 +22,7 @@
 		<KeyBinding Command="ApplicationCommands.Paste" Gesture="Ctrl+V"/>
 		<KeyBinding Command="ApplicationCommands.Copy" Gesture="Ctrl+C"/>
 		<KeyBinding Command="ApplicationCommands.SaveAs" Gesture="Ctrl+Shift+S"/>
+		<KeyBinding Command="ApplicationCommands.Save" Gesture="Ctrl+S"/>
 		<KeyBinding Command="ApplicationCommands.New" Gesture="Ctrl+N"/>
 	</Window.InputBindings>
 	<Window.Resources>
@@ -108,7 +110,7 @@
 				<Button x:Name="btnNew" ToolTip="New (Ctrl+N)" Click="OnClearButton">
 					<Image Source="/Resources/Buttons/newimage.png"  Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
 				</Button>
-				<Button x:Name="btnSave" ToolTip="Save as..(Ctrl+Shift+s)" Click="OnSaveButton">
+				<Button x:Name="btnSave" ToolTip="Save (Ctrl+S)" Click="OnSaveButton">
 					<Image Source="/Resources/Buttons/save.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
 				</Button>
 			</ToolBar>
