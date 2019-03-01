@@ -11,7 +11,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static PixelArtTool.Tools;
-
 namespace PixelArtTool
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
@@ -22,12 +21,8 @@ namespace PixelArtTool
         WriteableBitmap gridBitmap;
         WriteableBitmap outlineBitmap;
         WriteableBitmap paletteBitmap;
-        Window w;
 
-        Image drawingImage;
-        Image gridImage;
-        Image outlineImage;
-        Image paletteImage;
+        Window w;
 
         // bitmap settings
         int canvasResolutionX = 16;
@@ -39,8 +34,12 @@ namespace PixelArtTool
         int paletteScaleY = 1;
         int dpiX = 96;
         int dpiY = 96;
-
         byte gridAlpha = 16;
+
+        // simple undo
+        Stack<WriteableBitmap> undoStack = new Stack<WriteableBitmap>();
+        Stack<WriteableBitmap> redoStack = new Stack<WriteableBitmap>();
+        WriteableBitmap currentUndoItem;
 
         // colors
         PixelColor currentColor;
@@ -53,30 +52,6 @@ namespace PixelArtTool
         int prevX;
         int prevY;
 
-        // undo
-        const int maxUndoCount = 100;
-        //int currentUndoIndex = 0;
-        private int myVar = 0;
-
-        public int currentUndoIndex
-        {
-            get
-            {
-                Console.WriteLine("set:" + myVar);
-                return myVar;
-            }
-            set
-            {
-                Console.WriteLine("get:" + myVar);
-                myVar = value;
-            }
-        }
-
-
-        //WriteableBitmap[] undoBufferBitmap = new WriteableBitmap[maxUndoCount];
-        //List<WriteableBitmap> undoBufferBitmap = new List<WriteableBitmap>();
-        //Stack<WriteableBitmap> undoBufferBitmap = new Stack<WriteableBitmap>();
-
         // drawing lines
         bool firstPixel = true;
         int startPixelX = 0;
@@ -86,6 +61,12 @@ namespace PixelArtTool
         bool diagonalLine = false;
         int lockedX = 0;
         int lockedY = 0;
+
+        // smart fill with double click
+        bool wasDoubleClick = false;
+        ToolMode previousToolMode = ToolMode.Draw;
+        PixelColor previousPixelColor;
+        PixelColor previousColor;
 
         // modes
         BlendMode blendMode;
@@ -102,19 +83,41 @@ namespace PixelArtTool
         private ToolMode _currentTool = ToolMode.Draw;
         public ToolMode CurrentTool
         {
-            get
-            {
-                return _currentTool;
-            }
-            set
-            {
-                _currentTool = value;
-                OnPropertyChanged();
-            }
+            get { return _currentTool; }
+            set { _currentTool = value; OnPropertyChanged(); }
         }
 
         // files
         string saveFile = null;
+        private bool _isModified;
+
+        public bool IsModified
+        {
+            get { return _isModified; }
+            set
+            {
+                _isModified = value;
+                // add * mark to file if modified
+                if (_isModified == true)
+                {
+                    if (window.Title.IndexOf("*") == -1)
+                    {
+                        window.Title = window.Title + "*";
+                    }
+                }
+                else // not modified, remove mark
+                {
+                    if (window.Title.IndexOf("*") > -1)
+                    {
+                        window.Title = window.Title.Replace("*", "");
+                    }
+                }
+            }
+        }
+
+
+        LinearGradientBrush currentBrightnessBrushGradient;
+        double hueIndicatorLocation = 0.5;
 
 
         public MainWindow()
@@ -123,42 +126,27 @@ namespace PixelArtTool
             Start();
         }
 
-        Stack<WriteableBitmap> undoStack = new Stack<WriteableBitmap>();
-        Stack<WriteableBitmap> redoStack = new Stack<WriteableBitmap>();
-        WriteableBitmap currentItem;
-
         void Start()
         {
-            windowTitle = window.Title;
+            w = (MainWindow)Application.Current.MainWindow;
+            windowTitle = w.Title;
 
             // needed for binding
             DataContext = this;
 
             // setup background grid
-            gridImage = imgGrid;
-            RenderOptions.SetBitmapScalingMode(gridImage, BitmapScalingMode.NearestNeighbor);
-            RenderOptions.SetEdgeMode(gridImage, EdgeMode.Aliased);
-            w = (MainWindow)Application.Current.MainWindow;
             gridBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             gridImage.Source = gridBitmap;
             DrawBackgroundGrid(gridBitmap, canvasResolutionX, canvasResolutionY, gridAlpha);
 
-            // setup outline bitmap
-            outlineImage = imgOutline;
-            RenderOptions.SetBitmapScalingMode(outlineImage, BitmapScalingMode.NearestNeighbor);
-            RenderOptions.SetEdgeMode(outlineImage, EdgeMode.Aliased);
-            w = (MainWindow)Application.Current.MainWindow;
-            outlineBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
-            outlineImage.Source = outlineBitmap;
-
             // build drawing area
-            drawingImage = imgCanvas;
-            RenderOptions.SetBitmapScalingMode(drawingImage, BitmapScalingMode.NearestNeighbor);
-            RenderOptions.SetEdgeMode(drawingImage, EdgeMode.Aliased);
-            w = (MainWindow)Application.Current.MainWindow;
-            canvasScaleX = (int)drawingImage.Width / canvasResolutionX;
             canvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             drawingImage.Source = canvasBitmap;
+            canvasScaleX = (int)drawingImage.Width / canvasResolutionX;
+
+            // setup outline bitmap
+            outlineBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
+            outlineImage.Source = outlineBitmap;
 
             // init clear buffers
             emptyRect = new Int32Rect(0, 0, canvasBitmap.PixelWidth, canvasBitmap.PixelHeight);
@@ -166,43 +154,19 @@ namespace PixelArtTool
             emptyPixels = new byte[emptyRect.Width * emptyRect.Height * bytesPerPixel];
             emptyStride = emptyRect.Width * bytesPerPixel;
 
-            // setup preview area
-            RenderOptions.SetBitmapScalingMode(imgPreview1x, BitmapScalingMode.NearestNeighbor);
+            // setup preview images
             imgPreview1x.Source = canvasBitmap;
-            RenderOptions.SetBitmapScalingMode(imgPreview2x, BitmapScalingMode.NearestNeighbor);
             imgPreview2x.Source = canvasBitmap;
-            RenderOptions.SetBitmapScalingMode(imgPreview1xb, BitmapScalingMode.NearestNeighbor);
             imgPreview1xb.Source = canvasBitmap;
-            RenderOptions.SetBitmapScalingMode(imgPreview2xb, BitmapScalingMode.NearestNeighbor);
             imgPreview2xb.Source = canvasBitmap;
-            RenderOptions.SetBitmapScalingMode(imgPreview1xc, BitmapScalingMode.NearestNeighbor);
             imgPreview1xc.Source = canvasBitmap;
-            RenderOptions.SetBitmapScalingMode(imgPreview2xc, BitmapScalingMode.NearestNeighbor);
             imgPreview2xc.Source = canvasBitmap;
 
-            // drawing events
-            drawingImage.MouseMove += new MouseEventHandler(DrawingAreaMouseMoved);
-            drawingImage.MouseLeftButtonDown += new MouseButtonEventHandler(DrawingLeftButtonDown);
-            drawingImage.MouseRightButtonDown += new MouseButtonEventHandler(DrawingRightButtonDown);
-            drawingImage.MouseDown += new MouseButtonEventHandler(DrawingMiddleButtonDown);
-            w.MouseWheel += new MouseWheelEventHandler(DrawingMouseWheel);
-            drawingImage.MouseUp += new MouseButtonEventHandler(DrawingMouseUp);
-
             // build palette
-            paletteImage = imgPalette;
-            RenderOptions.SetBitmapScalingMode(paletteImage, BitmapScalingMode.NearestNeighbor);
-            RenderOptions.SetEdgeMode(paletteImage, EdgeMode.Aliased);
-            w = (MainWindow)Application.Current.MainWindow;
-            dpiX = 96;
-            dpiY = 96;
             paletteScaleX = (int)paletteImage.Width / paletteResolutionX;
             paletteScaleY = (int)paletteImage.Height / paletteResolutionY;
             paletteBitmap = new WriteableBitmap(paletteResolutionX, paletteResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             paletteImage.Source = paletteBitmap;
-
-            // palette events
-            paletteImage.MouseLeftButtonDown += new MouseButtonEventHandler(PaletteLeftButtonDown);
-            //paletteImage.MouseRightButtonDown += new MouseButtonEventHandler(PaletteRightButtonDown);
 
             // init
             palette = LoadPalette("pack://application:,,,/Resources/Palettes/aap-64-1x.png", paletteBitmap, paletteResolutionX, paletteResolutionY);
@@ -211,9 +175,9 @@ namespace PixelArtTool
             SetCurrentColorPreviewBox(rectCurrentColor, currentColor);
             ResetCurrentBrightnessPreview(currentColor);
 
+            // hide some objects (that are visible at start to keep it easy to edit form)
             lineSymmetryXpositionA.Visibility = Visibility.Hidden;
             lineSymmetryXpositionB.Visibility = Visibility.Hidden;
-
         }
 
 
@@ -323,23 +287,9 @@ namespace PixelArtTool
             prevY = y;
         } // drawpixel
 
-        void ErasePixel(MouseEventArgs e)
-        {
-            byte[] ColorData = { 0, 0, 0, 0 }; // B G R
-
-            int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
-            int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
-            if (x < 0 || x > canvasResolutionX - 1) return;
-            if (y < 0 || y > canvasResolutionY - 1) return;
-
-            Int32Rect rect = new Int32Rect(x, y, 1, 1);
-            canvasBitmap.WritePixels(rect, ColorData, 4, 0);
-        }
-
         void ErasePixel(int x, int y)
         {
             byte[] ColorData = { 0, 0, 0, 0 }; // B G R
-
             if (x < 0 || x > canvasResolutionX - 1) return;
             if (y < 0 || y > canvasResolutionY - 1) return;
 
@@ -351,21 +301,20 @@ namespace PixelArtTool
         {
             byte[] ColorData = { 0, 0, 0, 0 }; // B G R !
             int x = (int)(e.GetPosition(paletteImage).X / paletteScaleX);
-            int y = (int)(e.GetPosition(paletteImage).Y / paletteScaleY);
+            int y = (int)((e.GetPosition(paletteImage).Y - 1) / paletteScaleY); // -1 to fix offset issue
             if (x < 0 || x > paletteResolutionX - 1) return;
             if (y < 0 || y > paletteResolutionY - 1) return;
             currentColorIndex = y * paletteResolutionX + x + 1; // +1 for fix index magic number..
+            if (currentColorIndex >= palette.Length) currentColorIndex--;
             currentColor = palette[currentColorIndex];
-
             ResetCurrentBrightnessPreview(currentColor);
         }
 
-        LinearGradientBrush myBrush;
         void ResetCurrentBrightnessPreview(PixelColor c)
         {
-            hueLocation = 0.5;
+            hueIndicatorLocation = 0.5;
 
-            myBrush = new LinearGradientBrush();
+            currentBrightnessBrushGradient = new LinearGradientBrush();
             var c1 = new Color();
             c1.R = 0;
             c1.G = 0;
@@ -382,22 +331,22 @@ namespace PixelArtTool
             c3.B = 255;
             c3.A = 255;
 
-            myBrush.StartPoint = new Point(0, 0);
-            myBrush.EndPoint = new Point(1, 0);
+            currentBrightnessBrushGradient.StartPoint = new Point(0, 0);
+            currentBrightnessBrushGradient.EndPoint = new Point(1, 0);
 
             var g1 = new GradientStop(c1, 0.0);
-            myBrush.GradientStops.Add(g1);
+            currentBrightnessBrushGradient.GradientStops.Add(g1);
 
             var g2 = new GradientStop(c2, 0.5);
-            myBrush.GradientStops.Add(g2);
+            currentBrightnessBrushGradient.GradientStops.Add(g2);
 
             var g3 = new GradientStop(c3, 1);
-            myBrush.GradientStops.Add(g3);
+            currentBrightnessBrushGradient.GradientStops.Add(g3);
 
-            rectCurrentHue.Fill = myBrush;
+            rectCurrentHue.Fill = currentBrightnessBrushGradient;
 
             // move hueline
-            int offset = (int)(hueLocation * 253);
+            int offset = (int)(hueIndicatorLocation * 253);
             lineCurrentHueLine.Margin = new Thickness(offset, 0, offset, 0);
         }
 
@@ -417,7 +366,6 @@ namespace PixelArtTool
                 }
                 left = stop;
             }
-            //Debug.Assert(right != null);
             offset = Math.Round((offset - left.Offset) / (right.Offset - left.Offset), 2);
             byte a = (byte)((right.Color.A - left.Color.A) * offset + left.Color.A);
             byte r = (byte)((right.Color.R - left.Color.R) * offset + left.Color.R);
@@ -497,14 +445,28 @@ namespace PixelArtTool
             }
         }
 
+
         // clicked, but not moved
         void DrawingLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
+            int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
+
             // take current bitmap as currentimage
             RegisterUndo();
 
-            int x = (int)(e.GetPosition(drawingImage).X / canvasScaleX);
-            int y = (int)(e.GetPosition(drawingImage).Y / canvasScaleX);
+            // check for double click
+            if (e.ClickCount == 2)
+            {
+                previousToolMode = CurrentTool;
+                CurrentTool = ToolMode.Fill;
+                wasDoubleClick = true;
+            }
+            else // keep old color
+            {
+                previousPixelColor = GetPixel(x, y);
+            }
+
 
             switch (CurrentTool)
             {
@@ -517,6 +479,19 @@ namespace PixelArtTool
                     }
                     break;
                 case ToolMode.Fill:
+                    // NOTE: doesnt work with single pixel area.. because nothing to fill
+                    if (wasDoubleClick == true)
+                    {
+                        // remove previous pixel by using old color (could take from undo also..)
+                        // keep backup
+                        previousColor = currentColor;
+                        // set current to previous color
+                        currentColor = previousPixelColor;
+                        DrawPixel(x, y);
+                        // restore color
+                        currentColor = previousColor;
+                    }
+
                     FloodFill(x, y, (int)currentColor.ColorBGRA);
                     if (chkMirrorX.IsChecked == true)
                     {
@@ -525,6 +500,12 @@ namespace PixelArtTool
                     break;
                 default:
                     break;
+            }
+
+            if (wasDoubleClick == true)
+            {
+                wasDoubleClick = false;
+                CurrentTool = previousToolMode;
             }
 
             if (chkOutline.IsChecked == true)
@@ -536,13 +517,15 @@ namespace PixelArtTool
         // save undo state
         void RegisterUndo()
         {
-            currentItem = canvasBitmap.Clone();
-            undoStack.Push(currentItem);
+            currentUndoItem = canvasBitmap.Clone();
+            undoStack.Push(currentUndoItem);
             redoStack.Clear();
+            IsModified = true;
         }
 
         void DrawingMouseUp(object sender, MouseButtonEventArgs e)
         {
+
         }
 
 
@@ -618,8 +601,7 @@ namespace PixelArtTool
             lblPixelColor.Content = col.Red + "," + col.Green + "," + col.Blue + "," + col.Alpha;
         }
 
-        double hueLocation = 0.5;
-        void DrawingMouseWheel(object sender, MouseWheelEventArgs e)
+        void WindowMouseWheel(object sender, MouseWheelEventArgs e)
         {
             /*
             System.Windows.Media.Matrix m = i.RenderTransform.Value;
@@ -642,11 +624,11 @@ namespace PixelArtTool
             i.RenderTransform = new MatrixTransform(m);
             */
 
-            hueLocation += e.Delta < 0 ? -wheelSpeed : wheelSpeed;
-            if (hueLocation < 0) hueLocation = 0;
-            if (hueLocation > 1) hueLocation = 1;
+            hueIndicatorLocation += e.Delta < 0 ? -wheelSpeed : wheelSpeed;
+            if (hueIndicatorLocation < 0) hueIndicatorLocation = 0;
+            if (hueIndicatorLocation > 1) hueIndicatorLocation = 1;
 
-            var c = GetColorByOffset(myBrush.GradientStops, hueLocation);
+            var c = GetColorByOffset(currentBrightnessBrushGradient.GradientStops, hueIndicatorLocation);
             var cc = new PixelColor();
             cc.Red = c.R;
             cc.Green = c.G;
@@ -657,7 +639,7 @@ namespace PixelArtTool
             //ResetCurrentBrightnessPreview(currentColor);
 
             // move hueline
-            int offset = (int)(hueLocation * 253);
+            int offset = (int)(hueIndicatorLocation * 253);
             lineCurrentHueLine.Margin = new Thickness(offset, 0, offset, 0);
         }
 
@@ -684,6 +666,7 @@ namespace PixelArtTool
             if (saveFile != null)// || doSaveAs==true)
             {
                 SaveImageAsPng(saveFile);
+                IsModified = false;
             }
             else // save as
             {
@@ -693,6 +676,7 @@ namespace PixelArtTool
                     // update window title
                     window.Title = windowTitle + " - " + saveFileDialog.FileName;
                     saveFile = saveFileDialog.FileName;
+                    IsModified = false;
                 }
             }
 
@@ -706,7 +690,6 @@ namespace PixelArtTool
             encoder.Frames.Add(BitmapFrame.Create(canvasBitmap));
             encoder.Save(stream);
             stream.Close();
-
         }
 
         private void OpacitySliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -810,9 +793,9 @@ namespace PixelArtTool
                 // save current image in top of redo stack
                 redoStack.Push(canvasBitmap.Clone());
                 // take latest image from top of undo stack
-                currentItem = undoStack.Pop();
+                currentUndoItem = undoStack.Pop();
                 // show latest image
-                CopyBitmapPixels(currentItem, canvasBitmap);
+                CopyBitmapPixels(currentUndoItem, canvasBitmap);
             }
         }
 
@@ -824,9 +807,9 @@ namespace PixelArtTool
                 // save current image in top of redo stack
                 undoStack.Push(canvasBitmap.Clone());
                 // take latest image from top of redo stack
-                currentItem = redoStack.Pop();
+                currentUndoItem = redoStack.Pop();
                 // show latest redo image
-                CopyBitmapPixels(currentItem, canvasBitmap);
+                CopyBitmapPixels(currentUndoItem, canvasBitmap);
             }
         }
 
@@ -944,7 +927,6 @@ namespace PixelArtTool
                       new Int32Rect(0, 0, source.PixelWidth, source.PixelHeight),
                       data, stride, 0);
 
-                    PixelColor c = new PixelColor();
                     for (int x = 0; x < canvasResolutionX; x++)
                     {
                         for (int y = 0; y < canvasResolutionY; y++)
@@ -978,24 +960,6 @@ namespace PixelArtTool
             Clipboard.Clear();
             Clipboard.SetDataObject(data, true);
             */
-        }
-
-        // https://stackoverflow.com/a/14165162/5452781
-        public BitmapImage ConvertWriteableBitmapToBitmapImage(WriteableBitmap wbm)
-        {
-            BitmapImage bmImage = new BitmapImage();
-            using (MemoryStream stream = new MemoryStream())
-            {
-                PngBitmapEncoder encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(wbm));
-                encoder.Save(stream);
-                bmImage.BeginInit();
-                bmImage.CacheOption = BitmapCacheOption.OnLoad;
-                bmImage.StreamSource = stream;
-                bmImage.EndInit();
-                bmImage.Freeze();
-            }
-            return bmImage;
         }
 
         void FloodFill(int x, int y, int fillColor)
@@ -1152,12 +1116,6 @@ namespace PixelArtTool
             }
         }
 
-        private void OnToolChanged(object sender, RoutedEventArgs e)
-        {
-            //string tag = (string)((RadioButton)sender).Tag;
-            //Enum.TryParse(tag, out currentTool);
-        }
-
         // https://github.com/crclayton/WPF-DataBinding-Example
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -1213,6 +1171,7 @@ namespace PixelArtTool
             }
         }
 
+        // color picker for huebar
         private void rectHueBar_MouseDown(object sender, MouseButtonEventArgs e)
         {
             CustomPoint cursor;
@@ -1257,8 +1216,6 @@ namespace PixelArtTool
             opacityBrush.GradientStops.Add(g2b);
             rectSaturation.OpacityMask = opacityBrush;
         }
-
-
 
         private void OnGetTransparentColorButton(object sender, MouseButtonEventArgs e)
         {

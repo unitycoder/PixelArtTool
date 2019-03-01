@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
@@ -481,6 +482,26 @@ namespace PixelArtTool
             if (hue < 240) return q1 + (q2 - q1) * (240 - hue) / 60;
             return q1;
         }
+
+
+        // https://stackoverflow.com/a/14165162/5452781
+        public static BitmapImage ConvertWriteableBitmapToBitmapImage(WriteableBitmap wbm)
+        {
+            BitmapImage bmImage = new BitmapImage();
+            using (MemoryStream stream = new MemoryStream())
+            {
+                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(wbm));
+                encoder.Save(stream);
+                bmImage.BeginInit();
+                bmImage.CacheOption = BitmapCacheOption.OnLoad;
+                bmImage.StreamSource = stream;
+                bmImage.EndInit();
+                bmImage.Freeze();
+            }
+            return bmImage;
+        }
+
 
     } // class
 } // namespace
