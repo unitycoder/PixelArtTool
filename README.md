@@ -3,9 +3,8 @@
 # PixelArtTool
 Homemade Pixel Art Tool
 
-Work-in-Progress, initial features should be mainly based on this unfinished project, and then adding more advanced features.
-https://www.assetstore.unity3d.com/en/?stay#!/content/28312
-(and also practice project for working with WPF)
+Work-in-Progress, initial features should be mainly based on this unfinished project (link below) and then adding more advanced features https://www.assetstore.unity3d.com/en/?stay#!/content/28312
+(and also its a practice project for working with WPF)
 
 # Current Features
 - Drawable bitmap (scaled to see better)
@@ -36,13 +35,18 @@ https://www.assetstore.unity3d.com/en/?stay#!/content/28312
 - Palette loader dialog
 - 1x and 2x preview images
 - hue saturation lightness color picker
-- quick current color brightness adjust (mousewheel), for drawing easy gradients or lighter/darker parts
-- quick 'set transparent color as current color' - button
+- Quick current color brightness adjust (mousewheel), for drawing easy gradients or lighter/darker parts
+- Quick 'set transparent color as current color' - button
 - Redo ctrl+y
 - Paste images from clipboard (only 16x16 for now, no alpha)
 - Copy image to clipboard (no alpha)
-
+- Save ctrl+s
+- Save as ctrl+shift+s
+- Pixel position preview box
+- Quick Smart Fill (while in drawing mode, double click left mouse button to fill that area)
+- Show filename in window title
+- Show * in title, if image has unsaved changes
 
 # Screenshot
-![image](https://user-images.githubusercontent.com/5438317/52905332-704f0280-3241-11e9-9535-d570d8cea184.png)
+![image](https://user-images.githubusercontent.com/5438317/53655916-4b538a00-3c5a-11e9-94d9-ad5d54a4d3b6.png)
 
