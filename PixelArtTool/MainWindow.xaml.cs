@@ -80,6 +80,7 @@ namespace PixelArtTool
         // settings
         double wheelSpeed = 0.05;
 
+
         private ToolMode _currentTool = ToolMode.Draw;
         public ToolMode CurrentTool
         {
