@@ -5,6 +5,8 @@ branches:
 skip_tags: true
 skip_branch_with_pr: true
 configuration: Release
+only_commits:
+  message: /#build/
 build:
   verbosity: minimal
 after_build:
