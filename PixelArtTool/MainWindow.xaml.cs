@@ -301,11 +301,12 @@ namespace PixelArtTool
         {
             byte[] ColorData = { 0, 0, 0, 0 }; // B G R !
             int x = (int)(e.GetPosition(paletteImage).X / paletteScaleX);
-            int y = (int)((e.GetPosition(paletteImage).Y - 1) / paletteScaleY); // -1 to fix offset issue
+            int y = (int)(e.GetPosition(paletteImage).Y / paletteScaleY);
             if (x < 0 || x > paletteResolutionX - 1) return;
             if (y < 0 || y > paletteResolutionY - 1) return;
-            currentColorIndex = y * paletteResolutionX + x + 1; // +1 for fix index magic number..
-            if (currentColorIndex >= palette.Length) currentColorIndex--;
+
+            currentColorIndex = y * paletteResolutionX + x;
+            if (currentColorIndex > palette.Length) currentColorIndex--;
             currentColor = palette[currentColorIndex];
             ResetCurrentBrightnessPreview(currentColor);
         }
@@ -585,6 +586,7 @@ namespace PixelArtTool
             // snap preview rectangle to grid
             var left = x * canvasScaleX;
             var top = y * canvasScaleX;
+            // NOTE: this causes palette pixels to distort/move?
             rectPixelPos.Margin = new Thickness(89 + left, 50 + top, 0, 0);
 
         } // drawingareamousemoved

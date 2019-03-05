@@ -40,6 +40,23 @@ namespace PixelArtTool
             return Color.FromArgb(255, (byte)((a >> 0) & 0xff), (byte)((a >> 8) & 0xff), (byte)((a >> 16) & 0xff));
         }
 
+        public static PixelColor Win32GetScreenPixelColor()
+        {
+            CustomPoint cursor;
+            GetCursorPos(out cursor);
+            IntPtr desk = GetDesktopWindow();
+            IntPtr dc = GetWindowDC(desk);
+            int a = (int)GetPixel(dc, cursor.X, cursor.Y);
+            ReleaseDC(desk, dc);
+            var c = new PixelColor();
+            c.Alpha = 255;
+            c.Red = (byte)((a >> 0) & 0xff);
+            c.Green = (byte)((a >> 8) & 0xff);
+            c.Blue = (byte)((a >> 16) & 0xff);
+            return c;
+        }
+
+
         // fix savefiledialog extension https://stackoverflow.com/a/6104319/5452781
         public static void UseDefaultExtensionAsFilterIndex(FileDialog dialog)
         {
@@ -95,9 +112,9 @@ namespace PixelArtTool
             x = y = 0;
             for (int i = 0, len = palette.Length; i < len; i++)
             {
-                SetPixel(targetBitmap, x, y, (int)palette[i].ColorBGRA);
                 x = i % paletteResolutionX;
                 y = (i % len) / paletteResolutionX;
+                SetPixel(targetBitmap, x, y, (int)palette[i].ColorBGRA);
             }
 
             return palette;

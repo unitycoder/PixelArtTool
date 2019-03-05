@@ -1,0 +1,19 @@
+version: 1.0.{build}
+branches:
+  only:
+  - master
+skip_tags: true
+skip_branch_with_pr: true
+configuration: Release
+build:
+  verbosity: minimal
+after_build:
+- cmd: 7z a PixelArtTool.zip %APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\*.exe %APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\*.exe.config
+artifacts:
+- path: PixelArtTool.zip
+  name: deploy
+deploy:
+- provider: GitHub
+  auth_token:
+    secure: c/GncTkUgNJ4TT+O8brAgr1NUhL7/vcKzsB5GXMpUj1QiI0MJf/9vXJ1yVIRf8Td1OK1kJpWlRmlry7cYeWPu8JxzGihuoJyj11Us6POKDc=
+  artifact: deploy
