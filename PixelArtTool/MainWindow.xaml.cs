@@ -176,6 +176,13 @@ namespace PixelArtTool
             SetCurrentColorPreviewBox(rectCurrentColor, currentColor);
             ResetCurrentBrightnessPreview(currentColor);
 
+            // set pixel box size based on resolution
+            //rectPixelPos.Width = 16 * (16 / canvasResolutionX);
+            //rectPixelPos.Height = 16 * (16 / canvasResolutionY);
+            // r 8  = 32
+            // r 16 = 16
+            // r 32 = 8
+
             // hide some objects (that are visible at start to keep it easy to edit form)
             lineSymmetryXpositionA.Visibility = Visibility.Hidden;
             lineSymmetryXpositionB.Visibility = Visibility.Hidden;
