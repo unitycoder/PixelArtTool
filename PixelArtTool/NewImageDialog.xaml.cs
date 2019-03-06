@@ -1,0 +1,20 @@
+﻿using System.Windows;
+
+namespace PixelArtTool
+{
+    /// <summary>
+    /// Interaction logic for Window1.xaml
+    /// </summary>
+    public partial class NewImageDialog : Window
+    {
+        public NewImageDialog()
+        {
+            InitializeComponent();
+        }
+
+        private void OnOkButtonClick(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = true;
+        }
+    }
+}

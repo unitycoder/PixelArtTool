@@ -177,15 +177,17 @@ namespace PixelArtTool
             ResetCurrentBrightnessPreview(currentColor);
 
             // set pixel box size based on resolution
-            //rectPixelPos.Width = 16 * (16 / canvasResolutionX);
-            //rectPixelPos.Height = 16 * (16 / canvasResolutionY);
-            // r 8  = 32
-            // r 16 = 16
-            // r 32 = 8
+            rectPixelPos.Width = 16 * (16 / (float)canvasResolutionX);
+            rectPixelPos.Height = 16 * (16 / (float)canvasResolutionY);
 
             // hide some objects (that are visible at start to keep it easy to edit form)
             lineSymmetryXpositionA.Visibility = Visibility.Hidden;
             lineSymmetryXpositionB.Visibility = Visibility.Hidden;
+
+            // clear undos
+            undoStack.Clear();
+            redoStack.Clear();
+            currentUndoItem = null;
         }
 
 
@@ -655,12 +657,34 @@ namespace PixelArtTool
 
         private void OnClearButton(object sender, RoutedEventArgs e)
         {
-            RegisterUndo();
-            ClearImage(canvasBitmap, emptyRect, emptyPixels, emptyStride);
-            UpdateOutline();
-            // reset title
-            window.Title = windowTitle;
-            saveFile = null;
+            // show dialog for new resolution
+            NewImageDialog dlg = new NewImageDialog();
+            dlg.Owner = this;
+            var result = dlg.ShowDialog();
+            switch (result)
+            {
+                case true:
+                    RegisterUndo();
+                    ClearImage(canvasBitmap, emptyRect, emptyPixels, emptyStride);
+                    UpdateOutline();
+                    // reset title
+                    window.Title = windowTitle;
+                    saveFile = null;
+                    //Console.WriteLine(dlg.sliderResolution.Value);
+
+                    canvasResolutionX = (int)dlg.sliderResolution.Value;
+                    canvasResolutionY = (int)dlg.sliderResolution.Value;
+
+                    // re-init everything!!??
+                    Start();
+
+                    break;
+                case false: // cancelled
+                    break;
+                default:
+                    Console.WriteLine("Unknown error..");
+                    break;
+            }
         }
 
         // if unsaved, this is same as save as.., if already saved, then overwrite current
