@@ -12,9 +12,13 @@
 		WindowStartupLocation="CenterOwner" 
 		>
 	<Grid>
-		<StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4">
-			<Label Content="Resolution *Use only 8x8, 16x16, 32x32, 64x64"/>
-			<TextBlock Text="{Binding ElementName=sliderResolution, Path=Value, StringFormat={}{0:#}}" HorizontalAlignment="Center" FontWeight="Bold"/>
+		<StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" FocusManager.FocusedElement="{Binding ElementName=sliderResolution}">
+			<Label Content="Resolution"/>
+			<TextBlock HorizontalAlignment="Center" FontWeight="Bold">
+	            <Run Text="{Binding ElementName=sliderResolution, Path=Value, StringFormat={}{0:#}}"/>
+	            <Run Text="x"/>
+	            <Run Text="{Binding ElementName=sliderResolution, Path=Value, StringFormat={}{0:#}}"/>
+			</TextBlock>
 			<Slider x:Name="sliderResolution" Minimum="8" Maximum="64" SmallChange="8" TickFrequency="8" LargeChange="8" TickPlacement="Both" Value="16" AutoToolTipPlacement="TopLeft" IsSnapToTickEnabled="True"/>
 			<Button x:Name="okButton" IsDefault="True" Content="OK" Click="OnOkButtonClick"/>
 			<Button x:Name="cancelButton" IsCancel="True" Content="Cancel"/>

@@ -599,6 +599,7 @@ namespace PixelArtTool
             // show dialog for new resolution
             NewImageDialog dlg = new NewImageDialog();
             dlg.Owner = this;
+            dlg.sliderResolution.Value = canvasResolutionX;
             var result = dlg.ShowDialog();
             switch (result)
             {
@@ -609,7 +610,6 @@ namespace PixelArtTool
                     // reset title
                     window.Title = windowTitle;
                     saveFile = null;
-                    //Console.WriteLine(dlg.sliderResolution.Value);
 
                     canvasResolutionX = (int)dlg.sliderResolution.Value;
                     canvasResolutionY = (int)dlg.sliderResolution.Value;
@@ -1233,7 +1233,7 @@ namespace PixelArtTool
             if (e.LeftButton == MouseButtonState.Pressed) rectHueBar_MouseDown(null, null);
         }
 
-
+        // https://github.com/Chris3606/GoRogue/blob/master/GoRogue/Lines.cs
         private void DrawLine(int startX, int startY, int endX, int endY)
         {
             int dx = endX - startX;
