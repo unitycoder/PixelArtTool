@@ -29,12 +29,12 @@ namespace PixelArtTool
         int canvasResolutionY = 16;
         int paletteResolutionX = 4;
         int paletteResolutionY = 16;
-        int canvasScaleX = 1;
+        float canvasScaleX = 1;
         int paletteScaleX = 1;
         int paletteScaleY = 1;
         int dpiX = 96;
         int dpiY = 96;
-        byte gridAlpha = 16;
+        byte gridAlpha = 32;
 
         // simple undo
         Stack<WriteableBitmap> undoStack = new Stack<WriteableBitmap>();
@@ -53,14 +53,9 @@ namespace PixelArtTool
         int prevY;
 
         // drawing lines
-        bool firstPixel = true;
-        int startPixelX = 0;
-        int startPixelY = 0;
-        bool verticalLine = false;
-        bool horizontalLine = false;
-        bool diagonalLine = false;
-        int lockedX = 0;
-        int lockedY = 0;
+        bool leftShiftDown = false;
+        private readonly int ddaMODIFIER_X = 0x7fff;
+        private readonly int ddaMODIFIER_Y = 0x7fff;
 
         // smart fill with double click
         bool wasDoubleClick = false;
@@ -105,8 +100,7 @@ namespace PixelArtTool
                     {
                         window.Title = window.Title + "*";
                     }
-                }
-                else // not modified, remove mark
+                } else // not modified, remove mark
                 {
                     if (window.Title.IndexOf("*") > -1)
                     {
@@ -143,7 +137,7 @@ namespace PixelArtTool
             // build drawing area
             canvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             drawingImage.Source = canvasBitmap;
-            canvasScaleX = (int)drawingImage.Width / canvasResolutionX;
+            canvasScaleX = (float)drawingImage.Width / (float)canvasResolutionX;
 
             // setup outline bitmap
             outlineBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
@@ -198,71 +192,6 @@ namespace PixelArtTool
         {
             if (x < 0 || x > canvasResolutionX - 1) return;
             if (y < 0 || y > canvasResolutionY - 1) return;
-
-            // is using straight lines
-            if (leftShiftDown == true)
-            {
-                // get first pixel, to measure direction
-                if (firstPixel == true)
-                {
-                    startPixelX = x;
-                    startPixelY = y;
-                    firstPixel = false;
-                }
-                else // already drew before
-                {
-                    // have detected linemode
-                    if (horizontalLine == false && verticalLine == false && diagonalLine == false)
-                    {
-                        // vertical
-                        if (x == startPixelX && y != startPixelY)
-                        {
-                            verticalLine = true;
-                            lockedX = x;
-                        }
-                        // horizontal
-                        else if (y == startPixelY && x != startPixelX)
-                        {
-                            horizontalLine = true;
-                            lockedY = y;
-                        }
-                        // diagonal
-                        else if (y != startPixelY && x != startPixelX)
-                        {
-                            diagonalLine = true;
-                        }
-                    }
-
-                    // lock coordinates if straight lines
-                    if (verticalLine == true)
-                    {
-                        x = lockedX;
-                    }
-                    else if (horizontalLine == true)
-                    {
-                        y = lockedY;
-                    }
-                    else if (diagonalLine == true)
-                    {
-                        // force diagonal
-                        int xx = x - startPixelX;
-                        int yy = y - startPixelY;
-
-                        // stop drawing, if not in diagonal cell
-                        if (Math.Abs(xx) - Math.Abs(yy) != 0)
-                        {
-                            return;
-                        }
-                    }
-                }
-            }
-            else // left shift not down
-            {
-                verticalLine = false;
-                horizontalLine = false;
-                diagonalLine = false;
-                firstPixel = true;
-            }
 
             PixelColor draw = new PixelColor();
 
@@ -472,8 +401,7 @@ namespace PixelArtTool
                 previousToolMode = CurrentTool;
                 CurrentTool = ToolMode.Fill;
                 wasDoubleClick = true;
-            }
-            else // keep old color
+            } else // keep old color
             {
                 previousPixelColor = GetPixel(x, y);
             }
@@ -482,7 +410,18 @@ namespace PixelArtTool
             switch (CurrentTool)
             {
                 case ToolMode.Draw:
+
+                    // check if shift is down, then do line to previous point
+                    if (leftShiftDown == true)
+                    {
+                        //DrawLine(prevX, prevY, x, y);
+                        DrawLine(prevX, prevY, x, y);
+                    }
+
                     DrawPixel(x, y);
+                    prevX = x;
+                    prevY = y;
+
                     // mirror
                     if (chkMirrorX.IsChecked == true)
                     {
@@ -569,8 +508,7 @@ namespace PixelArtTool
                         break;
                 }
 
-            }
-            else if (e.RightButton == MouseButtonState.Pressed)
+            } else if (e.RightButton == MouseButtonState.Pressed)
             {
                 ErasePixel(x, y);
                 // mirror
@@ -578,8 +516,7 @@ namespace PixelArtTool
                 {
                     ErasePixel(canvasResolutionX - x, y);
                 }
-            }
-            else if (e.MiddleButton == MouseButtonState.Pressed)
+            } else if (e.MiddleButton == MouseButtonState.Pressed)
             {
                 currentColor = GetPixel(x, y);
                 ResetCurrentBrightnessPreview(currentColor);
@@ -594,11 +531,13 @@ namespace PixelArtTool
             }
 
             // snap preview rectangle to grid
-            var left = x * canvasScaleX;
-            var top = y * canvasScaleX;
+            int fix = 256 / canvasResolutionX;
+            var off = ((float)256 / (float)canvasResolutionX) - fix;
+            var left = x * canvasScaleX + ((x * (16 / canvasResolutionX)) * (off > 0 ? 1 : 0));
+            var top = y * canvasScaleX + ((y * (16 / canvasResolutionY)) * (off > 0 ? 1 : 0));
+
             // NOTE: this causes palette pixels to distort/move?
             rectPixelPos.Margin = new Thickness(89 + left, 50 + top, 0, 0);
-
         } // drawingareamousemoved
 
         void ShowMousePos(int x, int y)
@@ -701,8 +640,7 @@ namespace PixelArtTool
             {
                 SaveImageAsPng(saveFile);
                 IsModified = false;
-            }
-            else // save as
+            } else // save as
             {
                 if (saveFileDialog.ShowDialog() == true)
                 {
@@ -751,7 +689,7 @@ namespace PixelArtTool
             blendMode = (BlendMode)s.SelectedIndex;
         }
 
-        bool leftShiftDown = false;
+
 
         // if key is pressed down globally
         void OnKeyDown(object sender, KeyEventArgs e)
@@ -807,10 +745,6 @@ namespace PixelArtTool
                 case Key.LeftShift:
                     lblToolInfo.Content = "";
                     leftShiftDown = false;
-                    verticalLine = false;
-                    horizontalLine = false;
-                    diagonalLine = false;
-                    firstPixel = true;
                     break;
                 default:
                     break;
@@ -1097,13 +1031,11 @@ namespace PixelArtTool
                         if (centerPix == 0)
                         {
                             c.Alpha = 255;
-                        }
-                        else
+                        } else
                         {
                             c.Alpha = 0;
                         }
-                    }
-                    else
+                    } else
                     {
                         c.Alpha = 0;
                     }
@@ -1198,8 +1130,7 @@ namespace PixelArtTool
             if (chkOutline.IsChecked == true)
             {
                 UpdateOutline();
-            }
-            else // clear
+            } else // clear
             {
                 ClearImage(outlineBitmap, emptyRect, emptyPixels, emptyStride);
             }
@@ -1301,6 +1232,119 @@ namespace PixelArtTool
             if (rectHueBar.IsMouseOver == false) return;
             if (e.LeftButton == MouseButtonState.Pressed) rectHueBar_MouseDown(null, null);
         }
+
+
+        private void DrawLine(int startX, int startY, int endX, int endY)
+        {
+            int dx = endX - startX;
+            int dy = endY - startY;
+
+            int nx = Math.Abs(dx);
+            int ny = Math.Abs(dy);
+
+            // Calculate octant value
+            int octant = ((dy < 0) ? 4 : 0) | ((dx < 0) ? 2 : 0) | ((ny > nx) ? 1 : 0);
+            int move = 0;
+            int frac = 0;
+            int mn = Math.Max(nx, ny);
+
+            if (mn == 0)
+            {
+                //yield return new Coord(startX, startY);
+                //yield break;
+                return;
+            }
+
+            if (ny == 0)
+            {
+                if (dx > 0)
+                    for (int x = startX; x <= endX; x++)
+                        DrawPixel(x, startY);
+                //yield return new Coord(x, startY);
+                else
+                    for (int x = startX; x >= endX; x--)
+                        DrawPixel(x, startY);
+                //yield return new Coord(x, startY);
+
+                //yield break;
+                return;
+            }
+
+            if (nx == 0)
+            {
+                if (dy > 0)
+                    for (int y = startY; y <= endY; y++)
+                        DrawPixel(startX, y);
+                //yield return new Coord(startX, y);
+                else
+                    for (int y = startY; y >= endY; y--)
+                        DrawPixel(startX, y);
+                // yield return new Coord(startX, y);
+
+//                yield break;
+                return;
+            }
+
+            switch (octant)
+            {
+                case 0: // +x, +y
+                    move = (ny << 16) / nx;
+                    for (int primary = startX; primary <= endX; primary++, frac += move)
+                        //yield return new Coord(primary, startY + ((frac + MODIFIER_Y) >> 16));
+                        DrawPixel(primary, startY + ((frac + ddaMODIFIER_Y) >> 16));
+                    break;
+
+                case 1:
+                    move = (nx << 16) / ny;
+                    for (int primary = startY; primary <= endY; primary++, frac += move)
+                        //yield return new Coord(startX + ((frac + MODIFIER_X) >> 16), primary);
+                        DrawPixel(startX + ((frac + ddaMODIFIER_X) >> 16), primary);
+                    break;
+
+                case 2: // -x, +y
+                    move = (ny << 16) / nx;
+                    for (int primary = startX; primary >= endX; primary--, frac += move)
+                        //                        yield return new Coord(primary, startY + ((frac + MODIFIER_Y) >> 16));
+                        DrawPixel(primary, startY + ((frac + ddaMODIFIER_Y) >> 16));
+                    break;
+
+                case 3:
+                    move = (nx << 16) / ny;
+                    for (int primary = startY; primary <= endY; primary++, frac += move)
+                        //                        yield return new Coord(startX - ((frac + MODIFIER_X) >> 16), primary);
+                        DrawPixel(startX - ((frac + ddaMODIFIER_X) >> 16), primary);
+                    break;
+
+                case 6: // -x, -y
+                    move = (ny << 16) / nx;
+                    for (int primary = startX; primary >= endX; primary--, frac += move)
+                        //                        yield return new Coord(primary, startY - ((frac + MODIFIER_Y) >> 16));
+                        DrawPixel(primary, startY - ((frac + ddaMODIFIER_Y) >> 16));
+                    break;
+
+                case 7:
+                    move = (nx << 16) / ny;
+                    for (int primary = startY; primary >= endY; primary--, frac += move)
+                        //                        yield return new Coord(startX - ((frac + MODIFIER_X) >> 16), primary);
+                        DrawPixel(startX - ((frac + ddaMODIFIER_X) >> 16), primary);
+                    break;
+
+                case 4: // +x, -y
+                    move = (ny << 16) / nx;
+                    for (int primary = startX; primary <= endX; primary++, frac += move)
+                        //                        yield return new Coord(primary, startY - ((frac + MODIFIER_Y) >> 16));
+                        DrawPixel(primary, startY - ((frac + ddaMODIFIER_Y) >> 16));
+                    break;
+
+                case 5:
+                    move = (nx << 16) / ny;
+                    for (int primary = startY; primary >= endY; primary--, frac += move)
+                        DrawPixel(startX + ((frac + ddaMODIFIER_X) >> 16), primary);
+                    //                    yield return new Coord(startX + ((frac + MODIFIER_X) >> 16), primary);
+                    break;
+            }
+        }
+
     } // class
 
 } // namespace
