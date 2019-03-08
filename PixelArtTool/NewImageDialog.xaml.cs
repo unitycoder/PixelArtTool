@@ -10,6 +10,7 @@ namespace PixelArtTool
         public NewImageDialog()
         {
             InitializeComponent();
+            sliderResolution.Focus();
         }
 
         private void OnOkButtonClick(object sender, RoutedEventArgs e)

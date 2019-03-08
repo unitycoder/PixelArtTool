@@ -9,7 +9,7 @@
         Title="New Image" Height="201" Width="281"
 		ResizeMode="NoResize"
 		ShowInTaskbar="False"
-		WindowStartupLocation="CenterOwner" 
+		WindowStartupLocation="CenterOwner" Background="#FF252525" 
 		>
 	<Grid>
 		<StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" FocusManager.FocusedElement="{Binding ElementName=sliderResolution}">
@@ -20,8 +20,8 @@
 	            <Run Text="{Binding ElementName=sliderResolution, Path=Value, StringFormat={}{0:#}}"/>
 			</TextBlock>
 			<Slider x:Name="sliderResolution" Minimum="8" Maximum="64" SmallChange="8" TickFrequency="8" LargeChange="8" TickPlacement="Both" Value="16" AutoToolTipPlacement="TopLeft" IsSnapToTickEnabled="True"/>
-			<Button x:Name="okButton" IsDefault="True" Content="OK" Click="OnOkButtonClick"/>
-			<Button x:Name="cancelButton" IsCancel="True" Content="Cancel"/>
+			<Button x:Name="okButton" IsDefault="True" Content="OK" Click="OnOkButtonClick" Height="40"/>
+			<Button x:Name="cancelButton" IsCancel="True" Content="Cancel" Margin="0,5,0,0"/>
 		</StackPanel>
 	</Grid>
 </Window>

@@ -1,0 +1,54 @@
+﻿<Window x:Class="PixelArtTool.ColorPicker"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PixelArtTool"
+        mc:Ignorable="d"
+        Title="ColorPicker" Height="318" Width="346" Background="#FF252525">
+	<Window.Resources>
+		<!-- Change this to any pure hue i.e. no more than 2 rgb components set and at least 1 set to FF -->
+		<Color x:Key="CurrentColor">#00FF00</Color>
+
+		<VisualBrush x:Key="LevelSaturationBrush" TileMode="None">
+			<VisualBrush.Visual>
+				<Canvas Background="Black" Width="1" Height="1" SnapsToDevicePixels="True">
+					<Rectangle x:Name="rectGradientSingle" Width="1" Height="1" SnapsToDevicePixels="True">
+						<Rectangle.Fill>
+							<LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+								<GradientStop Color="White" Offset="0" />
+								<GradientStop Color="{DynamicResource CurrentColor}" Offset="1" />
+							</LinearGradientBrush>
+						</Rectangle.Fill>
+						<Rectangle.OpacityMask>
+							<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+								<GradientStop Color="#FFFFFFFF" Offset="0"/>
+								<GradientStop Color="#00FFFFFF" Offset="1"/>
+							</LinearGradientBrush>
+						</Rectangle.OpacityMask>
+					</Rectangle>
+				</Canvas>
+			</VisualBrush.Visual>
+		</VisualBrush>
+
+		<LinearGradientBrush x:Key="HueBrush" StartPoint="0,0" EndPoint="0,1">
+			<GradientStop Color="#FF0000" Offset="0" />
+			<GradientStop Color="#FFFF00" Offset="0.167" />
+			<GradientStop Color="#00FF00" Offset="0.333" />
+			<GradientStop Color="#00FFFF" Offset="0.5" />
+			<GradientStop Color="#0000FF" Offset="0.667" />
+			<GradientStop Color="#FF00FF" Offset="0.833" />
+			<GradientStop Color="#FF0000" Offset="1" />
+		</LinearGradientBrush>
+
+	</Window.Resources>
+	<Grid>
+		<Rectangle x:Name="tempRect" Width="200" Height="200" Margin="58,24,0,0" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" Fill="Black" />
+		<Rectangle x:Name="rectSaturation"  Fill="{StaticResource LevelSaturationBrush}" Width="200" Height="200" Margin="58,24,0,0" StrokeThickness="1" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" MouseMove="OnLevelSaturationMouseMoved" MouseDown="OnLevelSaturationMouseDown"  />
+		<Rectangle x:Name="rectHueBar" Fill="{StaticResource HueBrush}" Width="20" Height="200" Margin="263,24,0,0" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" MouseMove="OnHueRectangleMouseMoved" MouseDown="rectHueBar_MouseDown"  />
+		<Rectangle x:Name="rectCurrentColor" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="28" Margin="10,196,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
+		<Button x:Name="okButton" IsDefault="True" Content="OK" Click="OnOkButtonClick" Margin="258,233,5,4"/>
+		<Button x:Name="cancelButton" IsCancel="True" Content="Cancel" Margin="178,233,85,4"/>
+
+	</Grid>
+</Window>

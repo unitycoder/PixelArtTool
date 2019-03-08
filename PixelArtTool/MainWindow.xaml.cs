@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static PixelArtTool.Tools;
+
 namespace PixelArtTool
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
@@ -100,7 +101,8 @@ namespace PixelArtTool
                     {
                         window.Title = window.Title + "*";
                     }
-                } else // not modified, remove mark
+                }
+                else // not modified, remove mark
                 {
                     if (window.Title.IndexOf("*") > -1)
                     {
@@ -401,7 +403,8 @@ namespace PixelArtTool
                 previousToolMode = CurrentTool;
                 CurrentTool = ToolMode.Fill;
                 wasDoubleClick = true;
-            } else // keep old color
+            }
+            else // keep old color
             {
                 previousPixelColor = GetPixel(x, y);
             }
@@ -508,7 +511,8 @@ namespace PixelArtTool
                         break;
                 }
 
-            } else if (e.RightButton == MouseButtonState.Pressed)
+            }
+            else if (e.RightButton == MouseButtonState.Pressed)
             {
                 ErasePixel(x, y);
                 // mirror
@@ -516,7 +520,8 @@ namespace PixelArtTool
                 {
                     ErasePixel(canvasResolutionX - x, y);
                 }
-            } else if (e.MiddleButton == MouseButtonState.Pressed)
+            }
+            else if (e.MiddleButton == MouseButtonState.Pressed)
             {
                 currentColor = GetPixel(x, y);
                 ResetCurrentBrightnessPreview(currentColor);
@@ -640,7 +645,8 @@ namespace PixelArtTool
             {
                 SaveImageAsPng(saveFile);
                 IsModified = false;
-            } else // save as
+            }
+            else // save as
             {
                 if (saveFileDialog.ShowDialog() == true)
                 {
@@ -1031,11 +1037,13 @@ namespace PixelArtTool
                         if (centerPix == 0)
                         {
                             c.Alpha = 255;
-                        } else
+                        }
+                        else
                         {
                             c.Alpha = 0;
                         }
-                    } else
+                    }
+                    else
                     {
                         c.Alpha = 0;
                     }
@@ -1130,7 +1138,8 @@ namespace PixelArtTool
             if (chkOutline.IsChecked == true)
             {
                 UpdateOutline();
-            } else // clear
+            }
+            else // clear
             {
                 ClearImage(outlineBitmap, emptyRect, emptyPixels, emptyStride);
             }
@@ -1281,7 +1290,7 @@ namespace PixelArtTool
                         DrawPixel(startX, y);
                 // yield return new Coord(startX, y);
 
-//                yield break;
+                //                yield break;
                 return;
             }
 
@@ -1345,6 +1354,23 @@ namespace PixelArtTool
             }
         }
 
+        // show settings window
+        private void btnSettings_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new Settings();
+            dlg.Owner = this;
+            var result = dlg.ShowDialog();
+            switch (result)
+            {
+                case true: // ok
+                    break;
+                case false: // cancelled
+                    break;
+                default:
+                    Console.WriteLine("Unknown error..");
+                    break;
+            }
+        }
     } // class
 
 } // namespace
