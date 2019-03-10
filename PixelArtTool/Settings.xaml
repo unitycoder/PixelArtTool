@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PixelArtTool"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="PixelArtTool.Settings"
         mc:Ignorable="d"
-        Title="Settings" Height="330" Width="300" Background="#FF252525">
+        Title="Settings" Height="330" Width="300" Background="#FF252525" Closing="Window_Closing">
     <Grid>
 		<StackPanel>
 			<Separator Height="20" Margin="0"/>
@@ -25,6 +25,8 @@
 
 			<Separator Height="20" Margin="0"/>
 			<Rectangle x:Name="defaultColor" Fill="#FF000000" HorizontalAlignment="Left" Height="28" Stroke="Black" VerticalAlignment="Top" Width="28"/>
+			<Button x:Name="okButton" IsDefault="True" Content="OK" Click="OnOkButtonClick" Margin="80,0,137,0" Height="50"/>
+			<Button x:Name="cancelButton" IsCancel="True" Content="Cancel" Margin="0,0,217,0" Height="50"/>
 		</StackPanel>
 	</Grid>
 </Window>

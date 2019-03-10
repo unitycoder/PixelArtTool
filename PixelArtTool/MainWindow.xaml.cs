@@ -35,7 +35,6 @@ namespace PixelArtTool
         int paletteScaleY = 1;
         int dpiX = 96;
         int dpiY = 96;
-        byte gridAlpha = 32;
 
         // simple undo
         Stack<WriteableBitmap> undoStack = new Stack<WriteableBitmap>();
@@ -45,6 +44,9 @@ namespace PixelArtTool
         // colors
         PixelColor currentColor;
         PixelColor[] palette;
+        PixelColor lightColor;
+        PixelColor darkColor;
+        byte gridAlpha = 32;
 
         int currentColorIndex = 0;
         byte opacity = 255;
@@ -131,10 +133,21 @@ namespace PixelArtTool
             // needed for binding
             DataContext = this;
 
+            // TODO read settings
+            lightColor.Red = 255;
+            lightColor.Green = 255;
+            lightColor.Blue = 255;
+            lightColor.Alpha = gridAlpha;
+
+            darkColor.Red = 0;
+            darkColor.Green = 0;
+            darkColor.Blue = 0;
+            darkColor.Alpha = gridAlpha;
+
             // setup background grid
             gridBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             gridImage.Source = gridBitmap;
-            DrawBackgroundGrid(gridBitmap, canvasResolutionX, canvasResolutionY, gridAlpha);
+            DrawBackgroundGrid(gridBitmap, canvasResolutionX, canvasResolutionY, lightColor, darkColor);
 
             // build drawing area
             canvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
@@ -1363,6 +1376,19 @@ namespace PixelArtTool
             switch (result)
             {
                 case true: // ok
+                    // TODO: update things using settings
+
+                    var b1 = (SolidColorBrush)dlg.settingsLightColor.Fill;
+                    lightColor.Red = b1.Color.R;
+                    lightColor.Green = b1.Color.G;
+                    lightColor.Blue = b1.Color.B;
+
+                    var b2 = (SolidColorBrush)dlg.settingsDarkColor.Fill;
+                    darkColor.Red = b2.Color.R;
+                    darkColor.Green = b2.Color.G;
+                    darkColor.Blue = b2.Color.B;
+
+                    DrawBackgroundGrid(gridBitmap, canvasResolutionX, canvasResolutionY, lightColor, darkColor);
                     break;
                 case false: // cancelled
                     break;

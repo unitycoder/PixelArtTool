@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using static PixelArtTool.Tools;
 
 namespace PixelArtTool
 {
@@ -22,6 +14,19 @@ namespace PixelArtTool
         public Settings()
         {
             InitializeComponent();
+            Start();
+        }
+
+        void Start()
+        {
+            // TODO load all current settings
+            settingsLightColor.Fill = ConvertSystemDrawingColorToSolidColorBrush(Properties.Settings.Default.gridLightColor);
+            settingsDarkColor.Fill = ConvertSystemDrawingColorToSolidColorBrush(Properties.Settings.Default.gridDarkColor);
+        }
+
+        private void OnOkButtonClick(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = true;
         }
 
         private void settingsLightColor_MouseDown(object sender, MouseButtonEventArgs e)
@@ -31,7 +36,9 @@ namespace PixelArtTool
             var result = dlg.ShowDialog();
             switch (result)
             {
-                case true: // ok
+                case true: // ok                    
+                    // get values from color picker
+                    settingsLightColor.Fill = dlg.rectCurrentColor.Fill;
                     break;
                 case false: // cancelled
                     break;
@@ -49,6 +56,7 @@ namespace PixelArtTool
             switch (result)
             {
                 case true: // ok
+                    settingsDarkColor .Fill = dlg.rectCurrentColor.Fill;
                     break;
                 case false: // cancelled
                     break;
@@ -57,5 +65,13 @@ namespace PixelArtTool
                     break;
             }
         }
-    }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            // TODO save to settings
+            Properties.Settings.Default.gridDarkColor = ConvertBrushToSystemDrawingColor(settingsDarkColor.Fill);
+            Properties.Settings.Default.gridLightColor = ConvertBrushToSystemDrawingColor(settingsLightColor.Fill);
+            Properties.Settings.Default.Save();
+        }
+    } // class
 }

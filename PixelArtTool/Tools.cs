@@ -191,19 +191,22 @@ namespace PixelArtTool
             return result;
         }
 
-        public static void DrawBackgroundGrid(WriteableBitmap targetBitmap, int canvasResolutionX, int canvasResolutionY, byte gridAlpha)
+        public static void DrawBackgroundGrid(WriteableBitmap targetBitmap, int canvasResolutionX, int canvasResolutionY, PixelColor c1, PixelColor c2)
         {
+            Console.WriteLine(123);
             PixelColor c = new PixelColor();
             for (int x = 0; x < canvasResolutionX; x++)
             {
                 for (int y = 0; y < canvasResolutionY; y++)
                 {
-                    c.Alpha = gridAlpha;
-                    byte v = (byte)(((x % 2) == (y % 2)) ? 255 : 0);
-                    c.Red = v;
-                    c.Green = v;
-                    c.Blue = v;
-                    SetPixel(targetBitmap, x, y, (int)c.ColorBGRA);
+                    //                    c.Alpha = gridAlpha;
+                    //                    byte v = (byte)(((x % 2) == (y % 2)) ? 255 : 0);
+                    var v = ((x % 2) == (y % 2)) ? c1 : c2;
+                    //                    c.Red = v;
+                    //                    c.Green = v;
+                    //                    c.Blue = v;
+                    //v.Alpha = 255;
+                    SetPixel(targetBitmap, x, y, (int)v.ColorBGRA);
                 }
             }
         }
@@ -519,6 +522,17 @@ namespace PixelArtTool
             return bmImage;
         }
 
+        public static SolidColorBrush ConvertSystemDrawingColorToSolidColorBrush(System.Drawing.Color c)
+        {
+            return new SolidColorBrush(Color.FromArgb(c.A, c.R, c.G, c.B));
+        }
+
+        public static System.Drawing.Color ConvertBrushToSystemDrawingColor(Brush c)
+        {
+            var bc = ((SolidColorBrush)c);
+            var newc = System.Drawing.Color.FromArgb(bc.Color.A, bc.Color.R, bc.Color.G, bc.Color.B);
+            return newc;
+        }
 
     } // class
 } // namespace

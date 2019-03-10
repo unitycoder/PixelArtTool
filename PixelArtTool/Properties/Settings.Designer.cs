@@ -22,5 +22,29 @@ namespace PixelArtTool.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("White")]
+        public global::System.Drawing.Color gridLightColor {
+            get {
+                return ((global::System.Drawing.Color)(this["gridLightColor"]));
+            }
+            set {
+                this["gridLightColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Black")]
+        public global::System.Drawing.Color gridDarkColor {
+            get {
+                return ((global::System.Drawing.Color)(this["gridDarkColor"]));
+            }
+            set {
+                this["gridDarkColor"] = value;
+            }
+        }
     }
 }
