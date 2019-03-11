@@ -22,6 +22,8 @@ namespace PixelArtTool
             // TODO load all current settings
             settingsLightColor.Fill = ConvertSystemDrawingColorToSolidColorBrush(Properties.Settings.Default.gridLightColor);
             settingsDarkColor.Fill = ConvertSystemDrawingColorToSolidColorBrush(Properties.Settings.Default.gridDarkColor);
+            sldGridAlpha.Value = Properties.Settings.Default.gridAlpha;
+            sliderResolution.Value = Properties.Settings.Default.defaultResolution;
         }
 
         private void OnOkButtonClick(object sender, RoutedEventArgs e)
@@ -68,10 +70,21 @@ namespace PixelArtTool
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // TODO save to settings
-            Properties.Settings.Default.gridDarkColor = ConvertBrushToSystemDrawingColor(settingsDarkColor.Fill);
-            Properties.Settings.Default.gridLightColor = ConvertBrushToSystemDrawingColor(settingsLightColor.Fill);
-            Properties.Settings.Default.Save();
+            if (this.DialogResult==true)
+            {
+                // TODO save all settings
+                Properties.Settings.Default.gridDarkColor = ConvertBrushToSystemDrawingColor(settingsDarkColor.Fill);
+                Properties.Settings.Default.gridLightColor = ConvertBrushToSystemDrawingColor(settingsLightColor.Fill);
+                Properties.Settings.Default.gridAlpha = (byte)sldGridAlpha.Value;
+                Properties.Settings.Default.defaultResolution = (byte)sliderResolution.Value;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        private void resetButton_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: reset to default settings
+            Console.WriteLine("TODO reset");
         }
     } // class
 }

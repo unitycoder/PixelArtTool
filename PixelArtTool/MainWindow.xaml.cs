@@ -147,7 +147,7 @@ namespace PixelArtTool
             // setup background grid
             gridBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
             gridImage.Source = gridBitmap;
-            DrawBackgroundGrid(gridBitmap, canvasResolutionX, canvasResolutionY, lightColor, darkColor);
+            DrawBackgroundGrid(gridBitmap, canvasResolutionX, canvasResolutionY, lightColor, darkColor, gridAlpha);
 
             // build drawing area
             canvasBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
@@ -1376,8 +1376,7 @@ namespace PixelArtTool
             switch (result)
             {
                 case true: // ok
-                    // TODO: update things using settings
-
+                    // TODO: update things using settings, better read from settings instead so can reuse it
                     var b1 = (SolidColorBrush)dlg.settingsLightColor.Fill;
                     lightColor.Red = b1.Color.R;
                     lightColor.Green = b1.Color.G;
@@ -1388,7 +1387,9 @@ namespace PixelArtTool
                     darkColor.Green = b2.Color.G;
                     darkColor.Blue = b2.Color.B;
 
-                    DrawBackgroundGrid(gridBitmap, canvasResolutionX, canvasResolutionY, lightColor, darkColor);
+                    gridAlpha = (byte)dlg.sldGridAlpha.Value;
+
+                    DrawBackgroundGrid(gridBitmap, canvasResolutionX, canvasResolutionY, lightColor, darkColor, gridAlpha);
                     break;
                 case false: // cancelled
                     break;

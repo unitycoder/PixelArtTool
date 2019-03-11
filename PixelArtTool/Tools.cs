@@ -191,7 +191,7 @@ namespace PixelArtTool
             return result;
         }
 
-        public static void DrawBackgroundGrid(WriteableBitmap targetBitmap, int canvasResolutionX, int canvasResolutionY, PixelColor c1, PixelColor c2)
+        public static void DrawBackgroundGrid(WriteableBitmap targetBitmap, int canvasResolutionX, int canvasResolutionY, PixelColor c1, PixelColor c2, byte alpha)
         {
             Console.WriteLine(123);
             PixelColor c = new PixelColor();
@@ -205,7 +205,7 @@ namespace PixelArtTool
                     //                    c.Red = v;
                     //                    c.Green = v;
                     //                    c.Blue = v;
-                    //v.Alpha = 255;
+                    v.Alpha = alpha;
                     SetPixel(targetBitmap, x, y, (int)v.ColorBGRA);
                 }
             }

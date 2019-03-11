@@ -8,5 +8,11 @@
     <Setting Name="gridDarkColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Black</Value>
     </Setting>
+    <Setting Name="defaultResolution" Type="System.Byte" Scope="User">
+      <Value Profile="(Default)">16</Value>
+    </Setting>
+    <Setting Name="gridAlpha" Type="System.Byte" Scope="User">
+      <Value Profile="(Default)">64</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

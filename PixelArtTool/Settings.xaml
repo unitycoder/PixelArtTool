@@ -7,26 +7,29 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="PixelArtTool.Settings"
         mc:Ignorable="d"
         Title="Settings" Height="330" Width="300" Background="#FF252525" Closing="Window_Closing">
-    <Grid>
+	<Grid>
 		<StackPanel>
 			<Separator Height="20" Margin="0"/>
 			<StackPanel Orientation="Horizontal">
-				<CheckBox Content="Show grid"/>
 				<Label>Light Color</Label>
 				<Rectangle x:Name="settingsLightColor" Fill="#FFFFFFFF" HorizontalAlignment="Left" Height="28" Stroke="Black" VerticalAlignment="Top" Width="28" MouseDown="settingsLightColor_MouseDown"/>
 				<Label>Dark Color</Label>
 				<Rectangle x:Name="settingsDarkColor" Fill="#00000000" HorizontalAlignment="Left" Height="28" Stroke="Black" VerticalAlignment="Top" Width="28" MouseDown="settingsDarkColor_MouseDown"/>
 			</StackPanel>
-			
-			<Separator Height="20" Margin="0"/>
-			<Label>Default Resolution</Label>
-			<TextBlock HorizontalAlignment="Center" FontWeight="Bold" Margin="117.07,0,133.93,0"><Run Text="{Binding Value, ElementName=sliderResolution, StringFormat=\{0:#\}}"/><Run Text=" "/><Run Text="x"/><Run Text=" "/><Run Text="{Binding Value, ElementName=sliderResolution, StringFormat=\{0:#\}}"/></TextBlock>
-			<Slider x:Name="sliderResolution" Minimum="8" Maximum="64" SmallChange="8" TickFrequency="8" LargeChange="8" TickPlacement="Both" Value="16" AutoToolTipPlacement="TopLeft" IsSnapToTickEnabled="True" Margin="0,0,0,0"/>
+			<Label>Grid Transparency</Label>
+			<Slider x:Name="sldGridAlpha" Maximum="255" SmallChange="1" LargeChange="10" TickFrequency="10" Value="64" AutoToolTipPlacement="TopLeft" Margin="10,10,10,0" />
 
 			<Separator Height="20" Margin="0"/>
-			<Rectangle x:Name="defaultColor" Fill="#FF000000" HorizontalAlignment="Left" Height="28" Stroke="Black" VerticalAlignment="Top" Width="28"/>
-			<Button x:Name="okButton" IsDefault="True" Content="OK" Click="OnOkButtonClick" Margin="80,0,137,0" Height="50"/>
-			<Button x:Name="cancelButton" IsCancel="True" Content="Cancel" Margin="0,0,217,0" Height="50"/>
+			<Label>Default Resolution</Label>
+			<TextBlock HorizontalAlignment="Center" FontWeight="Bold" Margin="0" Width="54"><Run Text="{Binding Value, ElementName=sliderResolution, StringFormat=\{0:#\}}"/><Run Text=" "/><Run Text="x"/><Run Text=" "/><Run Text="{Binding Value, ElementName=sliderResolution, StringFormat=\{0:#\}}"/></TextBlock>
+			<Slider x:Name="sliderResolution" Minimum="8" Maximum="64" SmallChange="8" TickFrequency="8" LargeChange="8" TickPlacement="Both" Value="16" AutoToolTipPlacement="TopLeft" IsSnapToTickEnabled="True" Margin="10,0"/>
+
+			<Separator Height="20" Margin="0"/>
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+				<Button x:Name="resetButton" HorizontalAlignment="Left" Content="Reset" ToolTip="Reset to default settings" Height="50" Width="50" Margin="0,0,25,0" Click="resetButton_Click"/>
+				<Button x:Name="cancelButton" IsCancel="True" HorizontalAlignment="Left" Content="Cancel" Height="50" Width="50" Margin="0,0,25,0"/>
+				<Button x:Name="okButton" IsDefault="True" Content="OK" Click="OnOkButtonClick" Height="50" Width="100" Margin="0" HorizontalAlignment="Right"/>
+			</StackPanel>
 		</StackPanel>
 	</Grid>
 </Window>

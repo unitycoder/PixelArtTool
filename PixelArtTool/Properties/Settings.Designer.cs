@@ -46,5 +46,29 @@ namespace PixelArtTool.Properties {
                 this["gridDarkColor"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("16")]
+        public byte defaultResolution {
+            get {
+                return ((byte)(this["defaultResolution"]));
+            }
+            set {
+                this["defaultResolution"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("64")]
+        public byte gridAlpha {
+            get {
+                return ((byte)(this["gridAlpha"]));
+            }
+            set {
+                this["gridAlpha"] = value;
+            }
+        }
     }
 }
