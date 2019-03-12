@@ -107,8 +107,8 @@
 
 		<ToolBarTray Background="#FF1F1F1F" Height="32" VerticalAlignment="Top">
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top" Background="#FF9C9C9C">
-				<Button x:Name="btnNew" ToolTip="New (Ctrl+N)" Click="OnClearButton">
-					<Image Source="/Resources/Buttons/newimage.png"  Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+				<Button x:Name="btnNew" ToolTip="New (Ctrl+N)" PreviewMouseDown="OnClearButton">
+					<Image Source="/Resources/Buttons/newimage.png"  Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" IsHitTestVisible="False" />
 				</Button>
 				<Button x:Name="btnSave" ToolTip="Save (Ctrl+S)" Click="OnSaveButton">
 					<Image Source="/Resources/Buttons/save.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
@@ -176,7 +176,7 @@
 				<Image x:Name="gridImage" HorizontalAlignment="Left" Height="256" Margin="-1" VerticalAlignment="Top" Width="256" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
 			</Border>
 			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="256" Margin="89,50,0,0" VerticalAlignment="Top" Width="256">
-				<Image x:Name="drawingImage" HorizontalAlignment="Left" Height="256" Margin="-1" VerticalAlignment="Top" Width="256" Stretch="Fill" MouseMove="DrawingAreaMouseMoved" MouseRightButtonDown="DrawingRightButtonDown" MouseLeftButtonDown="DrawingLeftButtonDown" MouseDown="DrawingMiddleButtonDown" MouseUp="DrawingMouseUp" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+				<Image x:Name="drawingImage" HorizontalAlignment="Left" Height="256" Margin="-1" VerticalAlignment="Top" Width="256" Stretch="Fill" MouseMove="DrawingAreaMouseMoved" MouseRightButtonDown="DrawingRightButtonDown" MouseLeftButtonDown="DrawingLeftButtonDown" MouseDown="DrawingMiddleButtonDown" MouseUp="DrawingMouseUp" RenderOptions.BitmapScalingMode="NearestNeighbor" MouseLeave="drawingImage_MouseLeave" MouseEnter="drawingImage_MouseEnter"/>
 			</Border>
 			<Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="256" Margin="89,50,0,0" VerticalAlignment="Top" Width="256">
 				<Image x:Name="outlineImage" IsHitTestVisible="False" HorizontalAlignment="Left" Height="256" Margin="-1" VerticalAlignment="Top" Width="256" Stretch="Fill" IsEnabled="False" RenderOptions.BitmapScalingMode="NearestNeighbor"/>

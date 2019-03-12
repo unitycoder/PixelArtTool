@@ -193,18 +193,12 @@ namespace PixelArtTool
 
         public static void DrawBackgroundGrid(WriteableBitmap targetBitmap, int canvasResolutionX, int canvasResolutionY, PixelColor c1, PixelColor c2, byte alpha)
         {
-            Console.WriteLine(123);
             PixelColor c = new PixelColor();
             for (int x = 0; x < canvasResolutionX; x++)
             {
                 for (int y = 0; y < canvasResolutionY; y++)
                 {
-                    //                    c.Alpha = gridAlpha;
-                    //                    byte v = (byte)(((x % 2) == (y % 2)) ? 255 : 0);
                     var v = ((x % 2) == (y % 2)) ? c1 : c2;
-                    //                    c.Red = v;
-                    //                    c.Green = v;
-                    //                    c.Blue = v;
                     v.Alpha = alpha;
                     SetPixel(targetBitmap, x, y, (int)v.ColorBGRA);
                 }
@@ -525,6 +519,16 @@ namespace PixelArtTool
         public static SolidColorBrush ConvertSystemDrawingColorToSolidColorBrush(System.Drawing.Color c)
         {
             return new SolidColorBrush(Color.FromArgb(c.A, c.R, c.G, c.B));
+        }
+
+        public static PixelColor ConvertSystemDrawingColorToPixelColor(System.Drawing.Color c)
+        {
+            var pc = new PixelColor();
+            pc.Alpha = c.A;
+            pc.Red = c.R;
+            pc.Green = c.G;
+            pc.Blue = c.B;
+            return pc;
         }
 
         public static System.Drawing.Color ConvertBrushToSystemDrawingColor(Brush c)

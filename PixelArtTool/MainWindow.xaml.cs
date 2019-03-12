@@ -133,7 +133,7 @@ namespace PixelArtTool
             // needed for binding
             DataContext = this;
 
-            // TODO read settings
+            // defaults
             lightColor.Red = 255;
             lightColor.Green = 255;
             lightColor.Blue = 255;
@@ -143,6 +143,9 @@ namespace PixelArtTool
             darkColor.Green = 0;
             darkColor.Blue = 0;
             darkColor.Alpha = gridAlpha;
+
+            // get values from settings
+            LoadSettings();
 
             // setup background grid
             gridBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
@@ -237,8 +240,8 @@ namespace PixelArtTool
             // draw
             SetPixel(canvasBitmap, x, y, (int)draw.ColorBGRA);
 
-            prevX = x;
-            prevY = y;
+            //            prevX = x;
+            //            prevY = y;
         } // drawpixel
 
         void ErasePixel(int x, int y)
@@ -426,22 +429,27 @@ namespace PixelArtTool
             switch (CurrentTool)
             {
                 case ToolMode.Draw:
-
                     // check if shift is down, then do line to previous point
                     if (leftShiftDown == true)
                     {
-                        //DrawLine(prevX, prevY, x, y);
                         DrawLine(prevX, prevY, x, y);
                     }
-
-                    DrawPixel(x, y);
-                    prevX = x;
-                    prevY = y;
+                    else
+                    {
+                        DrawPixel(x, y);
+                    }
 
                     // mirror
                     if (chkMirrorX.IsChecked == true)
                     {
-                        DrawPixel(canvasResolutionX - x, y);
+                        if (leftShiftDown == true)
+                        {
+                            DrawLine(canvasResolutionX - prevX, prevY, canvasResolutionX - x, y);
+                        }
+                        else
+                        {
+                            DrawPixel(canvasResolutionX - x, y);
+                        }
                     }
                     break;
                 case ToolMode.Fill:
@@ -466,7 +474,10 @@ namespace PixelArtTool
                     break;
                 default:
                     break;
-            }
+            } // switch-currenttool
+
+            prevX = x;
+            prevY = y;
 
             if (wasDoubleClick == true)
             {
@@ -523,7 +534,8 @@ namespace PixelArtTool
                     default:
                         break;
                 }
-
+                prevX = x;
+                prevY = y;
             }
             else if (e.RightButton == MouseButtonState.Pressed)
             {
@@ -610,38 +622,6 @@ namespace PixelArtTool
             // move hueline
             int offset = (int)(hueIndicatorLocation * 253);
             lineCurrentHueLine.Margin = new Thickness(offset, 0, offset, 0);
-        }
-
-        private void OnClearButton(object sender, RoutedEventArgs e)
-        {
-            // show dialog for new resolution
-            NewImageDialog dlg = new NewImageDialog();
-            dlg.Owner = this;
-            dlg.sliderResolution.Value = canvasResolutionX;
-            var result = dlg.ShowDialog();
-            switch (result)
-            {
-                case true:
-                    RegisterUndo();
-                    ClearImage(canvasBitmap, emptyRect, emptyPixels, emptyStride);
-                    UpdateOutline();
-                    // reset title
-                    window.Title = windowTitle;
-                    saveFile = null;
-
-                    canvasResolutionX = (int)dlg.sliderResolution.Value;
-                    canvasResolutionY = (int)dlg.sliderResolution.Value;
-
-                    // re-init everything!!??
-                    Start();
-
-                    break;
-                case false: // cancelled
-                    break;
-                default:
-                    Console.WriteLine("Unknown error..");
-                    break;
-            }
         }
 
         // if unsaved, this is same as save as.., if already saved, then overwrite current
@@ -1398,6 +1378,68 @@ namespace PixelArtTool
                     break;
             }
         }
-    } // class
 
+        void LoadSettings()
+        {
+            lightColor = ConvertSystemDrawingColorToPixelColor(Properties.Settings.Default.gridLightColor);
+            darkColor = ConvertSystemDrawingColorToPixelColor(Properties.Settings.Default.gridDarkColor);
+            gridAlpha = Properties.Settings.Default.gridAlpha;
+            canvasResolutionX = canvasResolutionY = Properties.Settings.Default.defaultResolution;
+        }
+
+        private void drawingImage_MouseLeave(object sender, MouseEventArgs e)
+        {
+            rectPixelPos.Visibility = Visibility.Hidden;
+        }
+
+        private void drawingImage_MouseEnter(object sender, MouseEventArgs e)
+        {
+            rectPixelPos.Visibility = Visibility.Visible;
+        }
+
+        private void OnClearButton(object sender, MouseButtonEventArgs e)
+        {
+            // shiftdown or right button, just clear without dialog
+            if (leftShiftDown == true || e.RightButton == MouseButtonState.Pressed)
+            {
+                ClearImage(canvasBitmap, emptyRect, emptyPixels, emptyStride);
+                UpdateOutline();
+                // reset title
+                window.Title = windowTitle;
+                saveFile = null;
+
+                return;
+            }
+
+            // show dialog for new resolution
+            NewImageDialog dlg = new NewImageDialog();
+            dlg.Owner = this;
+            dlg.sliderResolution.Value = canvasResolutionX;
+            var result = dlg.ShowDialog();
+            switch (result)
+            {
+                case true:
+                    RegisterUndo();
+                    ClearImage(canvasBitmap, emptyRect, emptyPixels, emptyStride);
+                    UpdateOutline();
+                    // reset title
+                    window.Title = windowTitle;
+                    saveFile = null;
+
+                    canvasResolutionX = (int)dlg.sliderResolution.Value;
+                    canvasResolutionY = (int)dlg.sliderResolution.Value;
+
+                    // TODO no need to do full start
+                    Start();
+
+                    break;
+                case false: // cancelled
+                    break;
+                default:
+                    Console.WriteLine("Unknown error..");
+                    break;
+            }
+
+        }
+    } // class
 } // namespace
