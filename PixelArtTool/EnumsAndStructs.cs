@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media;
 
 namespace PixelArtTool
 {
@@ -38,6 +39,21 @@ namespace PixelArtTool
         [FieldOffset(1)] public byte Green;
         [FieldOffset(2)] public byte Red;
         [FieldOffset(3)] public byte Alpha;
+
+        public PixelColor(byte r, byte g, byte b, byte a)
+        {
+            ColorBGRA = (UInt32)(b + (g << 8) + (r << 16) + (a << 24));
+            Red = r;
+            Green = g;
+            Blue = b;
+            Alpha = a;
+        }
+
+        public SolidColorBrush AsSolidColorBrush()
+        {
+            return new SolidColorBrush(Color.FromArgb(Alpha, Red, Green, Blue));
+        }
+
     }
 
     // helper for converting bool<>enum for xaml linked values

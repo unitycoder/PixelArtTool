@@ -610,12 +610,7 @@ namespace PixelArtTool
             if (hueIndicatorLocation > 1) hueIndicatorLocation = 1;
 
             var c = GetColorByOffset(currentBrightnessBrushGradient.GradientStops, hueIndicatorLocation);
-            var cc = new PixelColor();
-            cc.Red = c.R;
-            cc.Green = c.G;
-            cc.Blue = c.B;
-            cc.Alpha = 255;
-            currentColor = cc;
+            currentColor = new PixelColor(c.R, c.G, c.B, 255);
             SetCurrentColorPreviewBox(rectCurrentColor, currentColor);
             //ResetCurrentBrightnessPreview(currentColor);
 
@@ -693,34 +688,24 @@ namespace PixelArtTool
         // if key is pressed down globally
         void OnKeyDown(object sender, KeyEventArgs e)
         {
-            // TODO: add tool shortcut keys
             switch (e.Key)
             {
-                case Key.I: // TEST global color picker
-                    CustomPoint cursor;
-                    GetCursorPos(out cursor);
-                    var c1 = Win32GetScreenPixel((int)cursor.X, (int)cursor.Y);
-                    var c2 = new PixelColor();
-                    c2.Alpha = c1.A;
-                    c2.Red = c1.R;
-                    c2.Green = c1.G;
-                    c2.Blue = c1.B;
-                    currentColor = c2;
-                    rectCurrentColor.Fill = new SolidColorBrush(Color.FromArgb(c2.Alpha, c2.Red, c2.Green, c2.Blue));
-                    //                    Console.WriteLine(cursor.X + "," + cursor.Y + " = " + c1);
+                case Key.D: // reset to default colors (current, secondary)
+                    currentColor = new PixelColor(255, 255, 255, 255); // white
+                    SetCurrentColorPreviewBox(rectCurrentColor, currentColor);
+                    rectSecondaryColor.Fill = new PixelColor(0, 0, 0, 255).AsSolidColorBrush();
+                    break;
+                case Key.I: // global color picker
+                    currentColor = Win32GetScreenPixelColor();
+                    rectCurrentColor.Fill = currentColor.AsSolidColorBrush();
                     break;
                 case Key.X: // swap current/secondary colors
                     var tempcolor = rectCurrentColor.Fill;
                     rectCurrentColor.Fill = rectSecondaryColor.Fill;
                     rectSecondaryColor.Fill = tempcolor;
                     // TODO move to converter
-                    var c = new PixelColor();
                     var t = ((SolidColorBrush)rectCurrentColor.Fill).Color;
-                    c.Red = t.R;
-                    c.Green = t.G;
-                    c.Blue = t.B;
-                    c.Alpha = t.A;
-                    currentColor = c;
+                    currentColor = new PixelColor(t.R, t.G, t.B, t.A);
                     break;
                 case Key.B: // brush
                     CurrentTool = ToolMode.Draw;
@@ -899,13 +884,8 @@ namespace PixelArtTool
                         for (int y = 0; y < canvasResolutionY; y++)
                         {
                             var cc = GetPixelColor(x, y, target);
-                            Console.WriteLine();
-                            var ccc = new PixelColor();
-                            ccc.Red = cc.Red;
-                            ccc.Green = cc.Green;
-                            ccc.Blue = cc.Blue;
-                            ccc.Alpha = 255;
-                            SetPixel(canvasBitmap, x, y, (int)ccc.ColorBGRA);
+                            cc.Alpha = 255;
+                            SetPixel(canvasBitmap, x, y, (int)cc.ColorBGRA);
                         }
                     }
                 }
@@ -1186,13 +1166,9 @@ namespace PixelArtTool
 
         private void OnGetTransparentColorButton(object sender, MouseButtonEventArgs e)
         {
-            var c = new PixelColor();
-            c.Red = 255;
-            c.Green = 255;
-            c.Blue = 255;
-            c.Alpha = 0;
+            var c = new PixelColor(255,255,255,0);
             currentColor = c;
-            rectCurrentColor.Fill = new SolidColorBrush(Color.FromArgb(c.Alpha, c.Red, c.Green, c.Blue));
+            rectCurrentColor.Fill = c.AsSolidColorBrush();
             ResetCurrentBrightnessPreview(currentColor);
         }
 
@@ -1216,16 +1192,8 @@ namespace PixelArtTool
 
         private void OnLevelSaturationMouseDown(object sender, MouseButtonEventArgs e)
         {
-            CustomPoint cursor;
-            GetCursorPos(out cursor);
-            var c1 = Win32GetScreenPixel((int)cursor.X, (int)cursor.Y);
-            var c2 = new PixelColor();
-            c2.Alpha = c1.A;
-            c2.Red = c1.R;
-            c2.Green = c1.G;
-            c2.Blue = c1.B;
-            currentColor = c2;
-            rectCurrentColor.Fill = new SolidColorBrush(Color.FromArgb(c2.Alpha, c2.Red, c2.Green, c2.Blue));
+            currentColor = Win32GetScreenPixelColor();
+            rectCurrentColor.Fill = currentColor.AsSolidColorBrush();
             ResetCurrentBrightnessPreview(currentColor);
         }
 
