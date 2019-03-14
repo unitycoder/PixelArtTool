@@ -54,6 +54,13 @@ namespace PixelArtTool
             return new SolidColorBrush(Color.FromArgb(Alpha, Red, Green, Blue));
         }
 
+        public PixelColor Inverted(byte alphaOverride=255)
+        {
+            var pc = new PixelColor();
+            pc.ColorBGRA = ColorBGRA ^ 0xffffffff;
+            pc.Alpha = alphaOverride;
+            return pc;
+        }
     }
 
     // helper for converting bool<>enum for xaml linked values

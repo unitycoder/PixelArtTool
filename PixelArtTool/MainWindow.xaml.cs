@@ -566,8 +566,9 @@ namespace PixelArtTool
             var left = x * canvasScaleX + ((x * (16 / canvasResolutionX)) * (off > 0 ? 1 : 0));
             var top = y * canvasScaleX + ((y * (16 / canvasResolutionY)) * (off > 0 ? 1 : 0));
 
-            // NOTE: this causes palette pixels to distort/move?
             rectPixelPos.Margin = new Thickness(89 + left, 50 + top, 0, 0);
+            var pc = GetPixelColor(x, y, canvasBitmap).Inverted(128);
+            rectPixelPos.Stroke = pc.AsSolidColorBrush();
         } // drawingareamousemoved
 
         void ShowMousePos(int x, int y)
