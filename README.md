@@ -23,7 +23,6 @@ Work-in-Progress, initial features should be mainly based on this unfinished pro
 - Basic undo system
 - Additive and Replace draw modes
 - Drawmode(blend) selector
-- Draw straight and diagonal lines with left shift down
 - Undo ctrl+z
 - Background pixel grid
 - Automatic 1px outline
@@ -46,7 +45,14 @@ Work-in-Progress, initial features should be mainly based on this unfinished pro
 - Quick Smart Fill (while in drawing mode, double click left mouse button to fill that area)
 - Show filename in window title
 - Show * in title, if image has unsaved changes
+- New Image Dialog
+- Draw lines (hold left shift down on 2nd click, line is drawn from previous pixel position)
+- Color picker dialog
+- Settings dialog
+- Grid color and alpha settings
+- Quick clear image with left shift down when clicking New Image, or with right mouse button on New Image button
+- Inverted current pixel rectangle outline color
+- Non-contiguous fill with left ctrl down
 
 # Screenshot
-![image](https://user-images.githubusercontent.com/5438317/53655916-4b538a00-3c5a-11e9-94d9-ad5d54a4d3b6.png)
-
+![image](https://user-images.githubusercontent.com/5438317/54478170-0dd52c00-4818-11e9-9d7e-fefc5e7c42c1.png)
