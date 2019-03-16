@@ -55,8 +55,11 @@ namespace PixelArtTool
         int prevX;
         int prevY;
 
-        // drawing lines
         bool leftShiftDown = false;
+        bool leftCtrlDown = false;
+
+
+        // drawing lines
         private readonly int ddaMODIFIER_X = 0x7fff;
         private readonly int ddaMODIFIER_Y = 0x7fff;
 
@@ -453,7 +456,7 @@ namespace PixelArtTool
                     }
                     break;
                 case ToolMode.Fill:
-                    // NOTE: doesnt work with single pixel area.. because nothing to fill
+                    // NOTE: double click doesnt work with single pixel area.. because nothing to fill
                     if (wasDoubleClick == true)
                     {
                         // remove previous pixel by using old color (could take from undo also..)
@@ -466,10 +469,18 @@ namespace PixelArtTool
                         currentColor = previousColor;
                     }
 
-                    FloodFill(x, y, (int)currentColor.ColorBGRA);
-                    if (chkMirrorX.IsChecked == true)
+                    // non-contiguous fill, fills all pixels that match target pixel color
+                    if (leftCtrlDown == true)
                     {
-                        FloodFill(canvasResolutionX - x, y, (int)currentColor.ColorBGRA);
+                        ReplacePixels(previousPixelColor, currentColor);
+                    }
+                    else
+                    {
+                        FloodFill(x, y, (int)currentColor.ColorBGRA);
+                        if (chkMirrorX.IsChecked == true)
+                        {
+                            FloodFill(canvasResolutionX - x, y, (int)currentColor.ColorBGRA);
+                        }
                     }
                     break;
                 default:
@@ -718,6 +729,9 @@ namespace PixelArtTool
                     lblToolInfo.Content = "Straight Lines";
                     leftShiftDown = true;
                     break;
+                case Key.LeftCtrl: // left control
+                    leftCtrlDown = true;
+                    break;
                 default:
                     break;
             }
@@ -730,6 +744,9 @@ namespace PixelArtTool
                 case Key.LeftShift:
                     lblToolInfo.Content = "";
                     leftShiftDown = false;
+                    break;
+                case Key.LeftCtrl:
+                    leftCtrlDown = false;
                     break;
                 default:
                     break;
@@ -909,6 +926,8 @@ namespace PixelArtTool
             Clipboard.SetDataObject(data, true);
             */
         }
+
+
 
         void FloodFill(int x, int y, int fillColor)
         {
@@ -1167,7 +1186,7 @@ namespace PixelArtTool
 
         private void OnGetTransparentColorButton(object sender, MouseButtonEventArgs e)
         {
-            var c = new PixelColor(255,255,255,0);
+            var c = new PixelColor(255, 255, 255, 0);
             currentColor = c;
             rectCurrentColor.Fill = c.AsSolidColorBrush();
             ResetCurrentBrightnessPreview(currentColor);
@@ -1410,5 +1429,25 @@ namespace PixelArtTool
             }
 
         }
+
+        public void ReplacePixels(PixelColor find, PixelColor replace)
+        {
+            for (int x = 0; x < canvasResolutionX; x++)
+            {
+                for (int y = 0; y < canvasResolutionY; y++)
+                {
+                    var pixel = GetPixelColor(x, y, canvasBitmap);
+
+                    if (pixel == find)
+                    {
+                        SetPixel(outlineBitmap, x, y, (int)replace.ColorBGRA);
+                    }
+
+                }
+            }
+
+        }
+
+
     } // class
 } // namespace

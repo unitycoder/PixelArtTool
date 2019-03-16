@@ -61,7 +61,18 @@ namespace PixelArtTool
             pc.Alpha = alphaOverride;
             return pc;
         }
-    }
+
+        public static bool operator ==(PixelColor c1, PixelColor c2)
+        {
+            return c1.ColorBGRA == c2.ColorBGRA;
+        }
+
+        public static bool operator !=(PixelColor c1, PixelColor c2)
+        {
+            return c1.ColorBGRA != c2.ColorBGRA;
+        }
+
+    } // PixelColor
 
     // helper for converting bool<>enum for xaml linked values
     // https://stackoverflow.com/a/2908885/5452781
