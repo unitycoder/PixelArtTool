@@ -128,7 +128,7 @@ namespace PixelArtTool
             Start();
         }
 
-        void Start()
+        void Start(bool loadSettings = true)
         {
             w = (MainWindow)Application.Current.MainWindow;
             windowTitle = w.Title;
@@ -148,7 +148,7 @@ namespace PixelArtTool
             darkColor.Alpha = gridAlpha;
 
             // get values from settings
-            LoadSettings();
+            if (loadSettings==true) LoadSettings();
 
             // setup background grid
             gridBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
@@ -1388,7 +1388,7 @@ namespace PixelArtTool
         private void OnClearButton(object sender, MouseButtonEventArgs e)
         {
             // shiftdown or right button, just clear without dialog
-            if (leftShiftDown == true || e.RightButton == MouseButtonState.Pressed)
+            if (leftShiftDown == true || (e!=null && e.RightButton == MouseButtonState.Pressed))
             {
                 ClearImage(canvasBitmap, emptyRect, emptyPixels, emptyStride);
                 UpdateOutline();
@@ -1417,8 +1417,8 @@ namespace PixelArtTool
                     canvasResolutionX = (int)dlg.sliderResolution.Value;
                     canvasResolutionY = (int)dlg.sliderResolution.Value;
 
-                    // TODO no need to do full start
-                    Start();
+                    // TODO no need to do full start?
+                    Start(false);
 
                     break;
                 case false: // cancelled
