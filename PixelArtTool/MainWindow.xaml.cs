@@ -1120,6 +1120,7 @@ namespace PixelArtTool
         private void OnLoadPaletteButton(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Palette image files (*.png) | *.png";
             if (openFileDialog.ShowDialog() == true)
             {
                 palette = LoadPalette(openFileDialog.FileName, paletteBitmap, paletteResolutionX, paletteResolutionY);
