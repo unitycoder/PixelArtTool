@@ -49,6 +49,15 @@ namespace PixelArtTool
             Alpha = a;
         }
 
+        public PixelColor(SolidColorBrush b)
+        {
+            ColorBGRA = (UInt32)(b.Color.B + (b.Color.G << 8) + (b.Color.R << 16) + (b.Color.A << 24));
+            Red = b.Color.R;
+            Green = b.Color.G;
+            Blue = b.Color.B;
+            Alpha = b.Color.A;
+        }
+
         public SolidColorBrush AsSolidColorBrush()
         {
             return new SolidColorBrush(Color.FromArgb(Alpha, Red, Green, Blue));

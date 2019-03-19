@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using static PixelArtTool.Tools;
 
 namespace PixelArtTool
@@ -1449,6 +1450,37 @@ namespace PixelArtTool
 
         }
 
+        // current color box
+        private void rectCurrentColor_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var newcolor = PalettePicker();
+            if (newcolor != null)
+            {
+                ((Rectangle)sender).Fill = newcolor;
+                currentColor = new PixelColor((SolidColorBrush)newcolor);
+            }
+        }
 
+        // TODO: take current color as param to return if cancelled?
+        Brush PalettePicker()
+        {
+            var dlg = new ColorPicker();
+            dlg.Owner = this;
+            var result = dlg.ShowDialog();
+            if (result == true)
+            {
+                return dlg.rectCurrentColor.Fill;
+            }
+            return null;
+        }
+
+        private void rectSecondaryColor_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var newcolor = PalettePicker();
+            if (newcolor != null)
+            {
+                ((Rectangle)sender).Fill = newcolor;
+            }
+        }
     } // class
 } // namespace

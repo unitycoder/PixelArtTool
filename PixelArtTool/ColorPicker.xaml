@@ -43,9 +43,9 @@
 
 	</Window.Resources>
 	<Grid>
-		<Rectangle x:Name="tempRect" Width="200" Height="200" Margin="58,24,0,0" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" Fill="Black" />
-		<Rectangle x:Name="rectSaturation"  Fill="{StaticResource LevelSaturationBrush}" Width="200" Height="200" Margin="58,24,0,0" StrokeThickness="1" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" MouseMove="OnLevelSaturationMouseMoved" MouseDown="OnLevelSaturationMouseDown"  />
-		<Rectangle x:Name="rectHueBar" Fill="{StaticResource HueBrush}" Width="20" Height="200" Margin="263,24,0,0" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" MouseMove="OnHueRectangleMouseMoved" MouseDown="rectHueBar_MouseDown"  />
+		<Rectangle x:Name="tempRect" Width="200" Height="200" Margin="58,24,0,0" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" Fill="Black" StrokeThickness="0" />
+		<Rectangle x:Name="rectSaturation"  Fill="{StaticResource LevelSaturationBrush}" Width="200" Height="200" Margin="58,24,0,0" StrokeThickness="0" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" MouseMove="OnLevelSaturationMouseMoved" MouseDown="OnLevelSaturationMouseDown"  />
+		<Rectangle x:Name="rectHueBar" Fill="{StaticResource HueBrush}" Width="20" Height="200" Margin="263,24,0,0" Stroke="Black" StrokeThickness="0" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" MouseMove="OnHueRectangleMouseMoved" MouseDown="rectHueBar_MouseDown"  />
 		<Rectangle x:Name="rectCurrentColor" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="28" Margin="10,196,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
 		<Button x:Name="okButton" IsDefault="True" Content="OK" Click="OnOkButtonClick" Margin="258,233,5,4"/>
 		<Button x:Name="cancelButton" IsCancel="True" Content="Cancel" Margin="178,233,85,4"/>
