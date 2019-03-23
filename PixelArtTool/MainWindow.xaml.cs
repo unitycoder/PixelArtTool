@@ -44,6 +44,8 @@ namespace PixelArtTool
 
         // colors
         PixelColor currentColor;
+        PixelColor eraseColor = new PixelColor(0, 0, 0, 0);
+
         PixelColor[] palette;
         PixelColor lightColor;
         PixelColor darkColor;
@@ -58,7 +60,6 @@ namespace PixelArtTool
 
         bool leftShiftDown = false;
         bool leftCtrlDown = false;
-
 
         // drawing lines
         private readonly int ddaMODIFIER_X = 0x7fff;
@@ -149,7 +150,7 @@ namespace PixelArtTool
             darkColor.Alpha = gridAlpha;
 
             // get values from settings
-            if (loadSettings==true) LoadSettings();
+            if (loadSettings == true) LoadSettings();
 
             // setup background grid
             gridBitmap = new WriteableBitmap(canvasResolutionX, canvasResolutionY, dpiX, dpiY, PixelFormats.Bgra32, null);
@@ -250,12 +251,13 @@ namespace PixelArtTool
 
         void ErasePixel(int x, int y)
         {
-            byte[] ColorData = { 0, 0, 0, 0 }; // B G R
+            //            byte[] ColorData = { 0, 0, 0, 0 }; // B G R
             if (x < 0 || x > canvasResolutionX - 1) return;
             if (y < 0 || y > canvasResolutionY - 1) return;
 
-            Int32Rect rect = new Int32Rect(x, y, 1, 1);
-            canvasBitmap.WritePixels(rect, ColorData, 4, 0);
+            //            Int32Rect rect = new Int32Rect(x, y, 1, 1);
+            //            canvasBitmap.WritePixels(rect, ColorData, 4, 0);
+            SetPixel(canvasBitmap, x, y, (int)eraseColor.ColorBGRA);
         }
 
         void PickPalette(MouseEventArgs e)
@@ -713,12 +715,20 @@ namespace PixelArtTool
                     rectCurrentColor.Fill = currentColor.AsSolidColorBrush();
                     break;
                 case Key.X: // swap current/secondary colors
-                    var tempcolor = rectCurrentColor.Fill;
-                    rectCurrentColor.Fill = rectSecondaryColor.Fill;
-                    rectSecondaryColor.Fill = tempcolor;
-                    // TODO move to converter
-                    var t = ((SolidColorBrush)rectCurrentColor.Fill).Color;
-                    currentColor = new PixelColor(t.R, t.G, t.B, t.A);
+                    if (leftShiftDown == true) // swap eraser colors
+                    {
+                        var tempcolor = rectEraserColor.Fill;
+                        rectEraserColor.Fill = rectEraserColorSecondary.Fill;
+                        rectEraserColorSecondary.Fill = tempcolor;
+                        eraseColor = new PixelColor(((SolidColorBrush)rectEraserColor.Fill).Color);
+                    }
+                    else // regular color
+                    {
+                        var tempcolor = rectCurrentColor.Fill;
+                        rectCurrentColor.Fill = rectSecondaryColor.Fill;
+                        rectSecondaryColor.Fill = tempcolor;
+                        currentColor = new PixelColor(((SolidColorBrush)rectCurrentColor.Fill).Color);
+                    }
                     break;
                 case Key.B: // brush
                     CurrentTool = ToolMode.Draw;
@@ -732,6 +742,7 @@ namespace PixelArtTool
                     break;
                 case Key.LeftCtrl: // left control
                     leftCtrlDown = true;
+                    lblCtrlInfo.Content = "Double click to replace target colors";
                     break;
                 default:
                     break;
@@ -748,6 +759,7 @@ namespace PixelArtTool
                     break;
                 case Key.LeftCtrl:
                     leftCtrlDown = false;
+                    lblCtrlInfo.Content = "-";
                     break;
                 default:
                     break;
@@ -1390,7 +1402,7 @@ namespace PixelArtTool
         private void OnClearButton(object sender, MouseButtonEventArgs e)
         {
             // shiftdown or right button, just clear without dialog
-            if (leftShiftDown == true || (e!=null && e.RightButton == MouseButtonState.Pressed))
+            if (leftShiftDown == true || (e != null && e.RightButton == MouseButtonState.Pressed))
             {
                 ClearImage(canvasBitmap, emptyRect, emptyPixels, emptyStride);
                 UpdateOutline();
@@ -1429,7 +1441,6 @@ namespace PixelArtTool
                     Console.WriteLine("Unknown error..");
                     break;
             }
-
         }
 
         public void ReplacePixels(PixelColor find, PixelColor replace)
@@ -1442,12 +1453,10 @@ namespace PixelArtTool
 
                     if (pixel == find)
                     {
-                        SetPixel(outlineBitmap, x, y, (int)replace.ColorBGRA);
+                        SetPixel(canvasBitmap, x, y, (int)replace.ColorBGRA);
                     }
-
                 }
             }
-
         }
 
         // current color box
