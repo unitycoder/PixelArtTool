@@ -706,9 +706,12 @@ namespace PixelArtTool
             switch (e.Key)
             {
                 case Key.D: // reset to default colors (current, secondary)
-                    currentColor = new PixelColor(255, 255, 255, 255); // white
+                    currentColor = PixelColor.White;
                     SetCurrentColorPreviewBox(rectCurrentColor, currentColor);
-                    rectSecondaryColor.Fill = new PixelColor(0, 0, 0, 255).AsSolidColorBrush();
+                    rectSecondaryColor.Fill = PixelColor.Black.AsSolidColorBrush();
+                    eraseColor = PixelColor.Transparent;
+                    rectEraserColor.Fill = eraseColor.AsSolidColorBrush();
+                    rectEraserColorSecondary.Fill = PixelColor.Black.AsSolidColorBrush();
                     break;
                 case Key.I: // global color picker
                     currentColor = Win32GetScreenPixelColor();

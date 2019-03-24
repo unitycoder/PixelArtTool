@@ -67,7 +67,6 @@ namespace PixelArtTool
             Alpha = b.A;
         }
 
-
         public SolidColorBrush AsSolidColorBrush()
         {
             return new SolidColorBrush(Color.FromArgb(Alpha, Red, Green, Blue));
@@ -90,6 +89,11 @@ namespace PixelArtTool
         {
             return c1.ColorBGRA != c2.ColorBGRA;
         }
+
+        public static PixelColor White { get { return new PixelColor(255, 255, 255, 255); } }
+        public static PixelColor Black { get { return new PixelColor(0, 0, 0, 255); } }
+        public static PixelColor Transparent { get { return new PixelColor(0, 0, 0, 0); } }
+
     } // PixelColor
 
     // helper for converting bool<>enum for xaml linked values
