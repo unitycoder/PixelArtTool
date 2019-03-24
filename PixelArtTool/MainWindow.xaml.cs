@@ -307,7 +307,7 @@ namespace PixelArtTool
             var g3 = new GradientStop(c3, 1);
             currentBrightnessBrushGradient.GradientStops.Add(g3);
 
-            rectCurrentHue.Fill = currentBrightnessBrushGradient;
+            rectCurrentBrightness.Fill = currentBrightnessBrushGradient;
 
             // move hueline
             int offset = (int)(hueIndicatorLocation * 253);
@@ -740,7 +740,7 @@ namespace PixelArtTool
                     CurrentTool = ToolMode.Fill;
                     break;
                 case Key.LeftShift: // left shift
-                    lblToolInfo.Content = "Straight Lines";
+                    lblToolInfo.Content = "Draw Line";
                     leftShiftDown = true;
                     break;
                 case Key.LeftCtrl: // left control
