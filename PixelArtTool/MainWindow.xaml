@@ -107,11 +107,11 @@
 
 		<ToolBarTray Background="#FF1F1F1F" Height="32" VerticalAlignment="Top">
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top" Background="#FF9C9C9C">
-				<Button x:Name="btnNew" ToolTip="New (Ctrl+N)" PreviewMouseDown="OnClearButton">
-					<Image Source="/Resources/Buttons/newimage.png"  Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" IsHitTestVisible="False" />
+				<Button x:Name="btnNew" ToolTip="New Image (CTRL+N or Right click to just clear)" PreviewMouseDown="OnClearButton">
+					<Image Source="/Resources/Buttons/newimage.png"  Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" IsHitTestVisible="False" ToolTip="" />
 				</Button>
 				<Button x:Name="btnSave" ToolTip="Save (Ctrl+S)" Click="OnSaveButton">
-					<Image Source="/Resources/Buttons/save.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+					<Image Source="/Resources/Buttons/save.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" ToolTip="Save.." />
 				</Button>
 			</ToolBar>
 
@@ -120,7 +120,7 @@
 							 IsChecked="{Binding Path=CurrentTool, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static local:ToolMode.Draw},Mode=TwoWay}">
 					<Image Source="/Resources/Buttons/drawmode.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
 				</RadioButton>
-				<RadioButton GroupName="Toolbar" Tag="Fill" ToolTip="Flood Fill (F)" Template="{DynamicResource ToggleButtonLeft}" Style="{StaticResource {x:Type ToggleButton}}"
+				<RadioButton GroupName="Toolbar" Tag="Fill" ToolTip="Fill (F)" Template="{DynamicResource ToggleButtonLeft}" Style="{StaticResource {x:Type ToggleButton}}"
 							 IsChecked="{Binding Path=CurrentTool, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static local:ToolMode.Fill},Mode=TwoWay}">
 					<Image Source="/Resources/Buttons/paint.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
 				</RadioButton>
@@ -141,10 +141,10 @@
 
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top" Background="#FF9C9C9C">
 				<Button x:Name="btnUndo" ToolTip="Undo (Ctrl+z)" Click="OnUndoButtonDown">
-					<Image Source="/Resources/Buttons/undo.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+					<Image Source="/Resources/Buttons/undo.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" ToolTip="Undo" />
 				</Button>
 				<Button x:Name="btnRedo" ToolTip="Redo (Ctrl+y)" Click="OnRedoButtonDown">
-					<Image Source="/Resources/Buttons/redo.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+					<Image Source="/Resources/Buttons/redo.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" ToolTip="Redo" />
 				</Button>
 			</ToolBar>
 
@@ -188,53 +188,66 @@
 			</Border>
 			<Rectangle x:Name="recPreviewBg2x" Fill="Black" HorizontalAlignment="Left" Height="32" Margin="375,50,0,0" VerticalAlignment="Top" Width="32"/>
 			<Border BorderBrush="Black" BorderThickness="0" HorizontalAlignment="Left" Height="32" Margin="375,50,0,0" VerticalAlignment="Top" Width="32">
-				<Image x:Name="imgPreview2x" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="32" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+				<Image x:Name="imgPreview2x" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="32" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" ToolTip=""/>
 			</Border>
 			<Rectangle x:Name="recPreviewBg1x" Fill="Black" HorizontalAlignment="Left" Height="16" Margin="425,50,0,0" VerticalAlignment="Top" Width="16"/>
 			<Border BorderBrush="Black" BorderThickness="0" HorizontalAlignment="Left" Height="16" Margin="425,50,0,0" VerticalAlignment="Top" Width="16">
-				<Image x:Name="imgPreview1x" HorizontalAlignment="Left" Height="16" VerticalAlignment="Top" Width="16" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+				<Image x:Name="imgPreview1x" HorizontalAlignment="Left" Height="16" VerticalAlignment="Top" Width="16" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" ToolTip=""/>
 			</Border>
 			<Rectangle x:Name="recPreviewBg2xb" Fill="Gray" HorizontalAlignment="Left" Height="32" Margin="375,100,0,0" VerticalAlignment="Top" Width="32"/>
 			<Border BorderBrush="Black" BorderThickness="0" HorizontalAlignment="Left" Height="32" Margin="375,100,0,0" VerticalAlignment="Top" Width="32">
-				<Image x:Name="imgPreview2xb" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="32" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+				<Image x:Name="imgPreview2xb" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="32" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" ToolTip=""/>
 			</Border>
 			<Rectangle x:Name="recPreviewBg1xb" Fill="Gray" HorizontalAlignment="Left" Height="16" Margin="425,100,0,0" VerticalAlignment="Top" Width="16"/>
 			<Border BorderBrush="Black" BorderThickness="0" HorizontalAlignment="Left" Height="16" Margin="425,100,0,0" VerticalAlignment="Top" Width="16">
-				<Image x:Name="imgPreview1xb" HorizontalAlignment="Left" Height="16" VerticalAlignment="Top" Width="16" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+				<Image x:Name="imgPreview1xb" HorizontalAlignment="Left" Height="16" VerticalAlignment="Top" Width="16" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" ToolTip=""/>
 			</Border>
 			<Rectangle x:Name="recPreviewBg2xc" Fill="White" HorizontalAlignment="Left" Height="32" Margin="375,150,0,0" VerticalAlignment="Top" Width="32"/>
 			<Border BorderBrush="Black" BorderThickness="0" HorizontalAlignment="Left" Height="32" Margin="375,150,0,0" VerticalAlignment="Top" Width="32">
-				<Image x:Name="imgPreview2xc" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="32" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+				<Image x:Name="imgPreview2xc" HorizontalAlignment="Left" Height="32" VerticalAlignment="Top" Width="32" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" ToolTip=""/>
 			</Border>
 			<Rectangle x:Name="recPreviewBg1xc" Fill="White" HorizontalAlignment="Left" Height="16" Margin="425,150,0,0" VerticalAlignment="Top" Width="16"/>
 			<Border BorderBrush="Black" BorderThickness="0" HorizontalAlignment="Left" Height="16" Margin="425,150,0,0" VerticalAlignment="Top" Width="16">
-				<Image x:Name="imgPreview1xc" HorizontalAlignment="Left" Height="16" VerticalAlignment="Top" Width="16" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+				<Image x:Name="imgPreview1xc" HorizontalAlignment="Left" Height="16" VerticalAlignment="Top" Width="16" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" ToolTip=""/>
 			</Border>
-			<Button x:Name="btnScrollUp" Click="OnScrollButtonUpClicked" Content="/\" HorizontalAlignment="Left" Margin="388,252,0,0" VerticalAlignment="Top" Width="24"/>
-			<Button x:Name="btnScrollDown" Click="OnScrollButtonDownClicked" Content="\/" HorizontalAlignment="Left" Margin="388,274,0,0" VerticalAlignment="Top" Width="24"/>
-			<Button x:Name="btnScrollLeft" Click="OnScrollButtonLeftClicked" Content="&lt;" HorizontalAlignment="Left" Margin="361,263,0,0" VerticalAlignment="Top" Width="24"/>
-			<Button x:Name="btnScrollRight" Click="OnScrollButtonRightClicked" Content="&gt;" HorizontalAlignment="Left" Margin="415,262,0,0" VerticalAlignment="Top" Width="24"/>
-			<Button x:Name="btnFlipX" Click="OnFlipXButtonDown" Content="FlipX" HorizontalAlignment="Left" Margin="365,316,0,0" VerticalAlignment="Top" Width="32"/>
-			<Button x:Name="btnFlipY" Click="OnFlipYButtonDown" Content="FlipY" HorizontalAlignment="Left" Margin="402,316,0,0" VerticalAlignment="Top" Width="32"/>
-			<Button x:Name="btnLoadPalette" Click="OnLoadPaletteButton" Content="Load Palette" HorizontalAlignment="Left" Margin="9,329,0,0" VerticalAlignment="Top" Width="71"/>
+			<Button x:Name="btnScrollUp" Click="OnScrollButtonUpClicked" Content="/\" HorizontalAlignment="Left" Margin="388,252,0,0" VerticalAlignment="Top" Width="24" ToolTip="Pan up"/>
+			<Button x:Name="btnScrollDown" Click="OnScrollButtonDownClicked" Content="\/" HorizontalAlignment="Left" Margin="388,274,0,0" VerticalAlignment="Top" Width="24" ToolTip="Pan down"/>
+			<Button x:Name="btnScrollLeft" Click="OnScrollButtonLeftClicked" Content="&lt;" HorizontalAlignment="Left" Margin="361,263,0,0" VerticalAlignment="Top" Width="24" ToolTip="Pan left"/>
+			<Button x:Name="btnScrollRight" Click="OnScrollButtonRightClicked" Content="&gt;" HorizontalAlignment="Left" Margin="415,262,0,0" VerticalAlignment="Top" Width="24" ToolTip="Pan right"/>
+			<Button x:Name="btnFlipX" Click="OnFlipXButtonDown" Content="FlipX" HorizontalAlignment="Left" Margin="365,316,0,0" VerticalAlignment="Top" Width="32" ToolTip="Flip horizontal"/>
+			<Button x:Name="btnFlipY" Click="OnFlipYButtonDown" Content="FlipY" HorizontalAlignment="Left" Margin="402,316,0,0" VerticalAlignment="Top" Width="32" ToolTip="Flip vertical"/>
+			<Button x:Name="btnLoadPalette" Click="OnLoadPaletteButton" Content="Load Palette" HorizontalAlignment="Left" Margin="9,329,0,0" VerticalAlignment="Top" Width="71" ToolTip="Open 1x lospec png palette files"/>
 		</Grid>
-		<CheckBox x:Name="chkOutline" Content="Outline" HorizontalAlignment="Left" Margin="638,50,0,0" VerticalAlignment="Top" Width="64" Click="chkOutline_Click"/>
-		<Rectangle x:Name="rectCurrentColor" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="28" Margin="10,256,0,0" Stroke="Black" VerticalAlignment="Top" Width="28" MouseDown="rectCurrentColor_MouseDown"/>
-		<CheckBox x:Name="chkMirrorX" Content="Symmetry X" HorizontalAlignment="Left" Margin="638,71,0,0" VerticalAlignment="Top" Width="93" Unchecked="chkMirrorX_Unchecked" Checked="chkMirrorX_Checked"/>
-		<Rectangle x:Name="rectSecondaryColor" Fill="Black" HorizontalAlignment="Left" Height="28" Margin="47,256,0,0" Stroke="Black" VerticalAlignment="Top" Width="28" MouseDown="rectSecondaryColor_MouseDown"/>
-
+		<CheckBox x:Name="chkOutline" Content="Outline" HorizontalAlignment="Left" Margin="638,50,0,0" VerticalAlignment="Top" Width="64" Click="chkOutline_Click" ToolTip="Automatic outline"/>
+		<Grid>
+			<Rectangle x:Name="rectCurrentColorBg" HorizontalAlignment="Left" Height="28" Margin="10,256,0,0" Stroke="Black" VerticalAlignment="Top" Width="28" MouseDown="OnGetTransparentColorButton">
+				<Rectangle.Fill>
+					<ImageBrush ImageSource="Resources/Images/transparentbg.png"/>
+				</Rectangle.Fill>
+			</Rectangle>
+			<Rectangle x:Name="rectCurrentColor" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="28" Margin="10,256,0,0" Stroke="Black" VerticalAlignment="Top" Width="28" MouseDown="rectCurrentColor_MouseDown" ToolTip="Current color"/>
+		</Grid>
+		<CheckBox x:Name="chkMirrorX" Content="Symmetry X" HorizontalAlignment="Left" Margin="638,71,0,0" VerticalAlignment="Top" Width="93" Unchecked="chkMirrorX_Unchecked" Checked="chkMirrorX_Checked" ToolTip="Symmetry horizontal"/>
+		<Grid>
+			<Rectangle x:Name="rectSecondaryColorBg" HorizontalAlignment="Left" Height="28" Margin="47,256,0,0" Stroke="Black" VerticalAlignment="Top" Width="28" MouseDown="OnGetTransparentColorButton">
+				<Rectangle.Fill>
+					<ImageBrush ImageSource="Resources/Images/transparentbg.png"/>
+				</Rectangle.Fill>
+			</Rectangle>
+			<Rectangle x:Name="rectSecondaryColor" Fill="Black" HorizontalAlignment="Left" Height="28" Margin="47,256,0,0" Stroke="Black" VerticalAlignment="Top" Width="28" MouseDown="rectSecondaryColor_MouseDown" ToolTip="Secondary current color"/>
+		</Grid>
 		<!-- https://stackoverflow.com/a/32514853/5452781 -->
 		<Rectangle x:Name="tempRect" Width="200" Height="200" Margin="459,130,0,0" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="False" Fill="Black" />
 		<Rectangle x:Name="rectSaturation"  Fill="{StaticResource LevelSaturationBrush}" Width="200" Height="200" Margin="459,130,0,0" StrokeThickness="1" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" MouseDown="OnLevelSaturationMouseDown" MouseMove="OnLevelSaturationMouseMoved" />
 		<Rectangle x:Name="rectHueBar" Fill="{StaticResource HueBrush}" Width="20" Height="200" Margin="664,130,0,0" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" MouseDown="rectHueBar_MouseDown" HorizontalAlignment="Left" VerticalAlignment="Top" MouseMove="OnHueRectangleMouseMoved" />
-		<Rectangle x:Name="rectGetTransparentColor" HorizontalAlignment="Left" Height="28" Margin="547,97,0,0" Stroke="Black" VerticalAlignment="Top" Width="28" MouseDown="OnGetTransparentColorButton">
+		<Rectangle x:Name="rectGetTransparentColor" HorizontalAlignment="Left" Height="28" Margin="547,97,0,0" Stroke="Black" VerticalAlignment="Top" Width="28" MouseDown="OnGetTransparentColorButton" ToolTip="Use transparent color">
 			<Rectangle.Fill>
 				<ImageBrush ImageSource="Resources/Images/transparentbg.png"/>
 			</Rectangle.Fill>
 		</Rectangle>
 
 		<Grid>
-			<Rectangle x:Name="rectCurrentHue" Width="253" Height="14" Margin="91,316,0,0" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" >
+			<Rectangle x:Name="rectCurrentBrightness" Width="253" Height="14" Margin="91,316,0,0" Stroke="Black" StrokeThickness="1" SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top" ToolTip="Current brightness (use mousewheel)" >
 				<Rectangle.Fill>
 					<LinearGradientBrush EndPoint="1,0" StartPoint="0,0">
 						<GradientStop Color="Black" Offset="0"/>
@@ -252,7 +265,7 @@
 					<ImageBrush ImageSource="Resources/Images/transparentbg.png"/>
 				</Rectangle.Fill>
 			</Rectangle>
-			<Rectangle x:Name="rectEraserColor" HorizontalAlignment="Left" Height="28" Margin="10,289,0,0" Stroke="Black" VerticalAlignment="Top" Width="28" Fill="#00000000"/>
+			<Rectangle x:Name="rectEraserColor" HorizontalAlignment="Left" Height="28" Margin="10,289,0,0" Stroke="Black" VerticalAlignment="Top" Width="28" Fill="#00000000" ToolTip="Eraser color"/>
 		</Grid>
 		<Grid>
 			<Rectangle x:Name="rectGetTransparentSecondaryBg" HorizontalAlignment="Left" Height="28" Margin="47,289,0,0" Stroke="Black" VerticalAlignment="Top" Width="28" MouseDown="OnGetTransparentColorButton">
@@ -260,11 +273,11 @@
 					<ImageBrush ImageSource="Resources/Images/transparentbg.png"/>
 				</Rectangle.Fill>
 			</Rectangle>
-			<Rectangle x:Name="rectEraserColorSecondary" HorizontalAlignment="Left" Height="28" Margin="47,289,0,0" Stroke="Black" VerticalAlignment="Top" Width="28" Fill="Black" />
+			<Rectangle x:Name="rectEraserColorSecondary" HorizontalAlignment="Left" Height="28" Margin="47,289,0,0" Stroke="Black" VerticalAlignment="Top" Width="28" Fill="Black" ToolTip="Secondary eraser color" />
 		</Grid>
 
 		<Rectangle x:Name="rectPixelPos" IsHitTestVisible="False" HorizontalAlignment="Left" VerticalAlignment="Top" Height="16" Stroke="Black" Width="16" Margin="89,50,0,0"/>
-		<Button x:Name="btnSettings" Content="Settings" HorizontalAlignment="Left" Margin="674,6,0,0" VerticalAlignment="Top" Width="50" Click="btnSettings_Click"/>
+		<Button x:Name="btnSettings" Content="Settings" HorizontalAlignment="Left" Margin="674,6,0,0" VerticalAlignment="Top" Width="50" Click="btnSettings_Click" ToolTip="Settings.."/>
 
 	</Grid>
 </Window>
