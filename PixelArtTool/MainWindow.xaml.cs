@@ -1407,12 +1407,12 @@ namespace PixelArtTool
             // shiftdown or right button, just clear without dialog
             if (leftShiftDown == true || (e != null && e.RightButton == MouseButtonState.Pressed))
             {
+                RegisterUndo();
                 ClearImage(canvasBitmap, emptyRect, emptyPixels, emptyStride);
                 UpdateOutline();
                 // reset title
                 window.Title = windowTitle;
                 saveFile = null;
-
                 return;
             }
 
