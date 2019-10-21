@@ -113,6 +113,9 @@
 				<Button x:Name="btnSave" ToolTip="Save (Ctrl+S)" Click="OnSaveButton">
 					<Image Source="/Resources/Buttons/save.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" ToolTip="Save.." />
 				</Button>
+				<Button x:Name="btnSaveIco" ToolTip="Save (Ctrl+S)" Click="OnExportIcoButtonClick">
+					<Image Source="/Resources/Buttons/emptybutton.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor" ToolTip="Export .ico" />
+				</Button>
 			</ToolBar>
 
 			<ToolBar Band="1" BandIndex="1" VerticalAlignment="Top" Background="#FF9C9C9C">

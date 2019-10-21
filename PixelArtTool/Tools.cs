@@ -516,6 +516,20 @@ namespace PixelArtTool
             return bmImage;
         }
 
+        // https://stackoverflow.com/a/6484754/5452781
+        public static System.Drawing.Bitmap ConvertBitmapImageToBitmap(BitmapImage bitmapImage)
+        {
+            using (MemoryStream outStream = new MemoryStream())
+            {
+                BitmapEncoder enc = new BmpBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create(bitmapImage));
+                enc.Save(outStream);
+                System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(outStream);
+
+                return new System.Drawing.Bitmap(bitmap);
+            }
+        }
+
         public static SolidColorBrush ConvertSystemDrawingColorToSolidColorBrush(System.Drawing.Color c)
         {
             return new SolidColorBrush(Color.FromArgb(c.A, c.R, c.G, c.B));

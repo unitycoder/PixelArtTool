@@ -1494,5 +1494,20 @@ namespace PixelArtTool
                 ((Rectangle)sender).Fill = newcolor;
             }
         }
+
+
+        private void OnExportIcoButtonClick(object sender, RoutedEventArgs e)
+        {
+            // TODO try this https://stackoverflow.com/a/32530019/5452781
+
+            // this only saves one size
+            var bitmapimage = ConvertWriteableBitmapToBitmapImage(canvasBitmap);
+            var bitmap = ConvertBitmapImageToBitmap(bitmapimage);
+            System.Drawing.Icon icon = System.Drawing.Icon.FromHandle(bitmap.GetHicon());
+            using (var fileStream = File.Create("D:\\myicon.ico"))
+            {
+                icon.Save(fileStream);
+            }
+        }
     } // class
 } // namespace
