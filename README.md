@@ -3,7 +3,7 @@
 # PixelArtTool
 Homemade Pixel Art Tool
 
-Work-in-Progress, initial features should be mainly based on this unfinished project (link below) and then adding more advanced features https://www.assetstore.unity3d.com/en/?stay#!/content/28312
+Work-in-Progress, initial features should be mainly based on this unfinished project (link below) and then adding more advanced features https://assetstore.unity.com/packages/tools/painting/unipix-pixel-art-tool-28312?aid=1101lGti
 (and also its a practice project for working with WPF)
 
 # Current Features
