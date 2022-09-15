@@ -1,7 +1,7 @@
 version: 1.0.{build}
 branches:
   only:
-  - master
+  - dev
 skip_tags: true
 skip_branch_with_pr: true
 configuration: Release
@@ -19,3 +19,6 @@ deploy:
   auth_token:
     secure: owXuGIGNRJishGcvR2fMDTTW65dKLyw+W0/Zb8MVoKaVNeMogpT434k6ZlD/Mp8o
   artifact: deploy
+  prerelease: true
+  on:
+    branch: dev
