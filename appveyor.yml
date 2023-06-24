@@ -14,7 +14,7 @@ install:
 after_build:
 - cmd: 7z a PixelArtTool.zip %APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\*.exe %APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\*.exe.config
 - cmd: cd %APPVEYOR_BUILD_FOLDER%
-- cmd: candle -nologo -out %APPVEYOR_BUILD_FOLDER%\PixelArtTool.wixobj C:\projects\pixelarttool\PixelArtTool\Installer.wxs
+- cmd: candle -nologo -out %APPVEYOR_BUILD_FOLDER%\PixelArtTool.wixobj C:\projects\pixelarttool\Installer.wxs
 - cmd: cd %APPVEYOR_BUILD_FOLDER%
 - cmd: light -nologo -out %APPVEYOR_BUILD_FOLDER%\PixelArtTool.msi %APPVEYOR_BUILD_FOLDER%\PixelArtTool.wixobj
 - cmd: copy %APPVEYOR_BUILD_FOLDER%\PixelArtTool.msi %APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release
