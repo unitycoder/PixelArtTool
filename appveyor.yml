@@ -13,7 +13,7 @@ before_build:
   - ps: choco install wixtoolset -y
 after_build:
 - cmd: 7z a PixelArtTool.zip %APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\*.exe %APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\*.exe.config
-- cmd: "C:\Program Files (x86)\WiX Toolset\bin\candle.exe" -nologo -out %APPVEYOR_BUILD_FOLDER%\PixelArtTool.wixobj %APPVEYOR_BUILD_FOLDER%\PixelArtTool\Installer.wxs
+- cmd: "C:\\Program Files (x86)\\WiX Toolset\\bin\\candle.exe" -nologo -out %APPVEYOR_BUILD_FOLDER%\\PixelArtTool.wixobj %APPVEYOR_BUILD_FOLDER%\\PixelArtTool\\Installer.wxs
   working_directory: "%APPVEYOR_BUILD_FOLDER%"
 - cmd: "C:\Program Files (x86)\WiX Toolset\bin\light.exe" -nologo -out %APPVEYOR_BUILD_FOLDER%\PixelArtTool.msi %APPVEYOR_BUILD_FOLDER%\PixelArtTool.wixobj
   working_directory: "%APPVEYOR_BUILD_FOLDER%"
