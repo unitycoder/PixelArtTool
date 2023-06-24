@@ -9,13 +9,29 @@ only_commits:
   message: /#build/
 build:
   verbosity: minimal
+before_build:
+  # Install WiX Toolset
+  - ps: choco install wixtoolset -y
 after_build:
 - cmd: 7z a PixelArtTool.zip %APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\*.exe %APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\*.exe.config
+# Build MSI using WiX
+- cmd: candle -nologo -out %APPVEYOR_BUILD_FOLDER%\PixelArtTool.wixobj %APPVEYOR_BUILD_FOLDER%\PixelArtTool\Installer.wxs
+  working_directory: %APPVEYOR_BUILD_FOLDER%
+- cmd: light -nologo -out %APPVEYOR_BUILD_FOLDER%\PixelArtTool.msi %APPVEYOR_BUILD_FOLDER%\PixelArtTool.wixobj
+  working_directory: %APPVEYOR_BUILD_FOLDER%
+- cmd: copy %APPVEYOR_BUILD_FOLDER%\PixelArtTool.msi %APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release
 artifacts:
 - path: PixelArtTool.zip
   name: deploy
+- path: PixelArtTool\bin\Release\PixelArtTool.msi
+  name: msi
 deploy:
 - provider: GitHub
   auth_token:
     secure: owXuGIGNRJishGcvR2fMDTTW65dKLyw+W0/Zb8MVoKaVNeMogpT434k6ZlD/Mp8o
   artifact: deploy
+- provider: GitHub
+  auth_token:
+    secure: owXuGIGNRJishGcvR2fMDTTW65dKLyw+W0/Zb8MVoKaVNeMogpT434k6ZlD/Mp8o
+  artifact: msi
+  
