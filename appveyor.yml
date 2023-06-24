@@ -9,8 +9,10 @@ only_commits:
   message: /#build/
 build:
   verbosity: minimal
-before_build:
-  - ps: choco install wixtoolset -y
+#before_build:
+#  - ps: choco install wixtoolset -y
+install:
+- set path=c:\Program Files (x86)\WiX Toolset v3.11\bin;%path%
 after_build:
 - cmd: 7z a PixelArtTool.zip %APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\*.exe %APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\*.exe.config
 - cmd: candle -nologo -out %APPVEYOR_BUILD_FOLDER%\PixelArtTool.wixobj %APPVEYOR_BUILD_FOLDER%\PixelArtTool\Installer.wxs
