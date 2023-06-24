@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="*" Name="MyApp" Language="1033" Version="1.0.0" Manufacturer="MyCompany" UpgradeCode="PUT-GUID-HERE">
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
-
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
     <MediaTemplate EmbedCab="yes" />
@@ -11,7 +11,9 @@
       <ComponentGroupRef Id="ProductComponents" />
     </Feature>
 
-    <UIRef Id="WixUI_Minimal" />
+    <UI>
+      <UIRef Id="WixUI_Minimal" />
+    </UI>
   </Product>
 
   <Fragment>
