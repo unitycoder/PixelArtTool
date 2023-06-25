@@ -25,7 +25,7 @@
             <RemoveFolder Id="ProgramMenuFolder" Directory="ProgramMenuFolder" On="uninstall" />
             <!-- Remove the shortcut on uninstall -->
             <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
->            <!-- <RegistryValue Root="HKCU" Key="Software\Microsoft\PixelArtTool" Name="installed" Type="integer" Value="1" KeyPath="yes" /> -->
+            <!-- <RegistryValue Root="HKCU" Key="Software\Microsoft\PixelArtTool" Name="installed" Type="integer" Value="1" KeyPath="yes" /> -->
 			
           </Component>
         </Directory>
