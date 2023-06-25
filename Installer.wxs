@@ -16,7 +16,7 @@
       <Directory Id="ProgramFilesFolder">
         <Directory Id="INSTALLFOLDER" Name="PixelArtTool">
           <Component Feature="Core">
-            <File Source=""%APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\PixelArtTool.exe" />
+            <File Source="%APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\PixelArtTool.exe" />
 			
 	  <!-- Start menu shortcut -->
             <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="PixelArtTool" Icon="IconFile.ico" Advertise="yes" />
