@@ -23,7 +23,9 @@
 
             <!-- Remove the shortcut on uninstall -->
             <RemoveFolder Id="ProgramMenuFolder" Directory="ProgramMenuFolder" On="uninstall" />
-            <!-- <RegistryValue Root="HKCU" Key="Software\Microsoft\PixelArtTool" Name="installed" Type="integer" Value="1" KeyPath="yes" /> -->
+            <!-- Remove the shortcut on uninstall -->
+            <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" /
+>            <!-- <RegistryValue Root="HKCU" Key="Software\Microsoft\PixelArtTool" Name="installed" Type="integer" Value="1" KeyPath="yes" /> -->
 			
           </Component>
         </Directory>
@@ -44,10 +46,6 @@
     </ComponentGroup>
     <FeatureRef Id="HelloWorldFeature" />
     <Property Id="ApplicationProgramsFolder" Value="ApplicationProgramsFolder" />
-  </Fragment>
-
-  <Fragment>
-    <RemoveFolder Id="ApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
   </Fragment>
 
 </Wix>
