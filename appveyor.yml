@@ -20,7 +20,7 @@ after_build:
 - cmd: cd %APPVEYOR_BUILD_FOLDER%
 - cmd: candle -nologo -out %APPVEYOR_BUILD_FOLDER%\PixelArtTool.wixobj C:\projects\pixelarttool\Installer.wxs
 - cmd: cd %APPVEYOR_BUILD_FOLDER%
-- cmd: light -nologo -out %APPVEYOR_BUILD_FOLDER%\PixelArtTool.msi %APPVEYOR_BUILD_FOLDER%\PixelArtTool.wixobj
+- cmd: light -ext WixUIExtension -nologo -out %APPVEYOR_BUILD_FOLDER%\PixelArtTool.msi %APPVEYOR_BUILD_FOLDER%\PixelArtTool.wixobj
 - cmd: copy %APPVEYOR_BUILD_FOLDER%\PixelArtTool.msi %APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release
 artifacts:
 - path: PixelArtTool.zip
