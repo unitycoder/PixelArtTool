@@ -35,7 +35,14 @@
     </Directory>
 	
 	<Icon Id="IconFile.ico" SourceFile="C:\projects\pixelarttool\PixelArtTool\Resources\Icons\appicon.ico" />
-	
+
+	  <!-- Define the RemoveFile table -->
+	  <Fragment>
+	    <ComponentGroup Id="RemoveFileGroup">
+	      <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+	    </ComponentGroup>
+	  </Fragment>
+
   </Product>
 
 </Wix>
