@@ -38,11 +38,13 @@
 
   </Product>
 
-	  <!-- Define the RemoveFile table -->
-	  <Fragment>
-	    <ComponentGroup Id="RemoveFileGroup">
-	      <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
-	    </ComponentGroup>
-	  </Fragment>
+  <!-- Define the RemoveFile table -->
+  <Fragment>
+    <ComponentGroup Id="RemoveFileGroup">
+      <Component>
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
 
 </Wix>
