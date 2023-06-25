@@ -47,10 +47,6 @@
     </ComponentGroup>
     <FeatureRef Id="HelloWorldFeature" />
     <Property Id="ApplicationProgramsFolder" Value="ApplicationProgramsFolder" />
-
-    <!-- Add RemoveFolder element for ApplicationProgramsFolder -->
-    <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" Directory="ApplicationProgramsFolder" />
-
   </Fragment>
 
 </Wix>
