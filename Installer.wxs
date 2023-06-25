@@ -41,8 +41,8 @@
   <!-- Define the RemoveFile table -->
   <Fragment>
     <ComponentGroup Id="RemoveFileGroup">
-      <Component>
-        <RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
+      <Component Directory="ApplicationProgramsFolder">
+        <RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall" />
       </Component>
     </ComponentGroup>
   </Fragment>
