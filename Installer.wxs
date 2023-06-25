@@ -41,10 +41,11 @@
   <!-- Define the RemoveFile table -->
   <Fragment>
     <ComponentGroup Id="RemoveFileGroup">
-      <Component Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder">
-        <RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall" />
-      </Component>
+      <ComponentRef Id="ProductComponent" />
     </ComponentGroup>
+    <FeatureRef Id="HelloWorldFeature" />
+    <Property Id="ApplicationProgramsFolder" Value="ApplicationProgramsFolder" />
+    <RemoveFolder Id="ApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
   </Fragment>
 
 </Wix>
