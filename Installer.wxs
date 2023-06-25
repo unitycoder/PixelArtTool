@@ -18,7 +18,7 @@
             <File Source="%APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\PixelArtTool.exe" />
 			
 			  <!-- Start menu shortcut -->
-            <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="PixelArtTool" Icon="IPixelArtTool\Resources\Icons\appicon.ico" Advertise="yes" />
+            <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="PixelArtTool" Icon="C:\projects\pixelarttool\Resources\Icons\appicon.ico" Advertise="yes" />
 
             <!-- Remove the shortcut on uninstall -->
             <RemoveFolder Id="ProgramMenuFolder" Directory="ProgramMenuFolder" On="uninstall" />
@@ -33,7 +33,7 @@
       </Directory>
     </Directory>
 	
-	<Icon Id="IconFile.ico" SourceFile="PixelArtTool\Resources\Icons\appicon.ico" />
+	<Icon Id="IconFile.ico" SourceFile="C:\projects\pixelarttool\Resources\Icons\appicon.ico" />
 	
     <InstallExecuteSequence>
       <Custom Action="CleanupStartMenuFolder" Before="RemoveFiles" />
