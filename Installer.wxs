@@ -42,7 +42,7 @@
   <Fragment>
     <ComponentGroup Id="RemoveFileGroup">
       <Component>
-        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+        <RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
       </Component>
     </ComponentGroup>
   </Fragment>
