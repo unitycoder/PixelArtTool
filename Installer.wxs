@@ -1,35 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*" Name="MyApp" Language="1033" Version="1.0.0" Manufacturer="MyCompany" UpgradeCode="PUT-GUID-HERE">
+  <Product Id="*" Name="PixelArtTool" Language="1033" Version="1.0.0.0"
+           Manufacturer="Someone" UpgradeCode="cb24bedf-e361-4f25-9a06-ac84ce5d6f5c">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
-    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
-    <Feature Id="ProductFeature" Title="MyApp" Level="1">
-      <ComponentGroupRef Id="ProductComponents" />
-    </Feature>
+    <UIRef Id="WixUI_Mondo" />
 
-    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
-    <UI>
-      <UIRef Id="WixUI_Minimal" />
-    </UI>
-  </Product>
+    <Feature Id="Core" Title="Core" Level="1" ConfigurableDirectory="INSTALLFOLDER" />
 
-  <Fragment>
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLFOLDER" Name="MyApp" />
+        <Directory Id="INSTALLFOLDER" Name="PixelArtTool">
+          <Component Feature="Core">
+            <File Source="%APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\PixelArtTool.exe" />
+			
+			  <!-- Start menu shortcut -->
+            <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="PixelArtTool" Icon="IPixelArtTool\Resources\Icons\appicon.ico" Advertise="yes" />
+
+            <!-- Remove the shortcut on uninstall -->
+            <RemoveFolder Id="ProgramMenuFolder" Directory="ProgramMenuFolder" On="uninstall" />
+            <!-- <RegistryValue Root="HKCU" Key="Software\Microsoft\PixelArtTool" Name="installed" Type="integer" Value="1" KeyPath="yes" /> -->
+			
+          </Component>
+        </Directory>
+      </Directory>
+	
+      <Directory Id="ProgramMenuFolder" Name="Programs">
+        <Directory Id="ApplicationProgramsFolder" Name="01_HelloWorldInstallerUpgradable" />
       </Directory>
     </Directory>
-  </Fragment>
+	
+	<Icon Id="IconFile.ico" SourceFile="PixelArtTool\Resources\Icons\appicon.ico" />
+	
+    <InstallExecuteSequence>
+      <Custom Action="CleanupStartMenuFolder" Before="RemoveFiles" />
+    </InstallExecuteSequence>
+	
+  </Product>
 
-  <Fragment>
-    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-      <!-- Add your application files here -->
-      <Component Id="MyAppExecutable" Guid="PUT-GUID-HERE">
-        <File Source="path-to-your-application-executable" />
-      </Component>
-    </ComponentGroup>
-  </Fragment>
 </Wix>
