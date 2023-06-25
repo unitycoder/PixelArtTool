@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="*" Name="PixelArtTool" Language="1033" Version="1.0.0.0"
-           Manufacturer="Someone" UpgradeCode="cb24bedf-e361-4f25-9a06-ac84ce5d6f5c">
+           Manufacturer="Someone" UpgradeCode="PUT-GUID-HERE">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
+    <!--Default GUI - add reference to WixUIExtension.dll -->
     <UIRef Id="WixUI_Mondo" />
 
     <Feature Id="Core" Title="Core" Level="1" ConfigurableDirectory="INSTALLFOLDER" />
@@ -15,9 +16,9 @@
       <Directory Id="ProgramFilesFolder">
         <Directory Id="INSTALLFOLDER" Name="PixelArtTool">
           <Component Feature="Core">
-            <File Source="%APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\PixelArtTool.exe" />
+            <File Source=""%APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\PixelArtTool.exe" />
 			
-			  <!-- Start menu shortcut -->
+	  <!-- Start menu shortcut -->
             <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="PixelArtTool" Icon="IconFile.ico" Advertise="yes" />
 
             <!-- Remove the shortcut on uninstall -->
@@ -29,10 +30,10 @@
       </Directory>
 	
       <Directory Id="ProgramMenuFolder" Name="Programs">
-        <Directory Id="ApplicationProgramsFolder" Name="01_HelloWorldInstallerUpgradable" />
+        <Directory Id="ApplicationProgramsFolder" Name="PixelArtTool" />
       </Directory>
     </Directory>
-
+	
 	<Icon Id="IconFile.ico" SourceFile="C:\projects\pixelarttool\Resources\Icons\appicon.ico" />
 	
     <InstallExecuteSequence>
