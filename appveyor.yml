@@ -16,7 +16,6 @@ after_build:
         $guid = [System.Guid]::NewGuid().ToString().ToUpper()
         Write-Host "Generated GUID: $guid"
         (Get-Content C:\projects\pixelarttool\Installer.wxs) -replace 'PUT-GUID-HERE', $guid | Set-Content C:\projects\pixelarttool\Installer.wxs
-        (Get-Content C:\projects\pixelarttool\Installer.wxs) -replace '**APPVEYOR_BUILD_FOLDER**', %APPVEYOR_BUILD_FOLDER% | Set-Content C:\projects\pixelarttool\Installer.wxs
 - cmd: 7z a PixelArtTool.zip %APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\*.exe %APPVEYOR_BUILD_FOLDER%\PixelArtTool\bin\Release\*.exe.config
 - cmd: cd %APPVEYOR_BUILD_FOLDER%
 - cmd: candle -nologo -out %APPVEYOR_BUILD_FOLDER%\PixelArtTool.wixobj C:\projects\pixelarttool\Installer.wxs
