@@ -36,10 +36,6 @@
 	
 	<Icon Id="IconFile.ico" SourceFile="C:\projects\pixelarttool\Resources\Icons\appicon.ico" />
 	
-    <InstallExecuteSequence>
-      <Custom Action="CleanupStartMenuFolder" Before="RemoveFiles" />
-    </InstallExecuteSequence>
-	
   </Product>
 
 </Wix>
